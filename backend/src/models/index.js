@@ -24,7 +24,11 @@ const Audit = require('./audit.model');
 const AuditStatus = require('./audit-status.model');
 const AuditVerification = require('./audit-verification.model');
 const AuditProcedure = require('./audit-procedure.model');
-
+const ProcedureTemplate = require('./procedure-template.model');
+const AlcanceTemplate = require('./alcance-template.model');
+const ReportTemplate = require('./report-template.model');
+const ReportInstance = require('./report-instance.model');
+const Analytics = require('./analytics.model');
 /**
  * Inicializa los modelos y ejecuta cualquier setup necesario
  */
@@ -63,6 +67,10 @@ module.exports = {
     AuditStatus,
     AuditVerification,
     AuditProcedure,
+    ProcedureTemplate,
+    AlcanceTemplate,
+    ReportTemplate,
+    ReportInstance,
     
     // Función de inicialización
     initializeModels

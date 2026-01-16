@@ -9,19 +9,6 @@ const Schema = mongoose.Schema;
  */
 
 /**
- * Tipos de alcance disponibles
- */
-const ALCANCE_TIPOS = {
-    INTERNO: 'INTERNO',
-    EXTERNO: 'EXTERNO',
-    SISTEMA_ESPECIFICO: 'SISTEMA_ESPECIFICO',
-    MIXTO_INTERNO_EXTERNO: 'MIXTO_INTERNO_EXTERNO',
-    MIXTO_INTERNO_ESPECIFICO: 'MIXTO_INTERNO_ESPECIFICO',
-    MIXTO_EXTERNO_ESPECIFICO: 'MIXTO_EXTERNO_ESPECIFICO',
-    MIXTO_COMPLETO: 'MIXTO_COMPLETO'
-};
-
-/**
  * Esquema para documentos/referencias CITE
  */
 const DocumentReferenceSchema = new Schema({
@@ -56,13 +43,13 @@ const AuditProcedureSchema = new Schema({
         maxlength: [200, 'Origen cannot exceed 200 characters']
     },
     
-    // Alcance (array de tipos)
+    // Alcance (array de strings libres para flexibilidad)
+    // Ejemplos: "Sistema Específico entidad", "Externa e Interna", "Externa", "Interna", 
+    //           "Sistema Específico Privado-Codigo", etc.
     alcance: [{
         type: String,
-        enum: {
-            values: Object.values(ALCANCE_TIPOS),
-            message: 'Invalid alcance type'
-        }
+        trim: true,
+        maxlength: [200, 'Each alcance cannot exceed 200 characters']
     }],
     
     // Descripción adicional del alcance
@@ -149,6 +136,12 @@ const AuditProcedureSchema = new Schema({
 AuditProcedureSchema.index({ origen: 1 });
 AuditProcedureSchema.index({ createdAt: -1 });
 
+// ============================================
+// ÍNDICES ADICIONALES PARA ANALYTICS
+// ============================================
+AuditProcedureSchema.index({ origen: 1, createdAt: -1 });
+AuditProcedureSchema.index({ alcance: 1, createdAt: -1 });
+
 /**
  * Virtual: Tiene retest
  */
@@ -176,9 +169,11 @@ AuditProcedureSchema.virtual('documentosCompletos').get(function() {
 AuditProcedureSchema.statics.listFields = 'auditId origen alcance solicitud instructivo informe respuesta';
 
 /**
- * Exportar tipos de alcance
+ * Obtener todos los tipos de alcance únicos (para estadísticas/filtros)
  */
-AuditProcedureSchema.statics.ALCANCE_TIPOS = ALCANCE_TIPOS;
+AuditProcedureSchema.statics.getDistinctAlcances = async function() {
+    return await this.distinct('alcance');
+};
 
 const AuditProcedure = mongoose.model('AuditProcedure', AuditProcedureSchema);
 

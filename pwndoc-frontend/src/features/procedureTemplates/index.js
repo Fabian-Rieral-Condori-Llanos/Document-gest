@@ -1,0 +1,36 @@
+// Procedure Templates Feature Module
+export {
+  default as procedureTemplatesReducer,
+  // Thunks
+  fetchProcedureTemplates,
+  fetchActiveProcedureTemplates,
+  fetchProcedureTemplateStats,
+  fetchProcedureTemplateById,
+  createProcedureTemplate,
+  updateProcedureTemplate,
+  toggleProcedureTemplate,
+  deleteProcedureTemplate,
+  initializeProcedureTemplates,
+  // Actions
+  setFilters,
+  clearFilters,
+  clearSelectedTemplate,
+  clearError,
+  clearOperationState,
+  // Selectors
+  selectAllProcedureTemplates,
+  selectProcedureTemplatesLoading,
+  selectProcedureTemplatesError,
+  selectActiveProcedureTemplates,
+  selectActiveProcedureTemplatesLoading,
+  selectSelectedProcedureTemplate,
+  selectSelectedProcedureTemplateLoading,
+  selectSelectedProcedureTemplateError,
+  selectProcedureTemplateStats,
+  selectProcedureTemplateStatsLoading,
+  selectProcedureTemplateFilters,
+  selectProcedureTemplateOperationLoading,
+  selectProcedureTemplateOperationError,
+  selectProcedureTemplateOperationSuccess,
+  selectFilteredProcedureTemplates,
+} from './procedureTemplatesSlice';

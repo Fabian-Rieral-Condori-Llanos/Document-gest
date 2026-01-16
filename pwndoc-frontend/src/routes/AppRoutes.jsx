@@ -43,6 +43,13 @@ import { SettingsPage } from '../pages/Settings';
 // Pages - Audits (Evaluaciones)
 import { AuditsPage, AuditFormPage, AuditDetailPage } from '../pages/Audits';
 
+// Pages - Procedure Templates (Admin)
+import { ProcedureTemplatesPage } from '../pages/ProcedureTemplates';
+import { AlcanceTemplatesPage } from '../pages/AlcanceTemplates';
+
+// Pages - Report Templates (Admin)
+import { ReportTemplatesPage } from '../pages/ReportTemplates';
+
 // Pages - Error
 import NotFound from '../pages/NotFound/NotFound';
 import Forbidden from '../pages/Forbidden/Forbidden';
@@ -174,9 +181,19 @@ const AppRoutes = () => {
         {/* ============================================ */}
         {/* ADMINISTRACIÓN - Solo Admin */}
         {/* ============================================ */}
+        <Route path="/procedure-templates" element={
+          <AdminOnly>
+            <ProcedureTemplatesPage />
+          </AdminOnly>
+        } />
+        <Route path="/alcance-templates" element={
+          <AdminOnly>
+            <AlcanceTemplatesPage title="Plantillas de Alcance" />
+          </AdminOnly>
+        } />
         <Route path="/templates" element={
           <AdminOnly>
-            <ComingSoon title="Plantillas" />
+            <ReportTemplatesPage title="Plantillas de Reportes" />
           </AdminOnly>
         } />
         <Route path="/backups" element={

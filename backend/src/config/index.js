@@ -34,8 +34,13 @@ module.exports = {
         certPath: process.env.HTTPS_CERT_PATH || './ssl/server.cert'
     },
     
-    // Configuración CORS
+    // // Configuración CORS
+    // cors: {
+    //     origin: process.env.CORS_ORIGIN || '*'
+    // }
+
+        // Configuración CORS
     cors: {
-        origin: process.env.CORS_ORIGIN || '*'
+        origin: process.env.CORS_ORIGIN || ['http://localhost:5173', 'http://localhost:3000', 'http://127.0.0.1:5173']
     }
 };

@@ -1,0 +1,5991 @@
+{
+	"info": {
+		"_postman_id": "fea773e1-5c1b-46b3-9b4f-c6459657c7ef",
+		"name": "PwnDoc API Copy",
+		"description": "Colección completa de endpoints para PwnDoc API refactorizado",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "13781682",
+		"_collection_link": "https://test22-1564.postman.co/workspace/55a0e1d7-857e-4526-bdba-f8469f9effd0/collection/13781682-fea773e1-5c1b-46b3-9b4f-c6459657c7ef?action=share&source=collection_link&creator=13781682"
+	},
+	"item": [
+		{
+			"name": "1. Users & Auth",
+			"item": [
+				{
+					"name": "1.1 Check Init (¿Existe usuario?)",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/users/init",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"users",
+								"init"
+							]
+						},
+						"description": "Verifica si ya existe un usuario inicial. Retorna true/false."
+					},
+					"response": [
+						{
+							"name": "1.1 Check Init (¿Existe usuario?)",
+							"originalRequest": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{baseUrl}}/users/init",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"users",
+										"init"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "Text",
+							"header": [
+								{
+									"key": "Content-Security-Policy",
+									"value": "default-src 'self';style-src 'self' 'unsafe-inline';script-src 'self' 'unsafe-inline' 'unsafe-eval';img-src 'self' data: blob:;connect-src 'self' ws: wss:;font-src 'self' data:;object-src 'none';media-src 'self';frame-src 'none';base-uri 'self';form-action 'self';frame-ancestors 'self';script-src-attr 'none';upgrade-insecure-requests"
+								},
+								{
+									"key": "Cross-Origin-Opener-Policy",
+									"value": "same-origin"
+								},
+								{
+									"key": "Cross-Origin-Resource-Policy",
+									"value": "cross-origin"
+								},
+								{
+									"key": "Origin-Agent-Cluster",
+									"value": "?1"
+								},
+								{
+									"key": "Referrer-Policy",
+									"value": "no-referrer"
+								},
+								{
+									"key": "Strict-Transport-Security",
+									"value": "max-age=15552000; includeSubDomains"
+								},
+								{
+									"key": "X-Content-Type-Options",
+									"value": "nosniff"
+								},
+								{
+									"key": "X-DNS-Prefetch-Control",
+									"value": "off"
+								},
+								{
+									"key": "X-Download-Options",
+									"value": "noopen"
+								},
+								{
+									"key": "X-Frame-Options",
+									"value": "SAMEORIGIN"
+								},
+								{
+									"key": "X-Permitted-Cross-Domain-Policies",
+									"value": "none"
+								},
+								{
+									"key": "X-XSS-Protection",
+									"value": "0"
+								},
+								{
+									"key": "Vary",
+									"value": "Origin"
+								},
+								{
+									"key": "Access-Control-Allow-Credentials",
+									"value": "true"
+								},
+								{
+									"key": "Access-Control-Expose-Headers",
+									"value": "Content-Disposition"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json; charset=utf-8"
+								},
+								{
+									"key": "Content-Length",
+									"value": "33"
+								},
+								{
+									"key": "ETag",
+									"value": "W/\"21-UNFSjd7FTCSzAXuuZDBnNZSXmMw\""
+								},
+								{
+									"key": "Date",
+									"value": "Tue, 23 Dec 2025 22:39:07 GMT"
+								},
+								{
+									"key": "Connection",
+									"value": "keep-alive"
+								},
+								{
+									"key": "Keep-Alive",
+									"value": "timeout=5"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"status\": \"success\",\n    \"data\": false\n}"
+						}
+					]
+				},
+				{
+					"name": "1.2 Create First User (Admin)",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"username\": \"admin\",\n    \"password\": \"Admin123!\",\n    \"firstname\": \"Admin\",\n    \"lastname\": \"User\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/users/init",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"users",
+								"init"
+							]
+						},
+						"description": "Crea el primer usuario (admin). Solo funciona si no existe ningún usuario."
+					},
+					"response": [
+						{
+							"name": "1.2 Create First User (Admin)",
+							"originalRequest": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"username\": \"admin\",\n    \"password\": \"Admin123!\",\n    \"firstname\": \"Admin\",\n    \"lastname\": \"User\"\n}"
+								},
+								"url": {
+									"raw": "{{baseUrl}}/users/init",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"users",
+										"init"
+									]
+								}
+							},
+							"status": "Created",
+							"code": 201,
+							"_postman_previewlanguage": "Text",
+							"header": [
+								{
+									"key": "Content-Security-Policy",
+									"value": "default-src 'self';style-src 'self' 'unsafe-inline';script-src 'self' 'unsafe-inline' 'unsafe-eval';img-src 'self' data: blob:;connect-src 'self' ws: wss:;font-src 'self' data:;object-src 'none';media-src 'self';frame-src 'none';base-uri 'self';form-action 'self';frame-ancestors 'self';script-src-attr 'none';upgrade-insecure-requests"
+								},
+								{
+									"key": "Cross-Origin-Opener-Policy",
+									"value": "same-origin"
+								},
+								{
+									"key": "Cross-Origin-Resource-Policy",
+									"value": "cross-origin"
+								},
+								{
+									"key": "Origin-Agent-Cluster",
+									"value": "?1"
+								},
+								{
+									"key": "Referrer-Policy",
+									"value": "no-referrer"
+								},
+								{
+									"key": "Strict-Transport-Security",
+									"value": "max-age=15552000; includeSubDomains"
+								},
+								{
+									"key": "X-Content-Type-Options",
+									"value": "nosniff"
+								},
+								{
+									"key": "X-DNS-Prefetch-Control",
+									"value": "off"
+								},
+								{
+									"key": "X-Download-Options",
+									"value": "noopen"
+								},
+								{
+									"key": "X-Frame-Options",
+									"value": "SAMEORIGIN"
+								},
+								{
+									"key": "X-Permitted-Cross-Domain-Policies",
+									"value": "none"
+								},
+								{
+									"key": "X-XSS-Protection",
+									"value": "0"
+								},
+								{
+									"key": "Vary",
+									"value": "Origin"
+								},
+								{
+									"key": "Access-Control-Allow-Credentials",
+									"value": "true"
+								},
+								{
+									"key": "Access-Control-Expose-Headers",
+									"value": "Content-Disposition"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json; charset=utf-8"
+								},
+								{
+									"key": "Content-Length",
+									"value": "61"
+								},
+								{
+									"key": "ETag",
+									"value": "W/\"3d-w43ZVUdc60GIMfj1WCnNBVMV3c4\""
+								},
+								{
+									"key": "Date",
+									"value": "Tue, 23 Dec 2025 22:41:01 GMT"
+								},
+								{
+									"key": "Connection",
+									"value": "keep-alive"
+								},
+								{
+									"key": "Keep-Alive",
+									"value": "timeout=5"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"status\": \"success\",\n    \"data\": \"First user created successfully\"\n}"
+						}
+					]
+				},
+				{
+					"name": "1.3 Login",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"var jsonData = pm.response.json();",
+									"if (jsonData.datas && jsonData.datas.token) {",
+									"    var token = jsonData.datas.token.replace('JWT ', '');",
+									"    pm.collectionVariables.set('token', token);",
+									"}",
+									"",
+									"// Extraer cookies",
+									"var cookies = pm.response.headers.filter(h => h.key === 'Set-Cookie');",
+									"cookies.forEach(c => {",
+									"    if (c.value.includes('refreshToken=')) {",
+									"        var match = c.value.match(/refreshToken=([^;]+)/);",
+									"        if (match) pm.collectionVariables.set('refreshToken', match[1]);",
+									"    }",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"username\": \"admin\",\n    \"password\": \"Admin123!\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/users/login",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"users",
+								"login"
+							]
+						},
+						"description": "Autentica un usuario. Guarda automáticamente el token."
+					},
+					"response": [
+						{
+							"name": "1.3 Login",
+							"originalRequest": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"username\": \"admin\",\n    \"password\": \"Admin123!\"\n}"
+								},
+								"url": {
+									"raw": "{{baseUrl}}/users/login",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"users",
+										"login"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "Text",
+							"header": [
+								{
+									"key": "Content-Security-Policy",
+									"value": "default-src 'self';style-src 'self' 'unsafe-inline';script-src 'self' 'unsafe-inline' 'unsafe-eval';img-src 'self' data: blob:;connect-src 'self' ws: wss:;font-src 'self' data:;object-src 'none';media-src 'self';frame-src 'none';base-uri 'self';form-action 'self';frame-ancestors 'self';script-src-attr 'none';upgrade-insecure-requests"
+								},
+								{
+									"key": "Cross-Origin-Opener-Policy",
+									"value": "same-origin"
+								},
+								{
+									"key": "Cross-Origin-Resource-Policy",
+									"value": "cross-origin"
+								},
+								{
+									"key": "Origin-Agent-Cluster",
+									"value": "?1"
+								},
+								{
+									"key": "Referrer-Policy",
+									"value": "no-referrer"
+								},
+								{
+									"key": "Strict-Transport-Security",
+									"value": "max-age=15552000; includeSubDomains"
+								},
+								{
+									"key": "X-Content-Type-Options",
+									"value": "nosniff"
+								},
+								{
+									"key": "X-DNS-Prefetch-Control",
+									"value": "off"
+								},
+								{
+									"key": "X-Download-Options",
+									"value": "noopen"
+								},
+								{
+									"key": "X-Frame-Options",
+									"value": "SAMEORIGIN"
+								},
+								{
+									"key": "X-Permitted-Cross-Domain-Policies",
+									"value": "none"
+								},
+								{
+									"key": "X-XSS-Protection",
+									"value": "0"
+								},
+								{
+									"key": "Vary",
+									"value": "Origin"
+								},
+								{
+									"key": "Access-Control-Allow-Credentials",
+									"value": "true"
+								},
+								{
+									"key": "Access-Control-Expose-Headers",
+									"value": "Content-Disposition"
+								},
+								{
+									"key": "Set-Cookie",
+									"value": "token=JWT%20eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY5NGIxYTdkMGQ3NzQ1N2Y1M2NhM2FiNSIsInVzZXJuYW1lIjoiYWRtaW4iLCJyb2xlIjoiYWRtaW4iLCJmaXJzdG5hbWUiOiJBZG1pbiIsImxhc3RuYW1lIjoiVXNlciIsInJvbGVzIjoiKiIsImlhdCI6MTc2NjUzMDQzNiwiZXhwIjoxNzY2NTMxMzM2fQ.pMH7q5K22xb_9RT8M7HjmA1e37uuDbP2ywCVGmXWvSA; Path=/; HttpOnly; Secure; SameSite=Strict"
+								},
+								{
+									"key": "Set-Cookie",
+									"value": "refreshToken=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzZXNzaW9uSWQiOiJmNjNhYjMxNTRjMDU0ZDViOTI2MjU3MzhlODhkMTVhOWZhZDFkN2YxMTZhYWU1NDhmODZlZTkxZWEwOWUwZjM4IiwidXNlcklkIjoiNjk0YjFhN2QwZDc3NDU3ZjUzY2EzYWI1IiwiaWF0IjoxNzY2NTMwNDM2LCJleHAiOjE3NjcxMzUyMzZ9.OLS6ON_iY-x8Ma2atQw9pOmqT_ywScfdhZLMgaP-0IY; Path=/api/users/refreshtoken; HttpOnly; Secure; SameSite=Strict"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json; charset=utf-8"
+								},
+								{
+									"key": "Content-Length",
+									"value": "327"
+								},
+								{
+									"key": "ETag",
+									"value": "W/\"147-LOu2NEAhr5sWlfEp66N3FrfALe8\""
+								},
+								{
+									"key": "Date",
+									"value": "Tue, 23 Dec 2025 22:53:56 GMT"
+								},
+								{
+									"key": "Connection",
+									"value": "keep-alive"
+								},
+								{
+									"key": "Keep-Alive",
+									"value": "timeout=5"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"status\": \"success\",\n    \"data\": {\n        \"token\": \"JWT eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY5NGIxYTdkMGQ3NzQ1N2Y1M2NhM2FiNSIsInVzZXJuYW1lIjoiYWRtaW4iLCJyb2xlIjoiYWRtaW4iLCJmaXJzdG5hbWUiOiJBZG1pbiIsImxhc3RuYW1lIjoiVXNlciIsInJvbGVzIjoiKiIsImlhdCI6MTc2NjUzMDQzNiwiZXhwIjoxNzY2NTMxMzM2fQ.pMH7q5K22xb_9RT8M7HjmA1e37uuDbP2ywCVGmXWvSA\"\n    }\n}"
+						}
+					]
+				},
+				{
+					"name": "1.4 Login con TOTP",
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"username\": \"admin\",\n    \"password\": \"Admin123!\",\n    \"totpToken\": \"123456\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/users/login",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"users",
+								"login"
+							]
+						},
+						"description": "Login con código TOTP (2FA)"
+					},
+					"response": [
+						{
+							"name": "1.4 Login con TOTP",
+							"originalRequest": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"username\": \"fabian.condori\",\n    \"password\": \"12655486-Fab\",\n    \"totpToken\": \"082151\"\n}"
+								},
+								"url": {
+									"raw": "{{baseUrl}}/users/login",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"users",
+										"login"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "Text",
+							"header": [
+								{
+									"key": "Content-Security-Policy",
+									"value": "default-src 'self';style-src 'self' 'unsafe-inline';script-src 'self' 'unsafe-inline' 'unsafe-eval';img-src 'self' data: blob:;connect-src 'self' ws: wss:;font-src 'self' data:;object-src 'none';media-src 'self';frame-src 'none';base-uri 'self';form-action 'self';frame-ancestors 'self';script-src-attr 'none';upgrade-insecure-requests"
+								},
+								{
+									"key": "Cross-Origin-Opener-Policy",
+									"value": "same-origin"
+								},
+								{
+									"key": "Cross-Origin-Resource-Policy",
+									"value": "cross-origin"
+								},
+								{
+									"key": "Origin-Agent-Cluster",
+									"value": "?1"
+								},
+								{
+									"key": "Referrer-Policy",
+									"value": "no-referrer"
+								},
+								{
+									"key": "Strict-Transport-Security",
+									"value": "max-age=15552000; includeSubDomains"
+								},
+								{
+									"key": "X-Content-Type-Options",
+									"value": "nosniff"
+								},
+								{
+									"key": "X-DNS-Prefetch-Control",
+									"value": "off"
+								},
+								{
+									"key": "X-Download-Options",
+									"value": "noopen"
+								},
+								{
+									"key": "X-Frame-Options",
+									"value": "SAMEORIGIN"
+								},
+								{
+									"key": "X-Permitted-Cross-Domain-Policies",
+									"value": "none"
+								},
+								{
+									"key": "X-XSS-Protection",
+									"value": "0"
+								},
+								{
+									"key": "Vary",
+									"value": "Origin"
+								},
+								{
+									"key": "Access-Control-Allow-Credentials",
+									"value": "true"
+								},
+								{
+									"key": "Access-Control-Expose-Headers",
+									"value": "Content-Disposition"
+								},
+								{
+									"key": "Set-Cookie",
+									"value": "token=JWT%20eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY4Yjg0ZjkyZDg1YmZlMGFkZjgzYzljNyIsInVzZXJuYW1lIjoiZmFiaWFuLmNvbmRvcmkiLCJyb2xlIjoiYWRtaW4iLCJmaXJzdG5hbWUiOiJGYWJpYW4gUmllcmFsIiwibGFzdG5hbWUiOiJDb25kb3JpIExsYW5vcyIsInBob25lIjoiMTIzNDU2Nzg5Iiwicm9sZXMiOiIqIiwiaWF0IjoxNzY3MDM0NjkxLCJleHAiOjE3NjcwMzU1OTF9.Y_HjFY4540Ls0C3If9vwnjwav5Id96AuJupI05HiQL4; Path=/; HttpOnly; Secure; SameSite=Strict"
+								},
+								{
+									"key": "Set-Cookie",
+									"value": "refreshToken=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzZXNzaW9uSWQiOiI3ODlkNWE1MzZmYzk1ODAzYmViZGIwYzBjNTlkNmM5NjgzNjBlYTMzOWJmYzVmZGVhYzQxYzdmNjg5MjVjMTJmIiwidXNlcklkIjoiNjhiODRmOTJkODViZmUwYWRmODNjOWM3IiwiaWF0IjoxNzY3MDM0NjkxLCJleHAiOjE3Njc2Mzk0OTF9.mAbBzAB6phcYg8ywnZY30GT_GXEH-ah8W_JM35kH1O0; Path=/api/users/refreshtoken; HttpOnly; Secure; SameSite=Strict"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json; charset=utf-8"
+								},
+								{
+									"key": "Content-Length",
+									"value": "389"
+								},
+								{
+									"key": "ETag",
+									"value": "W/\"185-7NTT4BaWS3qf6R2r1Dd5+Y4ChcE\""
+								},
+								{
+									"key": "Date",
+									"value": "Mon, 29 Dec 2025 18:58:11 GMT"
+								},
+								{
+									"key": "Connection",
+									"value": "keep-alive"
+								},
+								{
+									"key": "Keep-Alive",
+									"value": "timeout=5"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"status\": \"success\",\n    \"data\": {\n        \"token\": \"JWT eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY4Yjg0ZjkyZDg1YmZlMGFkZjgzYzljNyIsInVzZXJuYW1lIjoiZmFiaWFuLmNvbmRvcmkiLCJyb2xlIjoiYWRtaW4iLCJmaXJzdG5hbWUiOiJGYWJpYW4gUmllcmFsIiwibGFzdG5hbWUiOiJDb25kb3JpIExsYW5vcyIsInBob25lIjoiMTIzNDU2Nzg5Iiwicm9sZXMiOiIqIiwiaWF0IjoxNzY3MDM0NjkxLCJleHAiOjE3NjcwMzU1OTF9.Y_HjFY4540Ls0C3If9vwnjwav5Id96AuJupI05HiQL4\"\n    }\n}"
+						}
+					]
+				},
+				{
+					"name": "1.5 Check Token",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/users/checktoken",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"users",
+								"checktoken"
+							]
+						},
+						"description": "Verifica si el token actual es válido"
+					},
+					"response": [
+						{
+							"name": "1.5 Check Token",
+							"originalRequest": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{baseUrl}}/users/checktoken",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"users",
+										"checktoken"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "Text",
+							"header": [
+								{
+									"key": "Content-Security-Policy",
+									"value": "default-src 'self';style-src 'self' 'unsafe-inline';script-src 'self' 'unsafe-inline' 'unsafe-eval';img-src 'self' data: blob:;connect-src 'self' ws: wss:;font-src 'self' data:;object-src 'none';media-src 'self';frame-src 'none';base-uri 'self';form-action 'self';frame-ancestors 'self';script-src-attr 'none';upgrade-insecure-requests"
+								},
+								{
+									"key": "Cross-Origin-Opener-Policy",
+									"value": "same-origin"
+								},
+								{
+									"key": "Cross-Origin-Resource-Policy",
+									"value": "cross-origin"
+								},
+								{
+									"key": "Origin-Agent-Cluster",
+									"value": "?1"
+								},
+								{
+									"key": "Referrer-Policy",
+									"value": "no-referrer"
+								},
+								{
+									"key": "Strict-Transport-Security",
+									"value": "max-age=15552000; includeSubDomains"
+								},
+								{
+									"key": "X-Content-Type-Options",
+									"value": "nosniff"
+								},
+								{
+									"key": "X-DNS-Prefetch-Control",
+									"value": "off"
+								},
+								{
+									"key": "X-Download-Options",
+									"value": "noopen"
+								},
+								{
+									"key": "X-Frame-Options",
+									"value": "SAMEORIGIN"
+								},
+								{
+									"key": "X-Permitted-Cross-Domain-Policies",
+									"value": "none"
+								},
+								{
+									"key": "X-XSS-Protection",
+									"value": "0"
+								},
+								{
+									"key": "Vary",
+									"value": "Origin"
+								},
+								{
+									"key": "Access-Control-Allow-Credentials",
+									"value": "true"
+								},
+								{
+									"key": "Access-Control-Expose-Headers",
+									"value": "Content-Disposition"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json; charset=utf-8"
+								},
+								{
+									"key": "Content-Length",
+									"value": "226"
+								},
+								{
+									"key": "ETag",
+									"value": "W/\"e2-Yz5bI40kTMgVm4Cpd4gA7Mb2psg\""
+								},
+								{
+									"key": "Date",
+									"value": "Mon, 29 Dec 2025 18:58:24 GMT"
+								},
+								{
+									"key": "Connection",
+									"value": "keep-alive"
+								},
+								{
+									"key": "Keep-Alive",
+									"value": "timeout=5"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"status\": \"success\",\n    \"data\": {\n        \"id\": \"68b84f92d85bfe0adf83c9c7\",\n        \"username\": \"fabian.condori\",\n        \"role\": \"admin\",\n        \"firstname\": \"Fabian Rieral\",\n        \"lastname\": \"Condori Llanos\",\n        \"phone\": \"123456789\",\n        \"roles\": \"*\",\n        \"iat\": 1767034691,\n        \"exp\": 1767035591\n    }\n}"
+						}
+					]
+				},
+				{
+					"name": "1.6 Refresh Token",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Cookie",
+								"value": "refreshToken={{refreshToken}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/users/refreshtoken",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"users",
+								"refreshtoken"
+							]
+						},
+						"description": "Obtiene un nuevo token usando el refresh token"
+					},
+					"response": []
+				},
+				{
+					"name": "1.7 Logout",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Cookie",
+								"value": "refreshToken={{refreshToken}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/users/refreshtoken",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"users",
+								"refreshtoken"
+							]
+						},
+						"description": "Cierra la sesión actual"
+					},
+					"response": []
+				},
+				{
+					"name": "1.8 Get My Profile",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/users/me",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"users",
+								"me"
+							]
+						},
+						"description": "Obtiene el perfil del usuario actual"
+					},
+					"response": [
+						{
+							"name": "1.8 Get My Profile",
+							"originalRequest": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{baseUrl}}/users/me",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"users",
+										"me"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "Text",
+							"header": [
+								{
+									"key": "Content-Security-Policy",
+									"value": "default-src 'self';style-src 'self' 'unsafe-inline';script-src 'self' 'unsafe-inline' 'unsafe-eval';img-src 'self' data: blob:;connect-src 'self' ws: wss:;font-src 'self' data:;object-src 'none';media-src 'self';frame-src 'none';base-uri 'self';form-action 'self';frame-ancestors 'self';script-src-attr 'none';upgrade-insecure-requests"
+								},
+								{
+									"key": "Cross-Origin-Opener-Policy",
+									"value": "same-origin"
+								},
+								{
+									"key": "Cross-Origin-Resource-Policy",
+									"value": "cross-origin"
+								},
+								{
+									"key": "Origin-Agent-Cluster",
+									"value": "?1"
+								},
+								{
+									"key": "Referrer-Policy",
+									"value": "no-referrer"
+								},
+								{
+									"key": "Strict-Transport-Security",
+									"value": "max-age=15552000; includeSubDomains"
+								},
+								{
+									"key": "X-Content-Type-Options",
+									"value": "nosniff"
+								},
+								{
+									"key": "X-DNS-Prefetch-Control",
+									"value": "off"
+								},
+								{
+									"key": "X-Download-Options",
+									"value": "noopen"
+								},
+								{
+									"key": "X-Frame-Options",
+									"value": "SAMEORIGIN"
+								},
+								{
+									"key": "X-Permitted-Cross-Domain-Policies",
+									"value": "none"
+								},
+								{
+									"key": "X-XSS-Protection",
+									"value": "0"
+								},
+								{
+									"key": "Vary",
+									"value": "Origin"
+								},
+								{
+									"key": "Access-Control-Allow-Credentials",
+									"value": "true"
+								},
+								{
+									"key": "Access-Control-Expose-Headers",
+									"value": "Content-Disposition"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json; charset=utf-8"
+								},
+								{
+									"key": "Content-Length",
+									"value": "216"
+								},
+								{
+									"key": "ETag",
+									"value": "W/\"d8-JVBgA3iAwUpeJwVOmTPz6xkjz+s\""
+								},
+								{
+									"key": "Date",
+									"value": "Mon, 29 Dec 2025 18:27:51 GMT"
+								},
+								{
+									"key": "Connection",
+									"value": "keep-alive"
+								},
+								{
+									"key": "Keep-Alive",
+									"value": "timeout=5"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"status\": \"success\",\n    \"data\": {\n        \"_id\": \"68b84f92d85bfe0adf83c9c7\",\n        \"username\": \"fabian.condori\",\n        \"firstname\": \"Fabian Rieral\",\n        \"lastname\": \"Condori Llanos\",\n        \"phone\": \"123456789\",\n        \"role\": \"admin\",\n        \"totpEnabled\": false,\n        \"enabled\": true\n    }\n}"
+						}
+					]
+				},
+				{
+					"name": "1.9 Update My Profile",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"password\": \"Admin123!\",\n    \"firstname\": \"Admin Updated\",\n    \"lastname\": \"User Updated\",\n    \"email\": \"admin@example.com\",\n    \"phone\": \"+1234567890\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/users/me",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"users",
+								"me"
+							]
+						},
+						"description": "Actualiza el perfil del usuario actual. Requiere password actual."
+					},
+					"response": []
+				},
+				{
+					"name": "1.10 Get TOTP QR Code",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/users/totp",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"users",
+								"totp"
+							]
+						},
+						"description": "Obtiene QR code para configurar TOTP (2FA)"
+					},
+					"response": [
+						{
+							"name": "1.10 Get TOTP QR Code",
+							"originalRequest": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{baseUrl}}/users/totp",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"users",
+										"totp"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "Text",
+							"header": [
+								{
+									"key": "Content-Security-Policy",
+									"value": "default-src 'self';style-src 'self' 'unsafe-inline';script-src 'self' 'unsafe-inline' 'unsafe-eval';img-src 'self' data: blob:;connect-src 'self' ws: wss:;font-src 'self' data:;object-src 'none';media-src 'self';frame-src 'none';base-uri 'self';form-action 'self';frame-ancestors 'self';script-src-attr 'none';upgrade-insecure-requests"
+								},
+								{
+									"key": "Cross-Origin-Opener-Policy",
+									"value": "same-origin"
+								},
+								{
+									"key": "Cross-Origin-Resource-Policy",
+									"value": "cross-origin"
+								},
+								{
+									"key": "Origin-Agent-Cluster",
+									"value": "?1"
+								},
+								{
+									"key": "Referrer-Policy",
+									"value": "no-referrer"
+								},
+								{
+									"key": "Strict-Transport-Security",
+									"value": "max-age=15552000; includeSubDomains"
+								},
+								{
+									"key": "X-Content-Type-Options",
+									"value": "nosniff"
+								},
+								{
+									"key": "X-DNS-Prefetch-Control",
+									"value": "off"
+								},
+								{
+									"key": "X-Download-Options",
+									"value": "noopen"
+								},
+								{
+									"key": "X-Frame-Options",
+									"value": "SAMEORIGIN"
+								},
+								{
+									"key": "X-Permitted-Cross-Domain-Policies",
+									"value": "none"
+								},
+								{
+									"key": "X-XSS-Protection",
+									"value": "0"
+								},
+								{
+									"key": "Vary",
+									"value": "Origin"
+								},
+								{
+									"key": "Access-Control-Allow-Credentials",
+									"value": "true"
+								},
+								{
+									"key": "Access-Control-Expose-Headers",
+									"value": "Content-Disposition"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json; charset=utf-8"
+								},
+								{
+									"key": "Content-Length",
+									"value": "3815"
+								},
+								{
+									"key": "ETag",
+									"value": "W/\"ee7-rDxveD7H4VunSK2I69M+i49hSZ4\""
+								},
+								{
+									"key": "Date",
+									"value": "Mon, 29 Dec 2025 18:41:20 GMT"
+								},
+								{
+									"key": "Connection",
+									"value": "keep-alive"
+								},
+								{
+									"key": "Keep-Alive",
+									"value": "timeout=5"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"status\": \"success\",\n    \"data\": {\n        \"totpQrCode\": \"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAANQAAADUCAYAAADk3g0YAAAAAklEQVR4AewaftIAAAqQSURBVO3BQY7gRpIAQXei/v9l3z7GKQGCWS1pJ8zsD9ZaVzysta55WGtd87DWuuZhrXXNw1rrmoe11jUPa61rHtZa1zysta55WGtd87DWuuZhrXXNw1rrmoe11jUPa61rfvhI5W+qOFGZKiaVk4qbVKaKE5Wp4g2Vk4o3VKaKE5Wp4kRlqphU/qaKLx7WWtc8rLWueVhrXfPDZRU3qXyh8obKVPGGyonKVHGicpPKVHFScZPKVPFGxU0qNz2sta55WGtd87DWuuaHX6byRsUbKlPFGypTxYnKScWkMlWcVJyovFExqUwqU8WkclIxVfxNKm9U/KaHtdY1D2utax7WWtf88P+MyknFVDGpnFRMKicVJypvVEwqU8UbFW9UTConFScqU8V/2cNa65qHtdY1D2uta374f65iUvlC5URlqrhJ5Q2VqWJSualiUvlf8rDWuuZhrXXNw1rrmh9+WcXfVHFScaLyRsWk8kXFGyqTyonKVDGpTBWTyhsVv6ni3+RhrXXNw1rrmoe11jU/XKbyb6IyVUwqU8WkMlVMKlPFpDJVvKEyVZxUTCpTxaQyVUwqU8WkcqIyVUwqU8WJyr/Zw1rrmoe11jUPa61r7A/+w1SmihOVqWJSmSomlZOKN1SmijdUflPFFypvVPyXPay1rnlYa13zsNa65oePVKaKSeWmiqliUvmiYlI5qZhUpopJ5UTlN1W8oXJS8UbFpHKiclPFb3pYa13zsNa65mGtdY39wb+IylRxonJS8YbKScUbKm9UnKi8UTGpTBWTylQxqUwVk8pUMalMFZPKVPGGylQxqZxUfPGw1rrmYa11zcNa65ofPlKZKiaVk4qpYlKZKk4qJpWTipOKSWWqmFSmikllqphUTireUJkq3lCZKt5QmSomlROVqeKk4o2Kmx7WWtc8rLWueVhrXfPDX1bxRsWkcqIyVUwqv6nipOKNiknljYoTlaniRGWqOKmYVE4qJpU3VN5QmSq+eFhrXfOw1rrmYa11zQ8fVUwqJypTxaRyUjGp3FTxhcobFVPFpDJVvKFyUjGpTBVvVEwqJxWTylQxqZxUnKj8poe11jUPa61rHtZa1/xwWcWkMlVMKlPFFxVvqNxU8YXKicpUMalMFW9UTCpfVEwqk8pU8UbFFxU3Pay1rnlYa13zsNa65oePVH6TyknFpHJScZPKb6r4QuU3qUwVk8pJxaTyhcpUMVVMKlPFFw9rrWse1lrXPKy1rvnhl1V8UTGpTConFW+ovFExqZxUnKi8oTJVTCpTxaRyUjGpfFExqUwVk8qJylTxT3pYa13zsNa65mGtdc0Pl1W8UXGiMlW8oTJVTCpfqJxUTCpTxX9ZxUnFScWkMlVMKicqU8WkMlXc9LDWuuZhrXXNw1rrGvuDD1Smii9Upoo3VN6omFSmit+kclIxqUwVb6hMFZPKScWJyknFpPJGxYnKVHGiMlV88bDWuuZhrXXNw1rrmh8+qphUpooTlaliUjmp+E0qU8WkMlXcpHKiclJxk8pUMVVMKicVk8oXFf+kh7XWNQ9rrWse1lrX/HBZxRcqU8WkMqncVHGiclPFGypTxaTyhspNKlPFGxWTyqRyUvFPelhrXfOw1rrmYa11jf3BByr/JhUnKicVk8pJxYnKv0nFicpUcaIyVUwqf1PFicpJxRcPa61rHtZa1zysta754bKKSeWNijdUTlSmikllUpkqTlROKk5Upoo3VKaKSeVE5UTlpGJS+aLiDZVJ5aRiUrnpYa11zcNa65qHtdY1P3xUMalMFScqJypTxRsVk8pJxRcVk8oXKlPFicoXFW+oTBWTylQxqZyoTBUnFZPKpDJV3PSw1rrmYa11zcNa65of/jKVNyq+UDmpuEnlpoo3Kk5UpopJZaqYVP6mijdU3lCZKr54WGtd87DWuuZhrXXND39ZxaQyqfxNKlPFpDJVnFRMKlPFpDKpfKFyUnFScVIxqdykclPFpPKbHtZa1zysta55WGtd88NHKlPFpDJVnFScqEwVX1R8UTGpnKh8UTGpTBUnKn9TxaRyUvGFyqQyVUwqNz2sta55WGtd87DWuuaHX1bxhspJxRcVk8obKl9UTCpTxRsVk8pJxaRyUnGicqIyVbyh8kbFpDKpTBU3Pay1rnlYa13zsNa65ofLVN6oeEPlpGKqeKNiUpkqJpWTipOKN1ROKr6omFS+qHhDZaqYVKaKSeWkYlKZKr54WGtd87DWuuZhrXWN/cFFKlPFicpUMamcVJyo3FTxb6ZyU8VvUjmpOFGZKt5QmSq+eFhrXfOw1rrmYa11zQ8fqUwVJypTxUnFpDKpTBUnFTepTBVvqEwVk8oXFZPKScWkMlVMKlPFicpJxRsVb6j8poe11jUPa61rHtZa1/zwy1ROVKaKSWWqmFS+UJkqJpWTiknljYpJZaqYVE4qJpWTikllqjipmFTeqJhUpoqbKn7Tw1rrmoe11jUPa61r7A8+UPlNFScqU8Wk8kbFicobFZPKScWkMlV8oTJVnKh8UTGpTBUnKicVk8pU8Tc9rLWueVhrXfOw1rrG/uAilZOKE5WTihOVqeINlaniROVvqjhRmSpOVKaKSeWk4iaVLypOVKaKmx7WWtc8rLWueVhrXWN/8A9SOamYVN6oOFF5o+ILlaniROWk4g2Vf1LFpPJFxb/Jw1rrmoe11jUPa61rfviXqZhUvlB5o+JE5aRiUjlROamYVE5UpoovKiaVk4oTlaliUpkqJpUTlZOK3/Sw1rrmYa11zcNa65ofLlO5qWJSmSpOVKaKSWVSmSqmiknlb6qYVKaK/xKVqWJSmSpOKt5QmSq+eFhrXfOw1rrmYa11jf3BBypTxYnKScWkMlW8ofJGxaQyVdykclPFpDJV/CaVqeJE5aaKE5WTii8e1lrXPKy1rnlYa13zw0cVb1S8UXGiMlW8UTGpvKFyU8UbKicVk8pUMamcVEwqJypTxUnFGyonKlPFpHLTw1rrmoe11jUPa61rfvhI5W+qmCr+zSomlTdUpooTlaliqjipmFTeqJhUvlCZKr5QmSpuelhrXfOw1rrmYa11zQ+XVdykcqJyUjGpTCpTxaQyqXxRMamcVLxRMan8poqTii8q3lB5Q2Wq+OJhrXXNw1rrmoe11jU//DKVNyq+qJhUTiomlaliUpkqJpVJZao4UflNFScqb6icVEwqJypfVPyTHtZa1zysta55WGtd88P/mIpJ5QuVqWJSOamYVKaKSWWqmFSmihOVk4o3Kt6oeEPlRGWqmFROKr54WGtd87DWuuZhrXXND/9jVL6oOFGZKiaVqeKNikllqphUpoqpYlKZVKaKE5WTikllqphUbqr4TQ9rrWse1lrXPKy1rvnhl1X8poovKiaVSeULlaliUjlRmSqmikllqjhRmSpOVE4qTlSmit+kMlX8poe11jUPa61rHtZa1/xwmcrfpHJS8UbFpDJVvKEyqUwVb6h8oTJVnKicVLxRMamcVJyonFRMKlPFTQ9rrWse1lrXPKy1rrE/WGtd8bDWuuZhrXXNw1rrmoe11jUPa61rHtZa1zysta55WGtd87DWuuZhrXXNw1rrmoe11jUPa61rHtZa1zysta75P4vBr+1wopPrAAAAAElFTkSuQmCC\",\n        \"totpSecret\": \"XX2RGUXGDHSDDWEZWHRLGSEZXQGTH6ZO\"\n    }\n}"
+						}
+					]
+				},
+				{
+					"name": "1.11 Setup TOTP",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"totpToken\": \"123456\",\n    \"totpSecret\": \"BASE32SECRET\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/users/totp",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"users",
+								"totp"
+							]
+						},
+						"description": "Configura TOTP para el usuario actual"
+					},
+					"response": [
+						{
+							"name": "1.11 Setup TOTP",
+							"originalRequest": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"totpToken\": \"177486\",\n    \"totpSecret\": \"XX2RGUXGDHSDDWEZWHRLGSEZXQGTH6ZO\"\n}"
+								},
+								"url": {
+									"raw": "{{baseUrl}}/users/totp",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"users",
+										"totp"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "Text",
+							"header": [
+								{
+									"key": "Content-Security-Policy",
+									"value": "default-src 'self';style-src 'self' 'unsafe-inline';script-src 'self' 'unsafe-inline' 'unsafe-eval';img-src 'self' data: blob:;connect-src 'self' ws: wss:;font-src 'self' data:;object-src 'none';media-src 'self';frame-src 'none';base-uri 'self';form-action 'self';frame-ancestors 'self';script-src-attr 'none';upgrade-insecure-requests"
+								},
+								{
+									"key": "Cross-Origin-Opener-Policy",
+									"value": "same-origin"
+								},
+								{
+									"key": "Cross-Origin-Resource-Policy",
+									"value": "cross-origin"
+								},
+								{
+									"key": "Origin-Agent-Cluster",
+									"value": "?1"
+								},
+								{
+									"key": "Referrer-Policy",
+									"value": "no-referrer"
+								},
+								{
+									"key": "Strict-Transport-Security",
+									"value": "max-age=15552000; includeSubDomains"
+								},
+								{
+									"key": "X-Content-Type-Options",
+									"value": "nosniff"
+								},
+								{
+									"key": "X-DNS-Prefetch-Control",
+									"value": "off"
+								},
+								{
+									"key": "X-Download-Options",
+									"value": "noopen"
+								},
+								{
+									"key": "X-Frame-Options",
+									"value": "SAMEORIGIN"
+								},
+								{
+									"key": "X-Permitted-Cross-Domain-Policies",
+									"value": "none"
+								},
+								{
+									"key": "X-XSS-Protection",
+									"value": "0"
+								},
+								{
+									"key": "Vary",
+									"value": "Origin"
+								},
+								{
+									"key": "Access-Control-Allow-Credentials",
+									"value": "true"
+								},
+								{
+									"key": "Access-Control-Expose-Headers",
+									"value": "Content-Disposition"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json; charset=utf-8"
+								},
+								{
+									"key": "Content-Length",
+									"value": "40"
+								},
+								{
+									"key": "ETag",
+									"value": "W/\"28-q/O0csGIGeUzvjtVysFvc66EqpI\""
+								},
+								{
+									"key": "Date",
+									"value": "Mon, 29 Dec 2025 19:01:22 GMT"
+								},
+								{
+									"key": "Connection",
+									"value": "keep-alive"
+								},
+								{
+									"key": "Keep-Alive",
+									"value": "timeout=5"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"status\": \"success\",\n    \"data\": {\n        \"msg\": true\n    }\n}"
+						}
+					]
+				},
+				{
+					"name": "1.12 Cancel TOTP",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"totpToken\": \"123456\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/users/totp",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"users",
+								"totp"
+							]
+						},
+						"description": "Desactiva TOTP para el usuario actual"
+					},
+					"response": []
+				},
+				{
+					"name": "1.13 Get All Users",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/users",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"users"
+							]
+						},
+						"description": "Obtiene todos los usuarios (requiere permiso)"
+					},
+					"response": [
+						{
+							"name": "1.13 Get All Users",
+							"originalRequest": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{baseUrl}}/users",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"users"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "Text",
+							"header": [
+								{
+									"key": "Content-Security-Policy",
+									"value": "default-src 'self';style-src 'self' 'unsafe-inline';script-src 'self' 'unsafe-inline' 'unsafe-eval';img-src 'self' data: blob:;connect-src 'self' ws: wss:;font-src 'self' data:;object-src 'none';media-src 'self';frame-src 'none';base-uri 'self';form-action 'self';frame-ancestors 'self';script-src-attr 'none';upgrade-insecure-requests"
+								},
+								{
+									"key": "Cross-Origin-Opener-Policy",
+									"value": "same-origin"
+								},
+								{
+									"key": "Cross-Origin-Resource-Policy",
+									"value": "cross-origin"
+								},
+								{
+									"key": "Origin-Agent-Cluster",
+									"value": "?1"
+								},
+								{
+									"key": "Referrer-Policy",
+									"value": "no-referrer"
+								},
+								{
+									"key": "Strict-Transport-Security",
+									"value": "max-age=15552000; includeSubDomains"
+								},
+								{
+									"key": "X-Content-Type-Options",
+									"value": "nosniff"
+								},
+								{
+									"key": "X-DNS-Prefetch-Control",
+									"value": "off"
+								},
+								{
+									"key": "X-Download-Options",
+									"value": "noopen"
+								},
+								{
+									"key": "X-Frame-Options",
+									"value": "SAMEORIGIN"
+								},
+								{
+									"key": "X-Permitted-Cross-Domain-Policies",
+									"value": "none"
+								},
+								{
+									"key": "X-XSS-Protection",
+									"value": "0"
+								},
+								{
+									"key": "Vary",
+									"value": "Origin"
+								},
+								{
+									"key": "Access-Control-Allow-Credentials",
+									"value": "true"
+								},
+								{
+									"key": "Access-Control-Expose-Headers",
+									"value": "Content-Disposition"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json; charset=utf-8"
+								},
+								{
+									"key": "Content-Length",
+									"value": "1709"
+								},
+								{
+									"key": "ETag",
+									"value": "W/\"6ad-MFstVW6rPeV8E2KfPlvmaCmlEzw\""
+								},
+								{
+									"key": "Date",
+									"value": "Mon, 29 Dec 2025 19:02:19 GMT"
+								},
+								{
+									"key": "Connection",
+									"value": "keep-alive"
+								},
+								{
+									"key": "Keep-Alive",
+									"value": "timeout=5"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"status\": \"success\",\n    \"data\": [\n        {\n            \"_id\": \"67ace974b74f10b1ad6129f0\",\n            \"username\": \"pwndoc\",\n            \"firstname\": \"admin\",\n            \"lastname\": \"CGII\",\n            \"role\": \"user\",\n            \"totpEnabled\": false,\n            \"enabled\": true\n        },\n        {\n            \"_id\": \"67ae0467b74f10b1ad612d2d\",\n            \"username\": \"jhon.fernandez\",\n            \"firstname\": \"Jhon\",\n            \"lastname\": \"Fernandez\",\n            \"email\": \"jhon.fernandez@agetic.gob.bo\",\n            \"phone\": \"68643975\",\n            \"role\": \"admin\",\n            \"totpEnabled\": false,\n            \"enabled\": false\n        },\n        {\n            \"_id\": \"67ae0939b74f10b1ad612dbd\",\n            \"username\": \"juan.benito\",\n            \"firstname\": \"Juan\",\n            \"lastname\": \"Benito\",\n            \"email\": \"juan.benito@agetic.gob.bo\",\n            \"phone\": \"68643975\",\n            \"role\": \"admin\",\n            \"totpEnabled\": false,\n            \"enabled\": true\n        },\n        {\n            \"_id\": \"67bccc51b74f10b1ad612fc3\",\n            \"username\": \"frojas\",\n            \"firstname\": \"Franz\",\n            \"lastname\": \"Rojas\",\n            \"email\": \"frojas@agetic.gob.bo\",\n            \"role\": \"user\",\n            \"totpEnabled\": false,\n            \"enabled\": true\n        },\n        {\n            \"_id\": \"67ed3275b74f10b1ad61377d\",\n            \"username\": \"grover.callisaya\",\n            \"firstname\": \"Grover\",\n            \"lastname\": \"Callisaya\",\n            \"email\": \"grover.callisaya@agetic.gob.bo\",\n            \"role\": \"report\",\n            \"totpEnabled\": false,\n            \"enabled\": false\n        },\n        {\n            \"_id\": \"67ed40c6b74f10b1ad613a1e\",\n            \"username\": \"gabriel.calvimontes\",\n            \"firstname\": \"Gabriel\",\n            \"lastname\": \"Calvimonte\",\n            \"role\": \"user\",\n            \"totpEnabled\": false,\n            \"enabled\": false\n        },\n        {\n            \"_id\": \"67f40e37b74f10b1ad61669a\",\n            \"username\": \"cristhian.martinez\",\n            \"firstname\": \"Cristhian Denis\",\n            \"lastname\": \"Martinez Oraqueni\",\n            \"phone\": \"72538345\",\n            \"role\": \"user\",\n            \"totpEnabled\": false,\n            \"enabled\": true\n        },\n        {\n            \"_id\": \"68501e10b4ea39a00026b583\",\n            \"username\": \"andres.colque\",\n            \"firstname\": \"Andres\",\n            \"lastname\": \"Colque Rosas\",\n            \"email\": \"andres.colque@agetic.gob.bo\",\n            \"role\": \"user\",\n            \"totpEnabled\": false,\n            \"enabled\": true\n        },\n        {\n            \"_id\": \"68b84f92d85bfe0adf83c9c7\",\n            \"username\": \"fabian.condori\",\n            \"firstname\": \"Fabian Rieral\",\n            \"lastname\": \"Condori Llanos\",\n            \"phone\": \"123456789\",\n            \"role\": \"admin\",\n            \"totpEnabled\": true,\n            \"enabled\": true\n        }\n    ]\n}"
+						}
+					]
+				},
+				{
+					"name": "1.14 Get User by Username",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/users/:username",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"users",
+								":username"
+							],
+							"variable": [
+								{
+									"key": "username",
+									"value": "admin"
+								}
+							]
+						},
+						"description": "Obtiene un usuario por su username"
+					},
+					"response": [
+						{
+							"name": "1.14 Get User by Username",
+							"originalRequest": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{baseUrl}}/users/:username",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"users",
+										":username"
+									],
+									"variable": [
+										{
+											"key": "username",
+											"value": "pwndoc"
+										}
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "Text",
+							"header": [
+								{
+									"key": "Content-Security-Policy",
+									"value": "default-src 'self';style-src 'self' 'unsafe-inline';script-src 'self' 'unsafe-inline' 'unsafe-eval';img-src 'self' data: blob:;connect-src 'self' ws: wss:;font-src 'self' data:;object-src 'none';media-src 'self';frame-src 'none';base-uri 'self';form-action 'self';frame-ancestors 'self';script-src-attr 'none';upgrade-insecure-requests"
+								},
+								{
+									"key": "Cross-Origin-Opener-Policy",
+									"value": "same-origin"
+								},
+								{
+									"key": "Cross-Origin-Resource-Policy",
+									"value": "cross-origin"
+								},
+								{
+									"key": "Origin-Agent-Cluster",
+									"value": "?1"
+								},
+								{
+									"key": "Referrer-Policy",
+									"value": "no-referrer"
+								},
+								{
+									"key": "Strict-Transport-Security",
+									"value": "max-age=15552000; includeSubDomains"
+								},
+								{
+									"key": "X-Content-Type-Options",
+									"value": "nosniff"
+								},
+								{
+									"key": "X-DNS-Prefetch-Control",
+									"value": "off"
+								},
+								{
+									"key": "X-Download-Options",
+									"value": "noopen"
+								},
+								{
+									"key": "X-Frame-Options",
+									"value": "SAMEORIGIN"
+								},
+								{
+									"key": "X-Permitted-Cross-Domain-Policies",
+									"value": "none"
+								},
+								{
+									"key": "X-XSS-Protection",
+									"value": "0"
+								},
+								{
+									"key": "Vary",
+									"value": "Origin"
+								},
+								{
+									"key": "Access-Control-Allow-Credentials",
+									"value": "true"
+								},
+								{
+									"key": "Access-Control-Expose-Headers",
+									"value": "Content-Disposition"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json; charset=utf-8"
+								},
+								{
+									"key": "Content-Length",
+									"value": "169"
+								},
+								{
+									"key": "ETag",
+									"value": "W/\"a9-1sASgc4d95aYVkSgvVF+h05vBVI\""
+								},
+								{
+									"key": "Date",
+									"value": "Mon, 29 Dec 2025 19:02:47 GMT"
+								},
+								{
+									"key": "Connection",
+									"value": "keep-alive"
+								},
+								{
+									"key": "Keep-Alive",
+									"value": "timeout=5"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"status\": \"success\",\n    \"data\": {\n        \"_id\": \"67ace974b74f10b1ad6129f0\",\n        \"username\": \"pwndoc\",\n        \"firstname\": \"admin\",\n        \"lastname\": \"CGII\",\n        \"role\": \"user\",\n        \"totpEnabled\": false,\n        \"enabled\": true\n    }\n}"
+						}
+					]
+				},
+				{
+					"name": "1.15 Create User",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"username\": \"pentester1\",\n    \"password\": \"Pentester123!\",\n    \"firstname\": \"John\",\n    \"lastname\": \"Doe\",\n    \"role\": \"user\",\n    \"email\": \"john@example.com\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/users",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"users"
+							]
+						},
+						"description": "Crea un nuevo usuario"
+					},
+					"response": [
+						{
+							"name": "1.15 Create User",
+							"originalRequest": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"username\": \"pentester1\",\n    \"password\": \"Pentester123!\",\n    \"firstname\": \"test\",\n    \"lastname\": \"test\",\n    \"role\": \"user\",\n    \"email\": \"test@example.com\"\n}"
+								},
+								"url": {
+									"raw": "{{baseUrl}}/users",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"users"
+									]
+								}
+							},
+							"status": "Created",
+							"code": 201,
+							"_postman_previewlanguage": "Text",
+							"header": [
+								{
+									"key": "Content-Security-Policy",
+									"value": "default-src 'self';style-src 'self' 'unsafe-inline';script-src 'self' 'unsafe-inline' 'unsafe-eval';img-src 'self' data: blob:;connect-src 'self' ws: wss:;font-src 'self' data:;object-src 'none';media-src 'self';frame-src 'none';base-uri 'self';form-action 'self';frame-ancestors 'self';script-src-attr 'none';upgrade-insecure-requests"
+								},
+								{
+									"key": "Cross-Origin-Opener-Policy",
+									"value": "same-origin"
+								},
+								{
+									"key": "Cross-Origin-Resource-Policy",
+									"value": "cross-origin"
+								},
+								{
+									"key": "Origin-Agent-Cluster",
+									"value": "?1"
+								},
+								{
+									"key": "Referrer-Policy",
+									"value": "no-referrer"
+								},
+								{
+									"key": "Strict-Transport-Security",
+									"value": "max-age=15552000; includeSubDomains"
+								},
+								{
+									"key": "X-Content-Type-Options",
+									"value": "nosniff"
+								},
+								{
+									"key": "X-DNS-Prefetch-Control",
+									"value": "off"
+								},
+								{
+									"key": "X-Download-Options",
+									"value": "noopen"
+								},
+								{
+									"key": "X-Frame-Options",
+									"value": "SAMEORIGIN"
+								},
+								{
+									"key": "X-Permitted-Cross-Domain-Policies",
+									"value": "none"
+								},
+								{
+									"key": "X-XSS-Protection",
+									"value": "0"
+								},
+								{
+									"key": "Vary",
+									"value": "Origin"
+								},
+								{
+									"key": "Access-Control-Allow-Credentials",
+									"value": "true"
+								},
+								{
+									"key": "Access-Control-Expose-Headers",
+									"value": "Content-Disposition"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json; charset=utf-8"
+								},
+								{
+									"key": "Content-Length",
+									"value": "55"
+								},
+								{
+									"key": "ETag",
+									"value": "W/\"37-g9yhSxQ5Qgg52qoBIJeSrScehlg\""
+								},
+								{
+									"key": "Date",
+									"value": "Mon, 29 Dec 2025 19:03:42 GMT"
+								},
+								{
+									"key": "Connection",
+									"value": "keep-alive"
+								},
+								{
+									"key": "Keep-Alive",
+									"value": "timeout=5"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"status\": \"success\",\n    \"data\": \"User created successfully\"\n}"
+						}
+					]
+				},
+				{
+					"name": "1.16 Update User",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"firstname\": \"John Updated\",\n    \"role\": \"user\",\n    \"enabled\": true\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/users/:id",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"users",
+								":id"
+							],
+							"variable": [
+								{
+									"key": "id",
+									"value": "USER_ID_HERE"
+								}
+							]
+						},
+						"description": "Actualiza un usuario (admin)"
+					},
+					"response": [
+						{
+							"name": "1.16 Update User",
+							"originalRequest": {
+								"method": "PUT",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"firstname\": \"test Updated\",\n    \"role\": \"user\",\n    \"enabled\": true\n}"
+								},
+								"url": {
+									"raw": "{{baseUrl}}/users/:id",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"users",
+										":id"
+									],
+									"variable": [
+										{
+											"key": "id",
+											"value": "6952d08e433b929b1e4d6825"
+										}
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "Text",
+							"header": [
+								{
+									"key": "Content-Security-Policy",
+									"value": "default-src 'self';style-src 'self' 'unsafe-inline';script-src 'self' 'unsafe-inline' 'unsafe-eval';img-src 'self' data: blob:;connect-src 'self' ws: wss:;font-src 'self' data:;object-src 'none';media-src 'self';frame-src 'none';base-uri 'self';form-action 'self';frame-ancestors 'self';script-src-attr 'none';upgrade-insecure-requests"
+								},
+								{
+									"key": "Cross-Origin-Opener-Policy",
+									"value": "same-origin"
+								},
+								{
+									"key": "Cross-Origin-Resource-Policy",
+									"value": "cross-origin"
+								},
+								{
+									"key": "Origin-Agent-Cluster",
+									"value": "?1"
+								},
+								{
+									"key": "Referrer-Policy",
+									"value": "no-referrer"
+								},
+								{
+									"key": "Strict-Transport-Security",
+									"value": "max-age=15552000; includeSubDomains"
+								},
+								{
+									"key": "X-Content-Type-Options",
+									"value": "nosniff"
+								},
+								{
+									"key": "X-DNS-Prefetch-Control",
+									"value": "off"
+								},
+								{
+									"key": "X-Download-Options",
+									"value": "noopen"
+								},
+								{
+									"key": "X-Frame-Options",
+									"value": "SAMEORIGIN"
+								},
+								{
+									"key": "X-Permitted-Cross-Domain-Policies",
+									"value": "none"
+								},
+								{
+									"key": "X-XSS-Protection",
+									"value": "0"
+								},
+								{
+									"key": "Vary",
+									"value": "Origin"
+								},
+								{
+									"key": "Access-Control-Allow-Credentials",
+									"value": "true"
+								},
+								{
+									"key": "Access-Control-Expose-Headers",
+									"value": "Content-Disposition"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json; charset=utf-8"
+								},
+								{
+									"key": "Content-Length",
+									"value": "55"
+								},
+								{
+									"key": "ETag",
+									"value": "W/\"37-BKoo4lNQy464mtP2UDi+QKg4xx0\""
+								},
+								{
+									"key": "Date",
+									"value": "Mon, 29 Dec 2025 19:04:33 GMT"
+								},
+								{
+									"key": "Connection",
+									"value": "keep-alive"
+								},
+								{
+									"key": "Keep-Alive",
+									"value": "timeout=5"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"status\": \"success\",\n    \"data\": \"User updated successfully\"\n}"
+						}
+					]
+				},
+				{
+					"name": "1.17 Get Reviewers",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/users/reviewers",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"users",
+								"reviewers"
+							]
+						},
+						"description": "Obtiene usuarios que pueden ser revisores"
+					},
+					"response": [
+						{
+							"name": "1.17 Get Reviewers",
+							"originalRequest": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{baseUrl}}/users/reviewers",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"users",
+										"reviewers"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "Text",
+							"header": [
+								{
+									"key": "Content-Security-Policy",
+									"value": "default-src 'self';style-src 'self' 'unsafe-inline';script-src 'self' 'unsafe-inline' 'unsafe-eval';img-src 'self' data: blob:;connect-src 'self' ws: wss:;font-src 'self' data:;object-src 'none';media-src 'self';frame-src 'none';base-uri 'self';form-action 'self';frame-ancestors 'self';script-src-attr 'none';upgrade-insecure-requests"
+								},
+								{
+									"key": "Cross-Origin-Opener-Policy",
+									"value": "same-origin"
+								},
+								{
+									"key": "Cross-Origin-Resource-Policy",
+									"value": "cross-origin"
+								},
+								{
+									"key": "Origin-Agent-Cluster",
+									"value": "?1"
+								},
+								{
+									"key": "Referrer-Policy",
+									"value": "no-referrer"
+								},
+								{
+									"key": "Strict-Transport-Security",
+									"value": "max-age=15552000; includeSubDomains"
+								},
+								{
+									"key": "X-Content-Type-Options",
+									"value": "nosniff"
+								},
+								{
+									"key": "X-DNS-Prefetch-Control",
+									"value": "off"
+								},
+								{
+									"key": "X-Download-Options",
+									"value": "noopen"
+								},
+								{
+									"key": "X-Frame-Options",
+									"value": "SAMEORIGIN"
+								},
+								{
+									"key": "X-Permitted-Cross-Domain-Policies",
+									"value": "none"
+								},
+								{
+									"key": "X-XSS-Protection",
+									"value": "0"
+								},
+								{
+									"key": "Vary",
+									"value": "Origin"
+								},
+								{
+									"key": "Access-Control-Allow-Credentials",
+									"value": "true"
+								},
+								{
+									"key": "Access-Control-Expose-Headers",
+									"value": "Content-Disposition"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json; charset=utf-8"
+								},
+								{
+									"key": "Content-Length",
+									"value": "635"
+								},
+								{
+									"key": "ETag",
+									"value": "W/\"27b-T9S2bE7NdO0YEh9aIDS5lub2hKc\""
+								},
+								{
+									"key": "Date",
+									"value": "Mon, 29 Dec 2025 19:04:47 GMT"
+								},
+								{
+									"key": "Connection",
+									"value": "keep-alive"
+								},
+								{
+									"key": "Keep-Alive",
+									"value": "timeout=5"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"status\": \"success\",\n    \"data\": [\n        {\n            \"_id\": \"67ae0467b74f10b1ad612d2d\",\n            \"username\": \"jhon.fernandez\",\n            \"firstname\": \"Jhon\",\n            \"lastname\": \"Fernandez\",\n            \"email\": \"jhon.fernandez@agetic.gob.bo\",\n            \"phone\": \"68643975\",\n            \"role\": \"admin\",\n            \"totpEnabled\": false,\n            \"enabled\": false\n        },\n        {\n            \"_id\": \"67ae0939b74f10b1ad612dbd\",\n            \"username\": \"juan.benito\",\n            \"firstname\": \"Juan\",\n            \"lastname\": \"Benito\",\n            \"email\": \"juan.benito@agetic.gob.bo\",\n            \"phone\": \"68643975\",\n            \"role\": \"admin\",\n            \"totpEnabled\": false,\n            \"enabled\": true\n        },\n        {\n            \"_id\": \"68b84f92d85bfe0adf83c9c7\",\n            \"username\": \"fabian.condori\",\n            \"firstname\": \"Fabian Rieral\",\n            \"lastname\": \"Condori Llanos\",\n            \"phone\": \"123456789\",\n            \"role\": \"admin\",\n            \"totpEnabled\": true,\n            \"enabled\": true\n        }\n    ]\n}"
+						}
+					]
+				},
+				{
+					"name": "1.18 Get Roles",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/users/roles",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"users",
+								"roles"
+							]
+						},
+						"description": "Obtiene roles disponibles"
+					},
+					"response": [
+						{
+							"name": "1.18 Get Roles",
+							"originalRequest": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{baseUrl}}/users/roles",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"users",
+										"roles"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "Text",
+							"header": [
+								{
+									"key": "Content-Security-Policy",
+									"value": "default-src 'self';style-src 'self' 'unsafe-inline';script-src 'self' 'unsafe-inline' 'unsafe-eval';img-src 'self' data: blob:;connect-src 'self' ws: wss:;font-src 'self' data:;object-src 'none';media-src 'self';frame-src 'none';base-uri 'self';form-action 'self';frame-ancestors 'self';script-src-attr 'none';upgrade-insecure-requests"
+								},
+								{
+									"key": "Cross-Origin-Opener-Policy",
+									"value": "same-origin"
+								},
+								{
+									"key": "Cross-Origin-Resource-Policy",
+									"value": "cross-origin"
+								},
+								{
+									"key": "Origin-Agent-Cluster",
+									"value": "?1"
+								},
+								{
+									"key": "Referrer-Policy",
+									"value": "no-referrer"
+								},
+								{
+									"key": "Strict-Transport-Security",
+									"value": "max-age=15552000; includeSubDomains"
+								},
+								{
+									"key": "X-Content-Type-Options",
+									"value": "nosniff"
+								},
+								{
+									"key": "X-DNS-Prefetch-Control",
+									"value": "off"
+								},
+								{
+									"key": "X-Download-Options",
+									"value": "noopen"
+								},
+								{
+									"key": "X-Frame-Options",
+									"value": "SAMEORIGIN"
+								},
+								{
+									"key": "X-Permitted-Cross-Domain-Policies",
+									"value": "none"
+								},
+								{
+									"key": "X-XSS-Protection",
+									"value": "0"
+								},
+								{
+									"key": "Vary",
+									"value": "Origin"
+								},
+								{
+									"key": "Access-Control-Allow-Credentials",
+									"value": "true"
+								},
+								{
+									"key": "Access-Control-Expose-Headers",
+									"value": "Content-Disposition"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json; charset=utf-8"
+								},
+								{
+									"key": "Content-Length",
+									"value": "53"
+								},
+								{
+									"key": "ETag",
+									"value": "W/\"35-24TF06DwuYGVbZkC440zCakYd4o\""
+								},
+								{
+									"key": "Date",
+									"value": "Mon, 29 Dec 2025 19:05:04 GMT"
+								},
+								{
+									"key": "Connection",
+									"value": "keep-alive"
+								},
+								{
+									"key": "Keep-Alive",
+									"value": "timeout=5"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"status\": \"success\",\n    \"data\": [\n        \"report\",\n        \"user\",\n        \"admin\"\n    ]\n}"
+						}
+					]
+				}
+			],
+			"description": "Autenticación y gestión de usuarios"
+		},
+		{
+			"name": "2. Companies",
+			"item": [
+				{
+					"name": "2.1 Get All Companies",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/companies",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"companies"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "2.2 Get Company by ID",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/companies/:id",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"companies",
+								":id"
+							],
+							"variable": [
+								{
+									"key": "id",
+									"value": "COMPANY_ID_HERE"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "2.3 Create Company",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"Acme Corporation\",\n    \"shortName\": \"ACME\",\n    \"logo\": \"\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/companies",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"companies"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "2.4 Update Company",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"Acme Corp Updated\",\n    \"shortName\": \"ACU\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/companies/:id",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"companies",
+								":id"
+							],
+							"variable": [
+								{
+									"key": "id",
+									"value": "COMPANY_ID_HERE"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "2.5 Delete Company",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/companies/:id",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"companies",
+								":id"
+							],
+							"variable": [
+								{
+									"key": "id",
+									"value": "COMPANY_ID_HERE"
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			],
+			"description": "Gestión de compañías"
+		},
+		{
+			"name": "3. Clients",
+			"item": [
+				{
+					"name": "3.1 Get All Clients",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/clients",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"clients"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "3.2 Get Client by ID",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/clients/:id",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"clients",
+								":id"
+							],
+							"variable": [
+								{
+									"key": "id",
+									"value": "CLIENT_ID_HERE"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "3.3 Create Client",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"email\": \"client@acme.com\",\n    \"firstname\": \"Jane\",\n    \"lastname\": \"Smith\",\n    \"phone\": \"+1234567890\",\n    \"cell\": \"+0987654321\",\n    \"title\": \"CTO\",\n    \"company\": \"Acme Corporation\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/clients",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"clients"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "3.4 Update Client",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"firstname\": \"Jane Updated\",\n    \"title\": \"CEO\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/clients/:id",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"clients",
+								":id"
+							],
+							"variable": [
+								{
+									"key": "id",
+									"value": "CLIENT_ID_HERE"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "3.5 Delete Client",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/clients/:id",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"clients",
+								":id"
+							],
+							"variable": [
+								{
+									"key": "id",
+									"value": "CLIENT_ID_HERE"
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			],
+			"description": "Gestión de clientes"
+		},
+		{
+			"name": "4. Templates",
+			"item": [
+				{
+					"name": "4.1 Get All Templates",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/templates",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"templates"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "4.2 Get Template by ID",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/templates/:id",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"templates",
+								":id"
+							],
+							"variable": [
+								{
+									"key": "id",
+									"value": "TEMPLATE_ID_HERE"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "4.3 Create Template",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "name",
+									"value": "Default Template",
+									"type": "text"
+								},
+								{
+									"key": "file",
+									"type": "file",
+									"src": "/path/to/template.docx"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{baseUrl}}/templates",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"templates"
+							]
+						},
+						"description": "Sube una plantilla de reporte (archivo .docx)"
+					},
+					"response": []
+				},
+				{
+					"name": "4.4 Update Template",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "name",
+									"value": "Updated Template",
+									"type": "text"
+								},
+								{
+									"key": "file",
+									"type": "file",
+									"src": "/path/to/new-template.docx"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{baseUrl}}/templates/:id",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"templates",
+								":id"
+							],
+							"variable": [
+								{
+									"key": "id",
+									"value": "TEMPLATE_ID_HERE"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "4.5 Download Template",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/templates/:id/download",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"templates",
+								":id",
+								"download"
+							],
+							"variable": [
+								{
+									"key": "id",
+									"value": "TEMPLATE_ID_HERE"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "4.6 Delete Template",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/templates/:id",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"templates",
+								":id"
+							],
+							"variable": [
+								{
+									"key": "id",
+									"value": "TEMPLATE_ID_HERE"
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			],
+			"description": "Gestión de plantillas de reportes"
+		},
+		{
+			"name": "5. Vulnerabilities",
+			"item": [
+				{
+					"name": "5.1 Get All Vulnerabilities",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/vulnerabilities",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"vulnerabilities"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "5.2 Export Vulnerabilities",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/vulnerabilities/export",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"vulnerabilities",
+								"export"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "5.3 Find by Title",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/vulnerabilities/find?title=SQL Injection&locale=en",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"vulnerabilities",
+								"find"
+							],
+							"query": [
+								{
+									"key": "title",
+									"value": "SQL Injection"
+								},
+								{
+									"key": "locale",
+									"value": "en"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "5.4 Get Vulnerability by ID",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/vulnerabilities/:id",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"vulnerabilities",
+								":id"
+							],
+							"variable": [
+								{
+									"key": "id",
+									"value": "VULN_ID_HERE"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "5.5 Create Vulnerability",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"details\": [\n        {\n            \"locale\": \"en\",\n            \"title\": \"SQL Injection\",\n            \"vulnType\": \"Web Application\",\n            \"description\": \"SQL injection vulnerability allows attackers to execute arbitrary SQL commands.\",\n            \"observation\": \"The application does not properly sanitize user input.\",\n            \"remediation\": \"Use parameterized queries or prepared statements.\",\n            \"references\": [\"https://owasp.org/www-community/attacks/SQL_Injection\"]\n        }\n    ],\n    \"cvssv3\": \"CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:H\",\n    \"priority\": 1,\n    \"remediationComplexity\": 2,\n    \"category\": \"Injection\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/vulnerabilities",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"vulnerabilities"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "5.6 Create Multiple Vulnerabilities",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "[\n    {\n        \"details\": [\n            {\n                \"locale\": \"en\",\n                \"title\": \"XSS - Cross Site Scripting\",\n                \"vulnType\": \"Web Application\",\n                \"description\": \"XSS vulnerability\",\n                \"remediation\": \"Encode output\"\n            }\n        ],\n        \"cvssv3\": \"CVSS:3.1/AV:N/AC:L/PR:N/UI:R/S:C/C:L/I:L/A:N\"\n    },\n    {\n        \"details\": [\n            {\n                \"locale\": \"en\",\n                \"title\": \"CSRF - Cross Site Request Forgery\",\n                \"vulnType\": \"Web Application\",\n                \"description\": \"CSRF vulnerability\",\n                \"remediation\": \"Use CSRF tokens\"\n            }\n        ],\n        \"cvssv3\": \"CVSS:3.1/AV:N/AC:L/PR:N/UI:R/S:U/C:N/I:L/A:N\"\n    }\n]"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/vulnerabilities",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"vulnerabilities"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "5.7 Update Vulnerability",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"details\": [\n        {\n            \"locale\": \"en\",\n            \"title\": \"SQL Injection - Updated\",\n            \"description\": \"Updated description\"\n        }\n    ],\n    \"priority\": 2\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/vulnerabilities/:id",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"vulnerabilities",
+								":id"
+							],
+							"variable": [
+								{
+									"key": "id",
+									"value": "VULN_ID_HERE"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "5.8 Delete Vulnerability",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/vulnerabilities/:id",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"vulnerabilities",
+								":id"
+							],
+							"variable": [
+								{
+									"key": "id",
+									"value": "VULN_ID_HERE"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "5.9 Delete Multiple Vulnerabilities",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"vulnerabilityIds\": [\n        \"ID_1\",\n        \"ID_2\"\n    ]\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/vulnerabilities/delete",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"vulnerabilities",
+								"delete"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "5.10 Merge Vulnerabilities",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"vulnIdFrom\": \"SOURCE_VULN_ID\",\n    \"vulnIdTo\": \"TARGET_VULN_ID\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/vulnerabilities/merge",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"vulnerabilities",
+								"merge"
+							]
+						},
+						"description": "Combina dos vulnerabilidades en una"
+					},
+					"response": []
+				}
+			],
+			"description": "Base de conocimiento de vulnerabilidades"
+		},
+		{
+			"name": "6. Audits",
+			"item": [
+				{
+					"name": "6.1 Basic CRUD",
+					"item": [
+						{
+							"name": "Get All Audits",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{baseUrl}}/audits",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"audits"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Get Audits with Filters",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{baseUrl}}/audits?type=default&state=EDIT",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"audits"
+									],
+									"query": [
+										{
+											"key": "type",
+											"value": "default"
+										},
+										{
+											"key": "state",
+											"value": "EDIT"
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Create Audit",
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"name\": \"Pentest Web Application - Acme Corp\",\n    \"language\": \"en\",\n    \"auditType\": \"Web Application\"\n}"
+								},
+								"url": {
+									"raw": "{{baseUrl}}/audits",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"audits"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Get Audit by ID",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{baseUrl}}/audits/:id",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"audits",
+										":id"
+									],
+									"variable": [
+										{
+											"key": "id",
+											"value": "AUDIT_ID_HERE"
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Delete Audit",
+							"request": {
+								"method": "DELETE",
+								"header": [],
+								"url": {
+									"raw": "{{baseUrl}}/audits/:id",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"audits",
+										":id"
+									],
+									"variable": [
+										{
+											"key": "id",
+											"value": "AUDIT_ID_HERE"
+										}
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "6.2 General Info",
+					"item": [
+						{
+							"name": "Get General Info",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{baseUrl}}/audits/:id/general",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"audits",
+										":id",
+										"general"
+									],
+									"variable": [
+										{
+											"key": "id",
+											"value": "AUDIT_ID_HERE"
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Update General Info",
+							"request": {
+								"method": "PUT",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"name\": \"Updated Audit Name\",\n    \"date\": \"2024-01-15\",\n    \"date_start\": \"2024-01-10\",\n    \"date_end\": \"2024-01-20\",\n    \"collaborators\": [],\n    \"reviewers\": []\n}"
+								},
+								"url": {
+									"raw": "{{baseUrl}}/audits/:id/general",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"audits",
+										":id",
+										"general"
+									],
+									"variable": [
+										{
+											"key": "id",
+											"value": "AUDIT_ID_HERE"
+										}
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "6.3 Network",
+					"item": [
+						{
+							"name": "Get Network Info",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{baseUrl}}/audits/:id/network",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"audits",
+										":id",
+										"network"
+									],
+									"variable": [
+										{
+											"key": "id",
+											"value": "AUDIT_ID_HERE"
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Update Network Info",
+							"request": {
+								"method": "PUT",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"scope\": [\n        {\n            \"host\": \"192.168.1.0/24\",\n            \"description\": \"Internal network\"\n        },\n        {\n            \"host\": \"https://app.acme.com\",\n            \"description\": \"Main web application\"\n        }\n    ]\n}"
+								},
+								"url": {
+									"raw": "{{baseUrl}}/audits/:id/network",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"audits",
+										":id",
+										"network"
+									],
+									"variable": [
+										{
+											"key": "id",
+											"value": "AUDIT_ID_HERE"
+										}
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "6.4 Findings",
+					"item": [
+						{
+							"name": "Get All Findings",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{baseUrl}}/audits/:id/findings",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"audits",
+										":id",
+										"findings"
+									],
+									"variable": [
+										{
+											"key": "id",
+											"value": "AUDIT_ID_HERE"
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Create Finding",
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"title\": \"SQL Injection in Login Form\",\n    \"vulnType\": \"Web Application\",\n    \"description\": \"A SQL injection vulnerability was found in the login form.\",\n    \"observation\": \"The username parameter is vulnerable to SQL injection.\",\n    \"remediation\": \"Use parameterized queries.\",\n    \"cvssv3\": \"CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:H\",\n    \"priority\": 1,\n    \"references\": [\"https://owasp.org/www-community/attacks/SQL_Injection\"],\n    \"poc\": \"username: admin' OR '1'='1\",\n    \"scope\": \"https://app.acme.com/login\",\n    \"status\": 0\n}"
+								},
+								"url": {
+									"raw": "{{baseUrl}}/audits/:id/findings",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"audits",
+										":id",
+										"findings"
+									],
+									"variable": [
+										{
+											"key": "id",
+											"value": "AUDIT_ID_HERE"
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Get Finding by ID",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{baseUrl}}/audits/:id/findings/:findingId",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"audits",
+										":id",
+										"findings",
+										":findingId"
+									],
+									"variable": [
+										{
+											"key": "id",
+											"value": "AUDIT_ID_HERE"
+										},
+										{
+											"key": "findingId",
+											"value": "FINDING_ID_HERE"
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Update Finding",
+							"request": {
+								"method": "PUT",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"title\": \"SQL Injection in Login Form - Updated\",\n    \"status\": 1,\n    \"priority\": 2\n}"
+								},
+								"url": {
+									"raw": "{{baseUrl}}/audits/:id/findings/:findingId",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"audits",
+										":id",
+										"findings",
+										":findingId"
+									],
+									"variable": [
+										{
+											"key": "id",
+											"value": "AUDIT_ID_HERE"
+										},
+										{
+											"key": "findingId",
+											"value": "FINDING_ID_HERE"
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Delete Finding",
+							"request": {
+								"method": "DELETE",
+								"header": [],
+								"url": {
+									"raw": "{{baseUrl}}/audits/:id/findings/:findingId",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"audits",
+										":id",
+										"findings",
+										":findingId"
+									],
+									"variable": [
+										{
+											"key": "id",
+											"value": "AUDIT_ID_HERE"
+										},
+										{
+											"key": "findingId",
+											"value": "FINDING_ID_HERE"
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Move Finding",
+							"request": {
+								"method": "PUT",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"newIndex\": 0\n}"
+								},
+								"url": {
+									"raw": "{{baseUrl}}/audits/:id/findings/:findingId/move",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"audits",
+										":id",
+										"findings",
+										":findingId",
+										"move"
+									],
+									"variable": [
+										{
+											"key": "id",
+											"value": "AUDIT_ID_HERE"
+										},
+										{
+											"key": "findingId",
+											"value": "FINDING_ID_HERE"
+										}
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "6.5 Sections",
+					"item": [
+						{
+							"name": "Get All Sections",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{baseUrl}}/audits/:id/sections",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"audits",
+										":id",
+										"sections"
+									],
+									"variable": [
+										{
+											"key": "id",
+											"value": "AUDIT_ID_HERE"
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Create Section",
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"field\": \"executive_summary\",\n    \"name\": \"Executive Summary\",\n    \"text\": \"This is the executive summary content.\"\n}"
+								},
+								"url": {
+									"raw": "{{baseUrl}}/audits/:id/sections",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"audits",
+										":id",
+										"sections"
+									],
+									"variable": [
+										{
+											"key": "id",
+											"value": "AUDIT_ID_HERE"
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Update Section",
+							"request": {
+								"method": "PUT",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"text\": \"Updated executive summary content.\"\n}"
+								},
+								"url": {
+									"raw": "{{baseUrl}}/audits/:id/sections/:sectionId",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"audits",
+										":id",
+										"sections",
+										":sectionId"
+									],
+									"variable": [
+										{
+											"key": "id",
+											"value": "AUDIT_ID_HERE"
+										},
+										{
+											"key": "sectionId",
+											"value": "SECTION_ID_HERE"
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Delete Section",
+							"request": {
+								"method": "DELETE",
+								"header": [],
+								"url": {
+									"raw": "{{baseUrl}}/audits/:id/sections/:sectionId",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"audits",
+										":id",
+										"sections",
+										":sectionId"
+									],
+									"variable": [
+										{
+											"key": "id",
+											"value": "AUDIT_ID_HERE"
+										},
+										{
+											"key": "sectionId",
+											"value": "SECTION_ID_HERE"
+										}
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "6.6 State & Review",
+					"item": [
+						{
+							"name": "Update State",
+							"request": {
+								"method": "PUT",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"state\": \"REVIEW\"\n}"
+								},
+								"url": {
+									"raw": "{{baseUrl}}/audits/:id/state",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"audits",
+										":id",
+										"state"
+									],
+									"variable": [
+										{
+											"key": "id",
+											"value": "AUDIT_ID_HERE"
+										}
+									]
+								},
+								"description": "States: EDIT, REVIEW, APPROVED"
+							},
+							"response": []
+						},
+						{
+							"name": "Mark Ready for Review",
+							"request": {
+								"method": "PUT",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"reviewers\": [\"REVIEWER_USER_ID\"]\n}"
+								},
+								"url": {
+									"raw": "{{baseUrl}}/audits/:id/ready-for-review",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"audits",
+										":id",
+										"ready-for-review"
+									],
+									"variable": [
+										{
+											"key": "id",
+											"value": "AUDIT_ID_HERE"
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Add Approval",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"url": {
+									"raw": "{{baseUrl}}/audits/:id/approvals",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"audits",
+										":id",
+										"approvals"
+									],
+									"variable": [
+										{
+											"key": "id",
+											"value": "AUDIT_ID_HERE"
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Remove Approval",
+							"request": {
+								"method": "DELETE",
+								"header": [],
+								"url": {
+									"raw": "{{baseUrl}}/audits/:id/approvals",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"audits",
+										":id",
+										"approvals"
+									],
+									"variable": [
+										{
+											"key": "id",
+											"value": "AUDIT_ID_HERE"
+										}
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "6.7 Comments",
+					"item": [
+						{
+							"name": "Create Comment",
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"text\": \"This finding needs more details.\",\n    \"findingId\": \"FINDING_ID_HERE\"\n}"
+								},
+								"url": {
+									"raw": "{{baseUrl}}/audits/:id/comments",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"audits",
+										":id",
+										"comments"
+									],
+									"variable": [
+										{
+											"key": "id",
+											"value": "AUDIT_ID_HERE"
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Update Comment",
+							"request": {
+								"method": "PUT",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"text\": \"Updated comment text.\"\n}"
+								},
+								"url": {
+									"raw": "{{baseUrl}}/audits/:id/comments/:commentId",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"audits",
+										":id",
+										"comments",
+										":commentId"
+									],
+									"variable": [
+										{
+											"key": "id",
+											"value": "AUDIT_ID_HERE"
+										},
+										{
+											"key": "commentId",
+											"value": "COMMENT_ID_HERE"
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Delete Comment",
+							"request": {
+								"method": "DELETE",
+								"header": [],
+								"url": {
+									"raw": "{{baseUrl}}/audits/:id/comments/:commentId",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"audits",
+										":id",
+										"comments",
+										":commentId"
+									],
+									"variable": [
+										{
+											"key": "id",
+											"value": "AUDIT_ID_HERE"
+										},
+										{
+											"key": "commentId",
+											"value": "COMMENT_ID_HERE"
+										}
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "6.8 Retest",
+					"item": [
+						{
+							"name": "Get Children Audits",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{baseUrl}}/audits/:id/children",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"audits",
+										":id",
+										"children"
+									],
+									"variable": [
+										{
+											"key": "id",
+											"value": "AUDIT_ID_HERE"
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Get Retest",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{baseUrl}}/audits/:id/retest",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"audits",
+										":id",
+										"retest"
+									],
+									"variable": [
+										{
+											"key": "id",
+											"value": "AUDIT_ID_HERE"
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Create Retest",
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"auditType\": \"Retest\"\n}"
+								},
+								"url": {
+									"raw": "{{baseUrl}}/audits/:id/retest",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"audits",
+										":id",
+										"retest"
+									],
+									"variable": [
+										{
+											"key": "id",
+											"value": "AUDIT_ID_HERE"
+										}
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "6.9 Sorting",
+					"item": [
+						{
+							"name": "Update Sort Options",
+							"request": {
+								"method": "PUT",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"sortFindings\": {\n        \"enabled\": true,\n        \"sortBy\": \"cvssScore\",\n        \"sortOrder\": \"desc\"\n    }\n}"
+								},
+								"url": {
+									"raw": "{{baseUrl}}/audits/:id/sortfindings",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"audits",
+										":id",
+										"sortfindings"
+									],
+									"variable": [
+										{
+											"key": "id",
+											"value": "AUDIT_ID_HERE"
+										}
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				}
+			],
+			"description": "Gestión de auditorías"
+		},
+		{
+			"name": "7. Data (Languages, Types, etc)",
+			"item": [
+				{
+					"name": "7.1 Languages",
+					"item": [
+						{
+							"name": "Get Languages",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{baseUrl}}/data/languages",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"data",
+										"languages"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Create Language",
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"language\": \"Spanish\",\n    \"locale\": \"es\"\n}"
+								},
+								"url": {
+									"raw": "{{baseUrl}}/data/languages",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"data",
+										"languages"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Update All Languages",
+							"request": {
+								"method": "PUT",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "[\n    {\"language\": \"English\", \"locale\": \"en\"},\n    {\"language\": \"Spanish\", \"locale\": \"es\"},\n    {\"language\": \"French\", \"locale\": \"fr\"}\n]"
+								},
+								"url": {
+									"raw": "{{baseUrl}}/data/languages",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"data",
+										"languages"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Delete Language",
+							"request": {
+								"method": "DELETE",
+								"header": [],
+								"url": {
+									"raw": "{{baseUrl}}/data/languages/:locale",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"data",
+										"languages",
+										":locale"
+									],
+									"variable": [
+										{
+											"key": "locale",
+											"value": "es"
+										}
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "7.2 Audit Types",
+					"item": [
+						{
+							"name": "Get Audit Types",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{baseUrl}}/data/audit-types",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"data",
+										"audit-types"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Create Audit Type",
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"name\": \"Web Application\",\n    \"templates\": [],\n    \"sections\": [],\n    \"hidden\": []\n}"
+								},
+								"url": {
+									"raw": "{{baseUrl}}/data/audit-types",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"data",
+										"audit-types"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Update Audit Type",
+							"request": {
+								"method": "PUT",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"name\": \"Web Application - Updated\"\n}"
+								},
+								"url": {
+									"raw": "{{baseUrl}}/data/audit-types/:id",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"data",
+										"audit-types",
+										":id"
+									],
+									"variable": [
+										{
+											"key": "id",
+											"value": "AUDIT_TYPE_ID"
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Delete Audit Type",
+							"request": {
+								"method": "DELETE",
+								"header": [],
+								"url": {
+									"raw": "{{baseUrl}}/data/audit-types/:id",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"data",
+										"audit-types",
+										":id"
+									],
+									"variable": [
+										{
+											"key": "id",
+											"value": "AUDIT_TYPE_ID"
+										}
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "7.3 Vulnerability Types",
+					"item": [
+						{
+							"name": "Get Vulnerability Types",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{baseUrl}}/data/vulnerability-types",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"data",
+										"vulnerability-types"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Update Vulnerability Types",
+							"request": {
+								"method": "PUT",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "[\n    {\"name\": \"Web Application\", \"locale\": \"en\"},\n    {\"name\": \"Network\", \"locale\": \"en\"},\n    {\"name\": \"Mobile\", \"locale\": \"en\"}\n]"
+								},
+								"url": {
+									"raw": "{{baseUrl}}/data/vulnerability-types",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"data",
+										"vulnerability-types"
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "7.4 Vulnerability Categories",
+					"item": [
+						{
+							"name": "Get Vulnerability Categories",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{baseUrl}}/data/vulnerability-categories",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"data",
+										"vulnerability-categories"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Update Vulnerability Categories",
+							"request": {
+								"method": "PUT",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "[\n    {\"name\": \"Critical\", \"sortValue\": \"cvssScore\", \"sortOrder\": \"desc\", \"sortAuto\": true},\n    {\"name\": \"High\", \"sortValue\": \"cvssScore\", \"sortOrder\": \"desc\", \"sortAuto\": true},\n    {\"name\": \"Medium\", \"sortValue\": \"cvssScore\", \"sortOrder\": \"desc\", \"sortAuto\": true},\n    {\"name\": \"Low\", \"sortValue\": \"cvssScore\", \"sortOrder\": \"desc\", \"sortAuto\": true},\n    {\"name\": \"Info\", \"sortValue\": \"cvssScore\", \"sortOrder\": \"desc\", \"sortAuto\": true}\n]"
+								},
+								"url": {
+									"raw": "{{baseUrl}}/data/vulnerability-categories",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"data",
+										"vulnerability-categories"
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "7.5 Custom Fields",
+					"item": [
+						{
+							"name": "Get Custom Fields",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{baseUrl}}/data/custom-fields",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"data",
+										"custom-fields"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Create Custom Field",
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"fieldType\": \"text\",\n    \"label\": \"Custom Label\",\n    \"display\": \"finding\",\n    \"displaySub\": \"\",\n    \"size\": 12,\n    \"offset\": 0,\n    \"required\": false,\n    \"description\": \"A custom text field\"\n}"
+								},
+								"url": {
+									"raw": "{{baseUrl}}/data/custom-fields",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"data",
+										"custom-fields"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Update Custom Field",
+							"request": {
+								"method": "PUT",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"label\": \"Updated Label\",\n    \"required\": true\n}"
+								},
+								"url": {
+									"raw": "{{baseUrl}}/data/custom-fields/:id",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"data",
+										"custom-fields",
+										":id"
+									],
+									"variable": [
+										{
+											"key": "id",
+											"value": "FIELD_ID"
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Delete Custom Field",
+							"request": {
+								"method": "DELETE",
+								"header": [],
+								"url": {
+									"raw": "{{baseUrl}}/data/custom-fields/:id",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"data",
+										"custom-fields",
+										":id"
+									],
+									"variable": [
+										{
+											"key": "id",
+											"value": "FIELD_ID"
+										}
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "7.6 Custom Sections",
+					"item": [
+						{
+							"name": "Get Custom Sections",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{baseUrl}}/data/sections",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"data",
+										"sections"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Create Custom Section",
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"field\": \"methodology\",\n    \"name\": \"Methodology\",\n    \"icon\": \"mdi-format-list-checks\"\n}"
+								},
+								"url": {
+									"raw": "{{baseUrl}}/data/sections",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"data",
+										"sections"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Update Custom Section",
+							"request": {
+								"method": "PUT",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"name\": \"Methodology Updated\",\n    \"icon\": \"mdi-clipboard-check\"\n}"
+								},
+								"url": {
+									"raw": "{{baseUrl}}/data/sections/:id",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"data",
+										"sections",
+										":id"
+									],
+									"variable": [
+										{
+											"key": "id",
+											"value": "SECTION_ID"
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Delete Custom Section",
+							"request": {
+								"method": "DELETE",
+								"header": [],
+								"url": {
+									"raw": "{{baseUrl}}/data/sections/:id",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"data",
+										"sections",
+										":id"
+									],
+									"variable": [
+										{
+											"key": "id",
+											"value": "SECTION_ID"
+										}
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				}
+			],
+			"description": "Datos auxiliares"
+		},
+		{
+			"name": "8. Settings",
+			"item": [
+				{
+					"name": "8.1 Get Public Settings",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/settings/public",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"settings",
+								"public"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "8.2 Get All Settings (Admin)",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/settings",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"settings"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "8.3 Update Settings",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"reportName\": \"Security Assessment Report\",\n    \"displayRecoveredColumns\": true,\n    \"reviews\": {\n        \"enabled\": true,\n        \"minReviewers\": 1\n    }\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/settings",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"settings"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "8.4 Restore Default Settings",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/settings/revert",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"settings",
+								"revert"
+							]
+						}
+					},
+					"response": []
+				}
+			],
+			"description": "Configuración de la aplicación"
+		},
+		{
+			"name": "9. Backups",
+			"item": [
+				{
+					"name": "9.1 Get Backup List",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/backups",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"backups"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "9.2 Get Backup Status",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/backups/status",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"backups",
+								"status"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "9.3 Get Disk Usage",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/backups/disk-usage",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"backups",
+								"disk-usage"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "9.4 Create Backup",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"Full Backup - Dec 2024\",\n    \"password\": \"optional-encryption-password\",\n    \"backupData\": [\n        \"Audits\",\n        \"Vulnerabilities\",\n        \"Users\",\n        \"Clients\",\n        \"Companies\",\n        \"Templates\",\n        \"Settings\"\n    ]\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/backups",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"backups"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "9.5 Get Backup Info",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/backups/:slug",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"backups",
+								":slug"
+							],
+							"variable": [
+								{
+									"key": "slug",
+									"value": "BACKUP_SLUG"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "9.6 Download Backup",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/backups/:slug/download",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"backups",
+								":slug",
+								"download"
+							],
+							"variable": [
+								{
+									"key": "slug",
+									"value": "BACKUP_SLUG"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "9.7 Restore Backup",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"password\": \"encryption-password-if-protected\",\n    \"restoreData\": [\n        \"Audits\",\n        \"Vulnerabilities\"\n    ],\n    \"mode\": \"upsert\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/backups/:slug/restore",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"backups",
+								":slug",
+								"restore"
+							],
+							"variable": [
+								{
+									"key": "slug",
+									"value": "BACKUP_SLUG"
+								}
+							]
+						},
+						"description": "Mode: 'upsert' (merge) or 'revert' (replace all)"
+					},
+					"response": []
+				},
+				{
+					"name": "9.8 Upload Backup",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "file",
+									"type": "file",
+									"src": "/path/to/backup.tar"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{baseUrl}}/backups/upload",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"backups",
+								"upload"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "9.9 Delete Backup",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/backups/:slug",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"backups",
+								":slug"
+							],
+							"variable": [
+								{
+									"key": "slug",
+									"value": "BACKUP_SLUG"
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			],
+			"description": "Backup y restauración"
+		},
+		{
+			"name": "10. Images",
+			"item": [
+				{
+					"name": "10.1 Get Image by ID",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/images/:id",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"images",
+								":id"
+							],
+							"variable": [
+								{
+									"key": "id",
+									"value": "IMAGE_ID"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "10.2 Create Image",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"value\": \"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==\",\n    \"name\": \"screenshot.png\",\n    \"auditId\": \"AUDIT_ID_HERE\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/images",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"images"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "10.3 Delete Image",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/images/:id",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"images",
+								":id"
+							],
+							"variable": [
+								{
+									"key": "id",
+									"value": "IMAGE_ID"
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			],
+			"description": "Gestión de imágenes"
+		},
+		{
+			"name": "11. Health Check",
+			"item": [
+				{
+					"name": "Health Check",
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/health",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"health"
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "Health Check",
+							"originalRequest": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{baseUrl}}/health",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"health"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "Text",
+							"header": [
+								{
+									"key": "Content-Security-Policy",
+									"value": "default-src 'self';style-src 'self' 'unsafe-inline';script-src 'self' 'unsafe-inline' 'unsafe-eval';img-src 'self' data: blob:;connect-src 'self' ws: wss:;font-src 'self' data:;object-src 'none';media-src 'self';frame-src 'none';base-uri 'self';form-action 'self';frame-ancestors 'self';script-src-attr 'none';upgrade-insecure-requests"
+								},
+								{
+									"key": "Cross-Origin-Opener-Policy",
+									"value": "same-origin"
+								},
+								{
+									"key": "Cross-Origin-Resource-Policy",
+									"value": "cross-origin"
+								},
+								{
+									"key": "Origin-Agent-Cluster",
+									"value": "?1"
+								},
+								{
+									"key": "Referrer-Policy",
+									"value": "no-referrer"
+								},
+								{
+									"key": "Strict-Transport-Security",
+									"value": "max-age=15552000; includeSubDomains"
+								},
+								{
+									"key": "X-Content-Type-Options",
+									"value": "nosniff"
+								},
+								{
+									"key": "X-DNS-Prefetch-Control",
+									"value": "off"
+								},
+								{
+									"key": "X-Download-Options",
+									"value": "noopen"
+								},
+								{
+									"key": "X-Frame-Options",
+									"value": "SAMEORIGIN"
+								},
+								{
+									"key": "X-Permitted-Cross-Domain-Policies",
+									"value": "none"
+								},
+								{
+									"key": "X-XSS-Protection",
+									"value": "0"
+								},
+								{
+									"key": "Vary",
+									"value": "Origin"
+								},
+								{
+									"key": "Access-Control-Allow-Credentials",
+									"value": "true"
+								},
+								{
+									"key": "Access-Control-Expose-Headers",
+									"value": "Content-Disposition"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json; charset=utf-8"
+								},
+								{
+									"key": "Content-Length",
+									"value": "77"
+								},
+								{
+									"key": "ETag",
+									"value": "W/\"4d-+bwz9m8fL9DTgrINHIHzUM4LhE8\""
+								},
+								{
+									"key": "Date",
+									"value": "Mon, 29 Dec 2025 18:02:50 GMT"
+								},
+								{
+									"key": "Connection",
+									"value": "keep-alive"
+								},
+								{
+									"key": "Keep-Alive",
+									"value": "timeout=5"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"status\": \"ok\",\n    \"timestamp\": \"2025-12-29T18:02:50.442Z\",\n    \"uptime\": 211.498816602\n}"
+						}
+					]
+				}
+			],
+			"description": "Estado del servidor"
+		},
+		{
+			"name": "12. Audit Procedures (ACGII)",
+			"item": [
+				{
+					"name": "12.1 Listar Procedimientos",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/audit-procedures",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"audit-procedures"
+							]
+						},
+						"description": "Obtiene lista de todos los procedimientos de auditoría"
+					},
+					"response": []
+				},
+				{
+					"name": "12.2 Crear Procedimiento",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"titulo\": \"Evaluaci\\u00f3n de Seguridad Web\",\n  \"descripcion\": \"Procedimiento para evaluar seguridad en aplicaciones web\",\n  \"auditId\": \"{{auditId}}\",\n  \"tipo\": \"tecnica\",\n  \"alcance\": \"aplicacion_web\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/audit-procedures",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"audit-procedures"
+							]
+						},
+						"description": "Crea un nuevo procedimiento de auditoría"
+					},
+					"response": []
+				},
+				{
+					"name": "12.3 Obtener Procedimiento",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/audit-procedures/:id",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"audit-procedures",
+								":id"
+							],
+							"variable": [
+								{
+									"key": "id"
+								}
+							]
+						},
+						"description": "Obtiene un procedimiento específico"
+					},
+					"response": []
+				},
+				{
+					"name": "12.4 Actualizar Procedimiento",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"titulo\": \"Evaluaci\\u00f3n Actualizada\",\n  \"descripcion\": \"Descripci\\u00f3n actualizada\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/audit-procedures/:id",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"audit-procedures",
+								":id"
+							],
+							"variable": [
+								{
+									"key": "id"
+								}
+							]
+						},
+						"description": "Actualiza un procedimiento existente"
+					},
+					"response": []
+				},
+				{
+					"name": "12.5 Eliminar Procedimiento",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/audit-procedures/:id",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"audit-procedures",
+								":id"
+							],
+							"variable": [
+								{
+									"key": "id"
+								}
+							]
+						},
+						"description": "Elimina un procedimiento"
+					},
+					"response": []
+				},
+				{
+					"name": "12.6 Actualizar Informe",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"informe\": \"Contenido del informe t\\u00e9cnico...\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/audit-procedures/:id/informe",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"audit-procedures",
+								":id",
+								"informe"
+							],
+							"variable": [
+								{
+									"key": "id"
+								}
+							]
+						},
+						"description": "Actualiza el informe del procedimiento"
+					},
+					"response": []
+				},
+				{
+					"name": "12.7 Actualizar Instructivo",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"instructivo\": \"Pasos a seguir para ejecutar el procedimiento...\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/audit-procedures/:id/instructivo",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"audit-procedures",
+								":id",
+								"instructivo"
+							],
+							"variable": [
+								{
+									"key": "id"
+								}
+							]
+						},
+						"description": "Actualiza el instructivo del procedimiento"
+					},
+					"response": []
+				},
+				{
+					"name": "12.8 Actualizar Notas",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"notas\": \"Observaciones importantes...\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/audit-procedures/:id/notas",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"audit-procedures",
+								":id",
+								"notas"
+							],
+							"variable": [
+								{
+									"key": "id"
+								}
+							]
+						},
+						"description": "Actualiza notas adicionales"
+					},
+					"response": []
+				},
+				{
+					"name": "12.9 Actualizar Respuesta",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"respuesta\": \"Respuesta de la entidad auditada...\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/audit-procedures/:id/respuesta",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"audit-procedures",
+								":id",
+								"respuesta"
+							],
+							"variable": [
+								{
+									"key": "id"
+								}
+							]
+						},
+						"description": "Actualiza la respuesta del procedimiento"
+					},
+					"response": []
+				},
+				{
+					"name": "12.10 Actualizar Retest",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"retest\": \"Resultados de re-evaluaci\\u00f3n...\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/audit-procedures/:id/retest",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"audit-procedures",
+								":id",
+								"retest"
+							],
+							"variable": [
+								{
+									"key": "id"
+								}
+							]
+						},
+						"description": "Actualiza información de retest"
+					},
+					"response": []
+				},
+				{
+					"name": "12.11 Actualizar Solicitud",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"solicitud\": \"Solicitud formal de informaci\\u00f3n...\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/audit-procedures/:id/solicitud",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"audit-procedures",
+								":id",
+								"solicitud"
+							],
+							"variable": [
+								{
+									"key": "id"
+								}
+							]
+						},
+						"description": "Actualiza la solicitud asociada"
+					},
+					"response": []
+				},
+				{
+					"name": "12.12 Obtener Tipos de Alcance",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/audit-procedures/alcance-tipos",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"audit-procedures",
+								"alcance-tipos"
+							]
+						},
+						"description": "Obtiene los tipos de alcance disponibles"
+					},
+					"response": []
+				},
+				{
+					"name": "12.13 Listar por Auditoría",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/audit-procedures/audit/:auditId",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"audit-procedures",
+								"audit",
+								":auditId"
+							],
+							"variable": [
+								{
+									"key": "auditId"
+								}
+							]
+						},
+						"description": "Obtiene procedimientos de una auditoría específica"
+					},
+					"response": []
+				},
+				{
+					"name": "12.14 Actualizar por Auditoría",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"procedimientos\": []\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/audit-procedures/audit/:auditId",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"audit-procedures",
+								"audit",
+								":auditId"
+							],
+							"variable": [
+								{
+									"key": "auditId"
+								}
+							]
+						},
+						"description": "Actualiza múltiples procedimientos de una auditoría"
+					},
+					"response": []
+				},
+				{
+					"name": "12.15 Buscar Procedimientos",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/audit-procedures/search?q=seguridad",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"audit-procedures",
+								"search"
+							],
+							"query": [
+								{
+									"key": "q",
+									"value": "seguridad"
+								}
+							]
+						},
+						"description": "Busca procedimientos por término"
+					},
+					"response": []
+				},
+				{
+					"name": "12.16 Estadísticas",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/audit-procedures/stats",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"audit-procedures",
+								"stats"
+							]
+						},
+						"description": "Obtiene estadísticas de procedimientos"
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "13. Audit Status (ACGII)",
+			"item": [
+				{
+					"name": "13.1 Listar Estados",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/audit-status",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"audit-status"
+							]
+						},
+						"description": "Obtiene lista de todos los estados de auditoría"
+					},
+					"response": []
+				},
+				{
+					"name": "13.2 Crear Estado",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"auditId\": \"{{auditId}}\",\n  \"tipo\": \"en_progreso\",\n  \"descripcion\": \"Auditor\\u00eda en fase de campo\",\n  \"fecha\": \"2024-01-15\",\n  \"responsable\": \"{{userId}}\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/audit-status",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"audit-status"
+							]
+						},
+						"description": "Crea un nuevo estado de auditoría"
+					},
+					"response": []
+				},
+				{
+					"name": "13.3 Obtener Estado",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/audit-status/:id",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"audit-status",
+								":id"
+							],
+							"variable": [
+								{
+									"key": "id"
+								}
+							]
+						},
+						"description": "Obtiene un estado específico"
+					},
+					"response": []
+				},
+				{
+					"name": "13.4 Actualizar Estado",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"tipo\": \"completado\",\n  \"descripcion\": \"Auditor\\u00eda finalizada\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/audit-status/:id",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"audit-status",
+								":id"
+							],
+							"variable": [
+								{
+									"key": "id"
+								}
+							]
+						},
+						"description": "Actualiza un estado existente"
+					},
+					"response": []
+				},
+				{
+					"name": "13.5 Eliminar Estado",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/audit-status/:id",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"audit-status",
+								":id"
+							],
+							"variable": [
+								{
+									"key": "id"
+								}
+							]
+						},
+						"description": "Elimina un estado"
+					},
+					"response": []
+				},
+				{
+					"name": "13.6 Listar por Auditoría",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/audit-status/audit/:auditId",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"audit-status",
+								"audit",
+								":auditId"
+							],
+							"variable": [
+								{
+									"key": "auditId"
+								}
+							]
+						},
+						"description": "Obtiene estados de una auditoría específica"
+					},
+					"response": []
+				},
+				{
+					"name": "13.7 Actualizar por Auditoría",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"estadoActual\": \"en_revision\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/audit-status/audit/:auditId",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"audit-status",
+								"audit",
+								":auditId"
+							],
+							"variable": [
+								{
+									"key": "auditId"
+								}
+							]
+						},
+						"description": "Actualiza el estado actual de una auditoría"
+					},
+					"response": []
+				},
+				{
+					"name": "13.8 Historial de Estados",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/audit-status/audit/:auditId/history",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"audit-status",
+								"audit",
+								":auditId",
+								"history"
+							],
+							"variable": [
+								{
+									"key": "auditId"
+								}
+							]
+						},
+						"description": "Obtiene el historial completo de cambios de estado"
+					},
+					"response": []
+				},
+				{
+					"name": "13.9 Estadísticas de Estados",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/audit-status/stats",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"audit-status",
+								"stats"
+							]
+						},
+						"description": "Obtiene estadísticas de estados de auditorías"
+					},
+					"response": []
+				},
+				{
+					"name": "13.10 Tipos de Estado",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/audit-status/types",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"audit-status",
+								"types"
+							]
+						},
+						"description": "Obtiene los tipos de estado disponibles"
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "14. Audit Verification (ACGII)",
+			"item": [
+				{
+					"name": "14.1 Listar Verificaciones",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/audit-verification",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"audit-verification"
+							]
+						},
+						"description": "Obtiene lista de todas las verificaciones"
+					},
+					"response": []
+				},
+				{
+					"name": "14.2 Crear Verificación",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"auditId\": \"{{auditId}}\",\n  \"titulo\": \"Verificaci\\u00f3n Q1 2024\",\n  \"descripcion\": \"Verificaci\\u00f3n de hallazgos reportados\",\n  \"fechaProgramada\": \"2024-03-15\",\n  \"responsable\": \"{{userId}}\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/audit-verification",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"audit-verification"
+							]
+						},
+						"description": "Crea una nueva verificación de hallazgos"
+					},
+					"response": []
+				},
+				{
+					"name": "14.3 Obtener Verificación",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/audit-verification/:id",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"audit-verification",
+								":id"
+							],
+							"variable": [
+								{
+									"key": "id"
+								}
+							]
+						},
+						"description": "Obtiene una verificación específica"
+					},
+					"response": []
+				},
+				{
+					"name": "14.4 Actualizar Verificación",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"descripcion\": \"Verificaci\\u00f3n actualizada\",\n  \"fechaReal\": \"2024-03-16\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/audit-verification/:id",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"audit-verification",
+								":id"
+							],
+							"variable": [
+								{
+									"key": "id"
+								}
+							]
+						},
+						"description": "Actualiza una verificación existente"
+					},
+					"response": []
+				},
+				{
+					"name": "14.5 Eliminar Verificación",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/audit-verification/:id",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"audit-verification",
+								":id"
+							],
+							"variable": [
+								{
+									"key": "id"
+								}
+							]
+						},
+						"description": "Elimina una verificación"
+					},
+					"response": []
+				},
+				{
+					"name": "14.6 Finalizar Verificación",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"conclusiones\": \"Todos los hallazgos fueron verificados\",\n  \"fechaFinalizacion\": \"2024-03-20\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/audit-verification/:id/finalize",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"audit-verification",
+								":id",
+								"finalize"
+							],
+							"variable": [
+								{
+									"key": "id"
+								}
+							]
+						},
+						"description": "Marca la verificación como finalizada"
+					},
+					"response": []
+				},
+				{
+					"name": "14.7 Agregar Hallazgo a Verificación",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"findingId\": \"{{findingId}}\",\n  \"estadoVerificacion\": \"pendiente\",\n  \"notas\": \"Hallazgo cr\\u00edtico a verificar\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/audit-verification/:id/findings",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"audit-verification",
+								":id",
+								"findings"
+							],
+							"variable": [
+								{
+									"key": "id"
+								}
+							]
+						},
+						"description": "Agrega un hallazgo para verificar"
+					},
+					"response": []
+				},
+				{
+					"name": "14.8 Actualizar Hallazgo en Verificación",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"estadoVerificacion\": \"verificado\",\n  \"notas\": \"Hallazgo corregido correctamente\",\n  \"evidencia\": \"Screenshots adjuntos\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/audit-verification/:id/findings/:findingId",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"audit-verification",
+								":id",
+								"findings",
+								":findingId"
+							],
+							"variable": [
+								{
+									"key": "id"
+								},
+								{
+									"key": "findingId"
+								}
+							]
+						},
+						"description": "Actualiza el estado de un hallazgo verificado"
+					},
+					"response": []
+				},
+				{
+					"name": "14.9 Eliminar Hallazgo de Verificación",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/audit-verification/:id/findings/:findingId",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"audit-verification",
+								":id",
+								"findings",
+								":findingId"
+							],
+							"variable": [
+								{
+									"key": "id"
+								},
+								{
+									"key": "findingId"
+								}
+							]
+						},
+						"description": "Elimina un hallazgo de la verificación"
+					},
+					"response": []
+				},
+				{
+					"name": "14.10 Listar por Auditoría",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/audit-verification/audit/:auditId",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"audit-verification",
+								"audit",
+								":auditId"
+							],
+							"variable": [
+								{
+									"key": "auditId"
+								}
+							]
+						},
+						"description": "Obtiene verificaciones de una auditoría específica"
+					},
+					"response": []
+				},
+				{
+					"name": "14.11 Estadísticas de Verificación",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/audit-verification/stats",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"audit-verification",
+								"stats"
+							]
+						},
+						"description": "Obtiene estadísticas de verificaciones"
+					},
+					"response": []
+				},
+				{
+					"name": "14.12 Estados de Verificación",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/audit-verification/statuses",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"audit-verification",
+								"statuses"
+							]
+						},
+						"description": "Obtiene los posibles estados de verificación"
+					},
+					"response": []
+				}
+			]
+		}
+	],
+	"auth": {
+		"type": "bearer",
+		"bearer": [
+			{
+				"key": "token",
+				"value": "{{token}}",
+				"type": "string"
+			}
+		]
+	},
+	"variable": [
+		{
+			"key": "baseUrl",
+			"value": "http://localhost:4242/api",
+			"type": "string"
+		},
+		{
+			"key": "token",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "refreshToken",
+			"value": "",
+			"type": "string"
+		}
+	]
+}

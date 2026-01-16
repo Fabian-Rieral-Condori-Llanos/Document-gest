@@ -85,6 +85,18 @@ router.put('/vulnerability-types',
     asyncHandler(DataController.updateVulnerabilityTypes)
 );
 
+router.post('/vulnerability-types',
+    verifyToken,
+    acl.hasPermission('vulnerability-types:create'),
+    asyncHandler(DataController.createVulnerabilityType)
+);
+
+router.delete('/vulnerability-types/:name',
+    verifyToken,
+    acl.hasPermission('vulnerability-types:delete'),
+    asyncHandler(DataController.deleteVulnerabilityType)
+);
+
 // ============================================
 // VULNERABILITY CATEGORIES
 // ============================================
@@ -99,6 +111,18 @@ router.put('/vulnerability-categories',
     verifyToken,
     acl.hasPermission('vulnerability-categories:update'),
     asyncHandler(DataController.updateVulnerabilityCategories)
+);
+
+router.post('/vulnerability-categories',
+    verifyToken,
+    acl.hasPermission('vulnerability-categories:create'),
+    asyncHandler(DataController.createVulnerabilityCategory)
+);
+
+router.delete('/vulnerability-categories/:id',
+    verifyToken,
+    acl.hasPermission('vulnerability-categories:delete'),
+    asyncHandler(DataController.deleteVulnerabilityCategory)
 );
 
 // ============================================

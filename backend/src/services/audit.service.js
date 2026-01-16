@@ -1,5 +1,8 @@
 const mongoose = require('mongoose');
 const Audit = mongoose.model('Audit');
+const AuditStatus = require('../models/audit-status.model');
+const AuditProcedure = require('../models/audit-procedure.model');
+const ProcedureTemplate = require('../models/procedure-template.model');
 const { getSockets } = require('../utils/helpers');
 
 class AuditService {
@@ -159,19 +162,71 @@ class AuditService {
 
     /**
      * Crea una nueva auditoría
+     * Automáticamente crea:
+     * - AuditStatus con estado EVALUANDO
+     * - AuditProcedure con el origen del template seleccionado
+     * 
      * @param {Object} auditData
+     * @param {string} auditData.procedureTemplateId - ID del template de procedimiento (opcional)
      * @param {string} creatorId
      */
     static async create(auditData, creatorId) {
+        // Extraer procedureTemplateId antes de crear la auditoría
+        const { procedureTemplateId, ...auditFields } = auditData;
+        
         const audit = new Audit({
-            ...auditData,
+            ...auditFields,
             creator: creatorId,
             collaborators: [creatorId]
         });
 
         try {
-            return await audit.save();
+            // Guardar la auditoría
+            await audit.save();
+            
+            // Crear AuditStatus automáticamente
+            const auditStatus = new AuditStatus({
+                auditId: audit._id,
+                status: AuditStatus.STATUS.EVALUANDO,
+                history: [{
+                    status: AuditStatus.STATUS.EVALUANDO,
+                    changedAt: new Date(),
+                    changedBy: creatorId,
+                    notes: 'Estado inicial - Auditoría creada'
+                }]
+            });
+            await auditStatus.save();
+            
+            // Crear AuditProcedure automáticamente
+            let origen = '';
+            
+            // Si se proporcionó un template, obtener el código
+            if (procedureTemplateId) {
+                const template = await ProcedureTemplate.findById(procedureTemplateId);
+                if (template) {
+                    origen = template.code;
+                }
+            }
+            
+            const auditProcedure = new AuditProcedure({
+                auditId: audit._id,
+                origen: origen,
+                alcance: [],
+                createdBy: creatorId
+            });
+            await auditProcedure.save();
+            
+            console.log(`[Audit] Created audit ${audit._id} with status and procedure`);
+            
+            return audit;
         } catch (err) {
+            // Si falla, intentar limpiar los registros creados
+            if (audit._id) {
+                await AuditStatus.deleteOne({ auditId: audit._id }).catch(() => {});
+                await AuditProcedure.deleteOne({ auditId: audit._id }).catch(() => {});
+                await Audit.deleteOne({ _id: audit._id }).catch(() => {});
+            }
+            
             if (err.code === 11000) {
                 throw { fn: 'BadParameters', message: 'Audit name already exists' };
             }
@@ -249,6 +304,7 @@ class AuditService {
 
     /**
      * Elimina una auditoría
+     * También elimina: AuditStatus, AuditProcedure, AuditVerification relacionados
      * @param {boolean} isAdmin
      * @param {string} auditId
      * @param {string} userId
@@ -265,9 +321,20 @@ class AuditService {
             throw { fn: 'NotFound', message: 'Audit not found or Insufficient Privileges' };
         }
 
+        // Eliminar registros relacionados
+        const AuditVerification = require('../models/audit-verification.model');
+        
+        await Promise.all([
+            AuditStatus.deleteOne({ auditId }),
+            AuditProcedure.deleteOne({ auditId }),
+            AuditVerification.deleteMany({ auditId })
+        ]);
+
         // Eliminar auditoría y sus hijos
         await Audit.deleteOne({ _id: auditId });
         await Audit.deleteMany({ parentId: auditId });
+
+        console.log(`[Audit] Deleted audit ${auditId} with related records`);
 
         return 'Audit deleted successfully';
     }

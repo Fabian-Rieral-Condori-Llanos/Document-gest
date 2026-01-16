@@ -177,6 +177,48 @@ class DataController {
         }
     }
 
+    /**
+     * POST /api/data/vulnerability-types
+     */
+    static async createVulnerabilityType(req, res) {
+        try {
+            const VulnerabilityType = mongoose.model('VulnerabilityType');
+            
+            // Verificar si ya existe
+            const existing = await VulnerabilityType.findOne({ name: req.body.name, locale: req.body.locale });
+            if (existing) {
+                return Response.BadParameters(res, 'Vulnerability type already exists');
+            }
+
+            const type = new VulnerabilityType(req.body);
+            const saved = await type.save();
+            Response.Created(res, saved);
+        } catch (err) {
+            if (err.code === 11000) {
+                return Response.BadParameters(res, 'Vulnerability type already exists');
+            }
+            Response.Internal(res, err);
+        }
+    }
+
+    /**
+     * DELETE /api/data/vulnerability-types/:name
+     */
+    static async deleteVulnerabilityType(req, res) {
+        try {
+            const VulnerabilityType = mongoose.model('VulnerabilityType');
+            const type = await VulnerabilityType.findOneAndDelete({ name: req.params.name });
+
+            if (!type) {
+                return Response.NotFound(res, 'Vulnerability type not found');
+            }
+
+            Response.Ok(res, 'Vulnerability type deleted successfully');
+        } catch (err) {
+            Response.Internal(res, err);
+        }
+    }
+
     // ============================================
     // VULNERABILITY CATEGORIES
     // ============================================
@@ -215,6 +257,41 @@ class DataController {
             }
 
             Response.Ok(res, 'Vulnerability categories updated successfully');
+        } catch (err) {
+            Response.Internal(res, err);
+        }
+    }
+
+    /**
+     * POST /api/data/vulnerability-categories
+     */
+    static async createVulnerabilityCategory(req, res) {
+        try {
+            const VulnerabilityCategory = mongoose.model('VulnerabilityCategory');
+            const category = new VulnerabilityCategory(req.body);
+            const saved = await category.save();
+            Response.Created(res, saved);
+        } catch (err) {
+            if (err.code === 11000) {
+                return Response.BadParameters(res, 'Vulnerability category already exists');
+            }
+            Response.Internal(res, err);
+        }
+    }
+
+    /**
+     * DELETE /api/data/vulnerability-categories/:id
+     */
+    static async deleteVulnerabilityCategory(req, res) {
+        try {
+            const VulnerabilityCategory = mongoose.model('VulnerabilityCategory');
+            const category = await VulnerabilityCategory.findByIdAndDelete(req.params.id);
+
+            if (!category) {
+                return Response.NotFound(res, 'Vulnerability category not found');
+            }
+
+            Response.Ok(res, 'Vulnerability category deleted successfully');
         } catch (err) {
             Response.Internal(res, err);
         }

@@ -244,10 +244,10 @@ class AuditProcedureService {
     }
 
     /**
-     * Obtiene los tipos de alcance disponibles
+     * Obtiene los tipos de alcance únicos usados en el sistema
      */
-    static getAlcanceTipos() {
-        return Object.values(AuditProcedure.ALCANCE_TIPOS);
+    static async getDistinctAlcances() {
+        return await AuditProcedure.distinct('alcance');
     }
 
     /**

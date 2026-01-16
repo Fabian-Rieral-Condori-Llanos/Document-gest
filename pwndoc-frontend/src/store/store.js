@@ -12,6 +12,10 @@ import {
   auditVerificationsReducer,
   auditProceduresReducer,
 } from '../features/audits';
+import { procedureTemplatesReducer } from '../features/procedureTemplates';
+import { alcanceTemplatesReducer } from '../features/alcanceTemplates';
+import { reportTemplatesReducer } from '../features/reportTemplates';
+import { reportInstancesReducer } from '../features/reportInstances';
 
 export const store = configureStore({
   reducer: {
@@ -27,6 +31,13 @@ export const store = configureStore({
     auditStatus: auditStatusReducer,
     auditVerifications: auditVerificationsReducer,
     auditProcedures: auditProceduresReducer,
+    // Procedure Templates
+    procedureTemplates: procedureTemplatesReducer,
+    // Alcance Templates
+    alcanceTemplates: alcanceTemplatesReducer,
+    // Report Templates & Instances
+    reportTemplates: reportTemplatesReducer,
+    reportInstances: reportInstancesReducer,
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware({

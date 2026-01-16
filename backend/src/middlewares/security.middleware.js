@@ -21,7 +21,7 @@ const setupHelmet = (app) => {
                 styleSrc: ["'self'", "'unsafe-inline'"],
                 scriptSrc: ["'self'", "'unsafe-inline'", "'unsafe-eval'"],
                 imgSrc: ["'self'", "data:", "blob:"],
-                connectSrc: ["'self'", "ws:", "wss:"],
+                connectSrc: ["'self'", "http://localhost:*", "ws:", "wss:"],
                 fontSrc: ["'self'", "data:"],
                 objectSrc: ["'none'"],
                 mediaSrc: ["'self'"],
@@ -43,7 +43,7 @@ const corsOptions = {
             return callback(null, true);
         }
 
-        const allowedOrigins = config.cors?.origin || ['http://localhost:8082'];
+        const allowedOrigins = config.cors?.origin || ['http://localhost:3000'];
         
         // Si es string, convertir a array
         const origins = Array.isArray(allowedOrigins) ? allowedOrigins : [allowedOrigins];

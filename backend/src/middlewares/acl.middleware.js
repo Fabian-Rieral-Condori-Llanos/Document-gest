@@ -56,9 +56,23 @@ const builtInRoles = {
             // Custom Fields
             'custom-fields:read',
             // Settings
-            'settings:read-public'
+            'settings:read-public',
+            // Analytics
+            'analytics:read',
+            // Procedure Templates (solo lectura para usuarios)
+            'procedure-templates:read',
+            // Alcance Templates (solo lectura para usuarios)
+            'alcance-templates:read',
+            // Report Templates (solo lectura para usuarios)
+            'report-templates:read'
         ]
     },
+    // analytics: {
+    //     allows: [
+    //         'analytics:read',
+    //         "companies:read"
+    //     ]
+    // },
     admin: {
         allows: '*'  // Todos los permisos
     }

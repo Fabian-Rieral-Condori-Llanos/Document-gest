@@ -241,6 +241,16 @@ AuditSchema.index({ collaborators: 1 });
 AuditSchema.index({ reviewers: 1 });
 AuditSchema.index({ createdAt: -1 });
 
+/// ============================================
+// ÍNDICES COMPUESTOS PARA ANALYTICS
+// ============================================
+
+AuditSchema.index({ company: 1, createdAt: -1 });
+AuditSchema.index({ client: 1, createdAt: -1 });
+AuditSchema.index({ auditType: 1, createdAt: -1 });
+AuditSchema.index({ state: 1, createdAt: -1 });
+AuditSchema.index({ company: 1, state: 1 });
+
 // ============================================
 // CONSTANTES
 // ============================================

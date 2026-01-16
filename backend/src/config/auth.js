@@ -54,6 +54,9 @@ const loadConfig = () => {
 
 const envConfig = loadConfig();
 
+// Determinar si estamos en producción
+const isProduction = env === 'prod' || env === 'production';
+
 /**
  * Configuración de tokens
  */
@@ -70,17 +73,17 @@ const authConfig = {
     // Tiempo de expiración del refresh token
     refreshTokenExpiration: process.env.JWT_REFRESH_EXPIRATION || '7 days',
     
-    // Opciones de cookies
+    // Opciones de cookies (secure solo en producción)
     cookieOptions: {
-        sameSite: 'strict',
-        secure: true,
+        sameSite: isProduction ? 'strict' : 'lax',
+        secure: false,
         httpOnly: true
     },
     
     // Opciones de cookie para refresh token
     refreshCookieOptions: {
-        sameSite: 'strict',
-        secure: true,
+        sameSite: isProduction ? 'strict' : 'lax',
+        secure: false,
         httpOnly: true,
         path: '/api/users/refreshtoken'
     }

@@ -14,7 +14,7 @@ const jwt = require('jsonwebtoken');
 const setupSocketAuth = (io, authConfig) => {
     io.use((socket, next) => {
         const token = socket.handshake.auth.token || 
-                      socket.handshake.headers.authorization;
+                        socket.handshake.headers.authorization;
 
         if (!token) {
             return next(new Error('Authentication required'));
@@ -41,7 +41,7 @@ const setupSocketAuth = (io, authConfig) => {
  */
 const setupSocketHandlers = (io) => {
     io.on('connection', (socket) => {
-        console.log(`🔌 User connected: ${socket.username} (${socket.id})`);
+        console.log(`User connected: ${socket.username} (${socket.id})`);
 
         // Unirse a una sala de auditoría
         socket.on('join', (auditId) => {
@@ -128,7 +128,7 @@ const setupSocketHandlers = (io) => {
 
         // Desconexión
         socket.on('disconnect', () => {
-            console.log(`🔌 User disconnected: ${socket.username} (${socket.id})`);
+            console.log(`User disconnected: ${socket.username} (${socket.id})`);
 
             // Notificar a todas las salas donde estaba el usuario
             socket.rooms.forEach(room => {
@@ -196,3 +196,8 @@ module.exports = {
     getConnectedUsers,
     emitToRoom
 };
+
+// Re-export report collaboration handlers
+const { setupReportCollaborationHandlers, getReportConnectedUsers } = require('./report-collaboration');
+module.exports.setupReportCollaborationHandlers = setupReportCollaborationHandlers;
+module.exports.getReportConnectedUsers = getReportConnectedUsers;

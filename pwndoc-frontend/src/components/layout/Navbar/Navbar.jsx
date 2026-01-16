@@ -23,7 +23,8 @@ import {
   User,
   Menu,
   X,
-  Lock
+  Lock,
+  FileChartLine
 } from 'lucide-react';
 
 // Configuración de navegación
@@ -73,7 +74,9 @@ const navigationConfig = [
     requiredRole: 'admin',
     children: [
       { id: 'users', label: 'Usuarios', icon: Users, path: '/users' },
-      { id: 'templates', label: 'Plantillas', icon: FileBox, path: '/templates' },
+      { id: 'procedure-templates', label: 'Plantillas Procedimientos', icon: FileText, path: '/procedure-templates' },
+      { id: 'alcance-templates', label: 'Plantillas Alcance', icon: FileChartLine, path: '/alcance-templates' },
+      { id: 'templates', label: 'Plantillas Reportes', icon: FileBox, path: '/templates' },
       { id: 'backups', label: 'Backups', icon: Database, path: '/backups' },
     ],
   },

@@ -1,44 +1,51 @@
 const express = require('express');
 const router = express.Router();
 
-const SettingsController = require('../controllers/settings.controller');
+const CompanyController = require('../controllers/company.controller');
 const { verifyToken } = require('../middlewares/auth.middleware');
 const { acl } = require('../middlewares/acl.middleware');
 const { asyncHandler } = require('../middlewares/error.middleware');
 
 /**
- * Settings Routes
+ * Company Routes
  * 
- * Rutas relacionadas con la configuración de la aplicación.
- * Base path: /api/settings
+ * Rutas relacionadas con la gestión de compañías.
+ * Base path: /api/companies
  */
 
-// Obtener configuración pública (sin autenticación completa)
-router.get('/public',
-    verifyToken,
-    acl.hasPermission('settings:read-public'),
-    asyncHandler(SettingsController.getPublic)
-);
-
-// Obtener toda la configuración (admin)
+// Obtener todas las compañías
 router.get('/',
     verifyToken,
-    acl.hasPermission('settings:read'),
-    asyncHandler(SettingsController.getAll)
+    acl.hasPermission('companies:read'),
+    asyncHandler(CompanyController.getAll)
 );
 
-// Actualizar configuración
-router.put('/',
+// Obtener una compañía por ID
+router.get('/:id',
     verifyToken,
-    acl.hasPermission('settings:update'),
-    asyncHandler(SettingsController.update)
+    acl.hasPermission('companies:read'),
+    asyncHandler(CompanyController.getById)
 );
 
-// Restaurar valores por defecto
-router.post('/revert',
+// Crear nueva compañía
+router.post('/',
     verifyToken,
-    acl.hasPermission('settings:update'),
-    asyncHandler(SettingsController.restoreDefaults)
+    acl.hasPermission('companies:create'),
+    asyncHandler(CompanyController.create)
+);
+
+// Actualizar compañía
+router.put('/:id',
+    verifyToken,
+    acl.hasPermission('companies:update'),
+    asyncHandler(CompanyController.update)
+);
+
+// Eliminar compañía
+router.delete('/:id',
+    verifyToken,
+    acl.hasPermission('companies:delete'),
+    asyncHandler(CompanyController.delete)
 );
 
 module.exports = router;
