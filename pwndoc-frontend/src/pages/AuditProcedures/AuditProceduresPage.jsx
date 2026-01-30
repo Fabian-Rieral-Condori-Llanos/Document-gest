@@ -35,13 +35,11 @@ import {
   ALCANCE_LABELS,
   ALCANCE_COLORS,
 } from '../../features/audits';
-import * as alcanceTemplatesApi from '../../api/endpoints/alcance-templates.api';
 
 // Components
 import Card from '../../components/common/Card/Card';
 import Button from '../../components/common/Button/Button';
 import Pagination from '../../components/common/Pagination';
-
 
 // Utils
 const formatDate = (dateString) => {
@@ -100,13 +98,12 @@ const AuditProceduresPage = () => {
   }, [dispatch]);
 
   // Cargar tipos de alcance desde el backend
-
   const loadAlcanceTipos = async () => {
     try {
       setLoadingAlcances(true);
-      const response = await alcanceTemplatesApi.getAlcanceTipos();
-      if (response) {
-        setAlcanceTipos(response);
+      const response = await import('../../api/endpoints/audit-procedures.api').then(api => api.getAlcanceTipos());
+      if (response.data) {
+        setAlcanceTipos(response.data);
       }
     } catch (err) {
       console.error('Error loading alcance tipos:', err);

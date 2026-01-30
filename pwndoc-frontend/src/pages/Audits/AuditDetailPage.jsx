@@ -18,6 +18,7 @@ import {
   Calendar,
   RefreshCw,
   Shield,
+  FolderOpen,
 } from 'lucide-react';
 
 // Redux
@@ -37,7 +38,7 @@ import {
 import Card from '../../components/common/Card/Card';
 import Button from '../../components/common/Button/Button';
 import Alert from '../../components/common/Alert/Alert';
-import { AuditStateBadge, AuditTypeBadge, FindingsTab, NetworkTab, SectionsTab, CommentsTab, RetestModal, ApprovalCard, AuditStateCard } from './components';
+import { AuditStateBadge, AuditTypeBadge, FindingsTab, NetworkTab, SectionsTab, CommentsTab, RetestModal, ApprovalCard, AuditStateCard, ProceduresTab } from './components';
 
 // Tabs
 const TABS = {
@@ -45,6 +46,7 @@ const TABS = {
   FINDINGS: 'findings',
   NETWORK: 'network',
   SECTIONS: 'sections',
+  PROCEDURES: 'procedures',
   COMMENTS: 'comments',
 };
 
@@ -162,6 +164,7 @@ const AuditDetailPage = () => {
     { id: TABS.FINDINGS, label: `Hallazgos (${findings.length})`, icon: AlertTriangle },
     { id: TABS.NETWORK, label: 'Red', icon: Network },
     { id: TABS.SECTIONS, label: 'Secciones', icon: FileCode },
+    { id: TABS.PROCEDURES, label: 'Procedimiento', icon: FolderOpen },
     { id: TABS.COMMENTS, label: 'Comentarios', icon: MessageSquare },
   ];
 
@@ -412,6 +415,14 @@ const AuditDetailPage = () => {
           {/* Sections Tab */}
           {activeTab === TABS.SECTIONS && (
             <SectionsTab auditId={id} />
+          )}
+
+          {/* Procedures Tab */}
+          {activeTab === TABS.PROCEDURES && (
+            <ProceduresTab 
+              auditId={id} 
+              auditType={audit?.type || 'default'}
+            />
           )}
 
           {/* Comments Tab */}

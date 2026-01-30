@@ -42,14 +42,6 @@ export const getAuditProcedureStats = async () => {
 };
 
 /**
- * Obtener tipos de alcance disponibles
- */
-export const getAlcanceTipos = async () => {
-  const response = await apiClient.get('/audit-procedures/alcance-tipos');
-  return response.data;
-};
-
-/**
  * Buscar procedimientos por origen
  */
 export const searchAuditProcedures = async (query) => {
@@ -204,7 +196,6 @@ export default {
   getAuditProcedureById,
   getAuditProcedureByAuditId,
   getAuditProcedureStats,
-  getAlcanceTipos,
   searchAuditProcedures,
   // Mutaciones
   createAuditProcedure,

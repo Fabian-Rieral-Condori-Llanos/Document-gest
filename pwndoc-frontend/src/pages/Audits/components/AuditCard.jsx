@@ -37,7 +37,7 @@ const AuditCard = ({
     type,
     language,
     company,
-    client,
+    //client,
     collaborators = [],
     findings = [],
     createdAt,
@@ -58,7 +58,8 @@ const AuditCard = ({
   const companyName = typeof company === 'object' ? company?.name : company;
   
   // Obtener nombre de cliente
-  const clientName = typeof client === 'object' ? client?.name : client;
+  // const clientName = typeof client === 'object' ? client?.name : client;
+  // console.log("clientName", client)
 
   // Obtener nombre del creador
   const creatorName = typeof creator === 'object' 
@@ -215,22 +216,6 @@ const AuditCard = ({
                 <Edit className="w-4 h-4" />
                 Editar
               </button>
-              <button
-                onClick={() => handleMenuAction('duplicate')}
-                className="w-full flex items-center gap-2 px-4 py-2 text-sm text-gray-300 hover:bg-bg-secondary hover:text-white transition-colors"
-              >
-                <Copy className="w-4 h-4" />
-                Duplicar
-              </button>
-              {type !== 'retest' && (
-                <button
-                  onClick={() => handleMenuAction('retest')}
-                  className="w-full flex items-center gap-2 px-4 py-2 text-sm text-gray-300 hover:bg-bg-secondary hover:text-white transition-colors"
-                >
-                  <RefreshCw className="w-4 h-4" />
-                  Crear Retest
-                </button>
-              )}
               <div className="border-t border-gray-700 my-1" />
               <button
                 onClick={() => handleMenuAction('delete')}

@@ -1,21 +1,57 @@
-import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { 
-  BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, 
-  PieChart, Pie, Cell, LineChart, Line, Area, AreaChart 
-} from 'recharts';
-import { 
-  Shield, FileText, Building2, AlertTriangle, CheckCircle, Clock, 
-  TrendingUp, Calendar, Filter, Download, Bell, Search, ChevronDown, 
-  ExternalLink, RefreshCw, Loader2 
-} from 'lucide-react';
-import analyticsApi from '../../api/endpoints/analytics.api';
+import React, { useState } from 'react';
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, LineChart, Line, Area, AreaChart } from 'recharts';
+import { Shield, FileText, Building2, AlertTriangle, CheckCircle, Clock, TrendingUp, Calendar, Filter, Download, Bell, Search, ChevronDown, ExternalLink, RefreshCw } from 'lucide-react';
 
-// API
-// import { analyticsApi } from '../../api/endpoints/analytics.api';
+// Datos simulados basados en los procedimientos ACGII
+const evaluacionesPorTipo = [
+  { tipo: 'PR01 - Solicitud Entidades', cantidad: 24, color: '#6366f1' },
+  { tipo: 'PR02 - Interna AGETIC', cantidad: 8, color: '#06b6d4' },
+  { tipo: 'PR09 - Solicitud AGETIC', cantidad: 15, color: '#f59e0b' },
+  { tipo: 'PR03 - Externa', cantidad: 31, color: '#10b981' },
+  { tipo: 'Verificación', cantidad: 18, color: '#8b5cf6' },
+];
 
-// Componente StatCard
-const StatCard = ({ icon: Icon, title, value, subtitle, trend, trendUp, color, loading }) => (
+const vulnerabilidadesPorSeveridad = [
+  { name: 'Crítica', value: 47, color: '#dc2626' },
+  { name: 'Alta', value: 128, color: '#f97316' },
+  { name: 'Media', value: 234, color: '#eab308' },
+  { name: 'Baja', value: 312, color: '#22c55e' },
+  { name: 'Info', value: 89, color: '#6b7280' },
+];
+
+const tendenciaMensual = [
+  { mes: 'Jul', evaluaciones: 8, vulnerabilidades: 67, remediadas: 45 },
+  { mes: 'Ago', evaluaciones: 12, vulnerabilidades: 89, remediadas: 72 },
+  { mes: 'Sep', evaluaciones: 10, vulnerabilidades: 78, remediadas: 81 },
+  { mes: 'Oct', evaluaciones: 15, vulnerabilidades: 112, remediadas: 95 },
+  { mes: 'Nov', evaluaciones: 18, vulnerabilidades: 134, remediadas: 118 },
+  { mes: 'Dic', evaluaciones: 14, vulnerabilidades: 98, remediadas: 89 },
+];
+
+const entidadesEvaluadas = [
+  { id: 1, nombre: 'Min. de Economía', evaluaciones: 5, vulnCriticas: 3, vulnAltas: 12, estado: 'En Verificación', ultimaEval: '2025-12-10', tasaRemediacion: 78 },
+  { id: 2, nombre: 'Min. de Salud', evaluaciones: 4, vulnCriticas: 1, vulnAltas: 8, estado: 'Completado', ultimaEval: '2025-12-05', tasaRemediacion: 92 },
+  { id: 3, nombre: 'ADSIB', evaluaciones: 3, vulnCriticas: 0, vulnAltas: 4, estado: 'Completado', ultimaEval: '2025-11-28', tasaRemediacion: 100 },
+  { id: 4, nombre: 'Min. de Educación', evaluaciones: 6, vulnCriticas: 5, vulnAltas: 18, estado: 'Pendiente Mitigación', ultimaEval: '2025-12-15', tasaRemediacion: 45 },
+  { id: 5, nombre: 'Aduana Nacional', evaluaciones: 2, vulnCriticas: 2, vulnAltas: 9, estado: 'En Evaluación', ultimaEval: '2025-12-18', tasaRemediacion: 0 },
+  { id: 6, nombre: 'SEGIP', evaluaciones: 4, vulnCriticas: 0, vulnAltas: 6, estado: 'Completado', ultimaEval: '2025-11-20', tasaRemediacion: 95 },
+];
+
+const evaluacionesRecientes = [
+  { id: 'ACGII-2025-096', entidad: 'Aduana Nacional', tipo: 'PR03', estado: 'En Curso', fechaInicio: '2025-12-16', notaExterna: 'AGETIC/DGE/NE/2025/1847', citeInforme: null },
+  { id: 'ACGII-2025-095', entidad: 'Min. de Educación', tipo: 'PR01', estado: 'Informe Enviado', fechaInicio: '2025-12-08', notaExterna: 'AGETIC/DGE/NE/2025/1832', citeInforme: 'ACGII/IT/2025/095' },
+  { id: 'ACGII-2025-094', entidad: 'Min. de Economía', tipo: 'PR09', estado: 'Verificación', fechaInicio: '2025-12-01', notaExterna: 'AGETIC/DGE/NE/2025/1815', citeInforme: 'ACGII/IT/2025/094' },
+  { id: 'ACGII-2025-093', entidad: 'AGETIC (Interno)', tipo: 'PR02', estado: 'Completado', fechaInicio: '2025-11-25', notaExterna: null, citeInforme: 'ACGII/IT/2025/093' },
+  { id: 'ACGII-2025-092', entidad: 'Min. de Salud', tipo: 'PR01', estado: 'Completado', fechaInicio: '2025-11-20', notaExterna: 'AGETIC/DGE/NE/2025/1798', citeInforme: 'ACGII/IT/2025/092' },
+];
+
+const alertasActivas = [
+  { tipo: 'critica', mensaje: 'Min. de Educación: 5 vulnerabilidades críticas sin mitigar (>30 días)', fecha: '2025-12-18' },
+  { tipo: 'alta', mensaje: 'Aduana Nacional: Evaluación PR03 en curso - Presentación pendiente', fecha: '2025-12-17' },
+  { tipo: 'media', mensaje: 'Min. de Economía: Verificación programada para 2025-12-20', fecha: '2025-12-15' },
+];
+
+const StatCard = ({ icon: Icon, title, value, subtitle, trend, trendUp, color }) => (
   <div className="stat-card">
     <div className="stat-card-header">
       <div className={`stat-icon ${color}`}>
@@ -28,35 +64,25 @@ const StatCard = ({ icon: Icon, title, value, subtitle, trend, trendUp, color, l
         </div>
       )}
     </div>
-    <div className="stat-value">
-      {loading ? <Loader2 size={24} className="animate-spin" /> : value}
-    </div>
+    <div className="stat-value">{value}</div>
     <div className="stat-title">{title}</div>
     {subtitle && <div className="stat-subtitle">{subtitle}</div>}
   </div>
 );
 
-// Componente EstadoBadge
 const EstadoBadge = ({ estado }) => {
   const estados = {
     'En Curso': 'badge-blue',
     'En Evaluación': 'badge-blue',
-    'EVALUANDO': 'badge-blue',
     'Informe Enviado': 'badge-purple',
     'Verificación': 'badge-amber',
     'En Verificación': 'badge-amber',
-    'PENDIENTE': 'badge-amber',
     'Pendiente Mitigación': 'badge-red',
     'Completado': 'badge-green',
-    'COMPLETADO': 'badge-green',
-    'EDIT': 'badge-blue',
-    'REVIEW': 'badge-purple',
-    'APPROVED': 'badge-green',
   };
   return <span className={`badge ${estados[estado] || 'badge-gray'}`}>{estado}</span>;
 };
 
-// Componente TipoBadge
 const TipoBadge = ({ tipo }) => {
   const tipos = {
     'PR01': { label: 'Solicitud EP', class: 'tipo-pr01' },
@@ -65,95 +91,13 @@ const TipoBadge = ({ tipo }) => {
     'PR09': { label: 'Sol. AGETIC', class: 'tipo-pr09' },
     'Verificación': { label: 'Verificación', class: 'tipo-verif' },
   };
-  
-  // Extraer código de tipo (PR01, PR02, etc.)
-  const tipoKey = tipo?.split(' - ')[0] || tipo;
-  const config = tipos[tipoKey] || { label: tipo || 'Sin tipo', class: 'tipo-default' };
+  const config = tipos[tipo] || { label: tipo, class: 'tipo-default' };
   return <span className={`tipo-badge ${config.class}`}>{config.label}</span>;
 };
 
 export default function Dashboard() {
-  const navigate = useNavigate();
-  
-  // Estado
-  const [periodoFiltro, setPeriodoFiltro] = useState(new Date().getFullYear().toString());
+  const [periodoFiltro, setPeriodoFiltro] = useState('2025');
   const [searchTerm, setSearchTerm] = useState('');
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
-  const [refreshing, setRefreshing] = useState(false);
-  
-  // Datos del dashboard
-  const [dashboardData, setDashboardData] = useState({
-    stats: {},
-    evaluacionesPorTipo: [],
-    evaluacionesPorAlcance: [],
-    evaluacionesPorEstado: [],
-    vulnerabilidadesPorSeveridad: [],
-    tendenciaMensual: [],
-    entidadesEvaluadas: [],
-    evaluacionesRecientes: [],
-    alertasActivas: [],
-  });
-
-  // Cargar datos al montar y cuando cambia el filtro
-  useEffect(() => {
-    loadDashboardData();
-  }, [periodoFiltro]);
-
-  const loadDashboardData = async () => {
-    try {
-      setLoading(true);
-      setError(null);
-      
-      // Parsear año del filtro
-      let year = parseInt(periodoFiltro);
-      if (isNaN(year)) {
-        year = new Date().getFullYear();
-      }
-      
-      const response = await analyticsApi.getGlobalDashboard({ year });
-      
-      if (response.data) {
-        setDashboardData(response.data);
-      }
-    } catch (err) {
-      console.error('Error loading dashboard:', err);
-      setError('Error al cargar los datos del dashboard');
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleRefresh = async () => {
-    setRefreshing(true);
-    await loadDashboardData();
-    setRefreshing(false);
-  };
-
-  // Extraer datos
-  const { 
-    stats, 
-    evaluacionesPorTipo, 
-    evaluacionesPorProcedimiento,
-    vulnerabilidadesPorSeveridad, 
-    tendenciaMensual, 
-    entidadesEvaluadas, 
-    evaluacionesRecientes, 
-    alertasActivas 
-  } = dashboardData;
-
-  // Usar evaluacionesPorProcedimiento o evaluacionesPorTipo
-  const chartEvaluaciones = evaluacionesPorProcedimiento || evaluacionesPorTipo || [];
-
-  // Calcular total de vulnerabilidades
-  const totalVulnerabilidades = vulnerabilidadesPorSeveridad?.reduce((sum, v) => sum + (v.value || 0), 0) || 0;
-
-  // Generar opciones de años
-  const currentYear = new Date().getFullYear();
-  const yearOptions = [];
-  for (let y = currentYear; y >= currentYear - 5; y--) {
-    yearOptions.push(y);
-  }
 
   return (
     <div className="dashboard-container">
@@ -181,24 +125,16 @@ export default function Dashboard() {
             />
           </div>
           <div className="header-actions">
-            <button 
-              className="btn-icon" 
-              onClick={handleRefresh}
-              disabled={refreshing}
-              title="Actualizar datos"
-            >
-              <RefreshCw size={20} className={refreshing ? 'animate-spin' : ''} />
-            </button>
             <button className="btn-icon notifications">
               <Bell size={20} />
-              {alertasActivas?.length > 0 && <span className="notification-dot"></span>}
+              <span className="notification-dot"></span>
             </button>
             <div className="periodo-selector">
               <Calendar size={16} />
               <select value={periodoFiltro} onChange={(e) => setPeriodoFiltro(e.target.value)}>
-                {yearOptions.map(year => (
-                  <option key={year} value={year}>Gestión {year}</option>
-                ))}
+                <option value="2025">Gestión 2025</option>
+                <option value="2024">Gestión 2024</option>
+                <option value="Q4-2025">Q4 2025</option>
               </select>
               <ChevronDown size={14} />
             </div>
@@ -210,24 +146,15 @@ export default function Dashboard() {
         </div>
       </header>
 
-      {/* Error Banner */}
-      {error && (
-        <div className="error-banner">
-          <AlertTriangle size={18} />
-          <span>{error}</span>
-          <button onClick={handleRefresh}>Reintentar</button>
-        </div>
-      )}
-
       {/* Alertas Banner */}
-      {alertasActivas?.length > 0 && (
+      {alertasActivas.length > 0 && (
         <div className="alertas-banner">
           <div className="alerta-icon">
             <AlertTriangle size={18} />
           </div>
           <div className="alertas-content">
             <strong>{alertasActivas.length} alertas activas:</strong>
-            <span>{alertasActivas[0]?.mensaje}</span>
+            <span>{alertasActivas[0].mensaje}</span>
           </div>
           <button className="ver-todas">Ver todas →</button>
         </div>
@@ -238,85 +165,80 @@ export default function Dashboard() {
         <StatCard 
           icon={FileText} 
           title="Evaluaciones Totales" 
-          value={stats?.totalEvaluaciones || 0}
-          subtitle={`Gestión ${periodoFiltro}`}
+          value="96" 
+          subtitle="Gestión 2025"
+          trend="+12%"
+          trendUp={true}
           color="indigo"
-          loading={loading}
         />
         <StatCard 
           icon={Building2} 
           title="Entidades Evaluadas" 
-          value={stats?.entidadesEvaluadas || 0}
-          subtitle={`De ${stats?.totalEntidades || 0} registradas (${stats?.porcentajeCobertura || 0}%)`}
+          value="34" 
+          subtitle="De 180 registradas"
+          trend="18.9%"
+          trendUp={true}
           color="cyan"
-          loading={loading}
         />
         <StatCard 
           icon={AlertTriangle} 
           title="Vuln. Críticas Activas" 
-          value={stats?.vulnCriticasActivas || 0}
+          value="18" 
           subtitle="Requieren atención inmediata"
+          trend="-23%"
+          trendUp={true}
           color="red"
-          loading={loading}
         />
         <StatCard 
           icon={CheckCircle} 
           title="Tasa Remediación" 
-          value={`${stats?.tasaRemediacion || 0}%`}
+          value="76%" 
           subtitle="Promedio general"
+          trend="+8%"
+          trendUp={true}
           color="emerald"
-          loading={loading}
         />
         <StatCard 
           icon={Clock} 
           title="Tiempo Promedio" 
-          value={stats?.tiempoPromedioDias || 0}
+          value="12.4" 
           subtitle="Días por evaluación"
+          trend="-2.1"
+          trendUp={true}
           color="amber"
-          loading={loading}
         />
       </div>
 
       {/* Main Content Grid */}
       <div className="main-grid">
-        {/* Evaluaciones por Tipo/Procedimiento */}
+        {/* Evaluaciones por Tipo */}
         <div className="card evaluaciones-tipo">
           <div className="card-header">
             <h3>Evaluaciones por Procedimiento</h3>
-            <button className="btn-icon-small" onClick={handleRefresh} disabled={refreshing}>
-              <RefreshCw size={14} className={refreshing ? 'animate-spin' : ''} />
-            </button>
+            <button className="btn-icon-small"><RefreshCw size={14} /></button>
           </div>
           <div className="chart-container">
-            {loading ? (
-              <div className="chart-loading">
-                <Loader2 size={32} className="animate-spin" />
-              </div>
-            ) : chartEvaluaciones.length === 0 ? (
-              <div className="chart-empty">Sin datos disponibles</div>
-            ) : (
-              <ResponsiveContainer width="100%" height={240}>
-                <BarChart data={chartEvaluaciones} layout="vertical" margin={{ left: 20, right: 20 }}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" horizontal={true} vertical={false} />
-                  <XAxis type="number" stroke="#9ca3af" fontSize={11} />
-                  <YAxis dataKey="tipo" type="category" stroke="#9ca3af" fontSize={11} width={140} tickLine={false} />
-                  <Tooltip 
-                    contentStyle={{ 
-                      background: '#1f2937', 
-                      border: 'none', 
-                      borderRadius: '8px',
-                      color: '#fff',
-                      fontSize: '12px'
-                    }}
-                  />
-                  <Bar dataKey="cantidad" radius={[0, 4, 4, 0]}>
-                    {chartEvaluaciones.map((entry, index) => (
-                      <Cell key={`cell-${index}`} fill={entry.color || '#6366f1'} />
-                    ))}
-                  </Bar>
-                </BarChart>
-              </ResponsiveContainer>
-            )}
+            <ResponsiveContainer width="100%" height={240}>
+              <BarChart data={evaluacionesPorTipo} layout="vertical" margin={{ left: 20, right: 20 }}>
+                <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" horizontal={true} vertical={false} />
+                <XAxis type="number" stroke="#9ca3af" fontSize={11} />
+                <YAxis dataKey="tipo" type="category" stroke="#9ca3af" fontSize={11} width={140} tickLine={false} />
+                <Tooltip 
+                  contentStyle={{ 
+                    background: '#1f2937', 
+                    border: 'none', 
+                    borderRadius: '8px',
+                    color: '#fff',
+                    fontSize: '12px'
+                  }}
+                />
+                <Bar dataKey="cantidad" radius={[0, 4, 4, 0]}>
+                  {evaluacionesPorTipo.map((entry, index) => (
+                    <Cell key={`cell-${index}`} fill={entry.color} />
+                  ))}
+                </Bar>
+              </BarChart>
+            </ResponsiveContainer>
           </div>
         </div>
 
@@ -324,52 +246,44 @@ export default function Dashboard() {
         <div className="card vulnerabilidades-severidad">
           <div className="card-header">
             <h3>Vulnerabilidades por Severidad</h3>
-            <span className="total-badge">{totalVulnerabilidades} total</span>
+            <span className="total-badge">810 total</span>
           </div>
           <div className="pie-chart-container">
-            {loading ? (
-              <div className="chart-loading">
-                <Loader2 size={32} className="animate-spin" />
-              </div>
-            ) : (
-              <>
-                <ResponsiveContainer width="100%" height={200}>
-                  <PieChart>
-                    <Pie
-                      data={vulnerabilidadesPorSeveridad}
-                      cx="50%"
-                      cy="50%"
-                      innerRadius={55}
-                      outerRadius={80}
-                      paddingAngle={2}
-                      dataKey="value"
-                    >
-                      {vulnerabilidadesPorSeveridad?.map((entry, index) => (
-                        <Cell key={`cell-${index}`} fill={entry.color} />
-                      ))}
-                    </Pie>
-                    <Tooltip 
-                      contentStyle={{ 
-                        background: '#1f2937', 
-                        border: 'none', 
-                        borderRadius: '8px',
-                        color: '#fff',
-                        fontSize: '12px'
-                      }}
-                    />
-                  </PieChart>
-                </ResponsiveContainer>
-                <div className="severity-legend">
-                  {vulnerabilidadesPorSeveridad?.map((item, index) => (
-                    <div key={index} className="legend-item">
-                      <span className="legend-dot" style={{ background: item.color }}></span>
-                      <span className="legend-label">{item.name}</span>
-                      <span className="legend-value">{item.value}</span>
-                    </div>
+            <ResponsiveContainer width="100%" height={200}>
+              <PieChart>
+                <Pie
+                  data={vulnerabilidadesPorSeveridad}
+                  cx="50%"
+                  cy="50%"
+                  innerRadius={55}
+                  outerRadius={80}
+                  paddingAngle={2}
+                  dataKey="value"
+                >
+                  {vulnerabilidadesPorSeveridad.map((entry, index) => (
+                    <Cell key={`cell-${index}`} fill={entry.color} />
                   ))}
+                </Pie>
+                <Tooltip 
+                  contentStyle={{ 
+                    background: '#1f2937', 
+                    border: 'none', 
+                    borderRadius: '8px',
+                    color: '#fff',
+                    fontSize: '12px'
+                  }}
+                />
+              </PieChart>
+            </ResponsiveContainer>
+            <div className="severity-legend">
+              {vulnerabilidadesPorSeveridad.map((item, index) => (
+                <div key={index} className="legend-item">
+                  <span className="legend-dot" style={{ background: item.color }}></span>
+                  <span className="legend-label">{item.name}</span>
+                  <span className="legend-value">{item.value}</span>
                 </div>
-              </>
-            )}
+              ))}
+            </div>
           </div>
         </div>
 
@@ -384,41 +298,35 @@ export default function Dashboard() {
             </div>
           </div>
           <div className="chart-container">
-            {loading ? (
-              <div className="chart-loading">
-                <Loader2 size={32} className="animate-spin" />
-              </div>
-            ) : (
-              <ResponsiveContainer width="100%" height={220}>
-                <AreaChart data={tendenciaMensual} margin={{ top: 10, right: 20, left: 0, bottom: 0 }}>
-                  <defs>
-                    <linearGradient id="colorVuln" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="5%" stopColor="#ef4444" stopOpacity={0.3}/>
-                      <stop offset="95%" stopColor="#ef4444" stopOpacity={0}/>
-                    </linearGradient>
-                    <linearGradient id="colorRem" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="5%" stopColor="#22c55e" stopOpacity={0.3}/>
-                      <stop offset="95%" stopColor="#22c55e" stopOpacity={0}/>
-                    </linearGradient>
-                  </defs>
-                  <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" vertical={false} />
-                  <XAxis dataKey="mes" stroke="#9ca3af" fontSize={11} tickLine={false} />
-                  <YAxis stroke="#9ca3af" fontSize={11} tickLine={false} axisLine={false} />
-                  <Tooltip 
-                    contentStyle={{ 
-                      background: '#1f2937', 
-                      border: 'none', 
-                      borderRadius: '8px',
-                      color: '#fff',
-                      fontSize: '12px'
-                    }}
-                  />
-                  <Area type="monotone" dataKey="vulnerabilidades" stroke="#ef4444" fillOpacity={1} fill="url(#colorVuln)" strokeWidth={2} />
-                  <Area type="monotone" dataKey="remediadas" stroke="#22c55e" fillOpacity={1} fill="url(#colorRem)" strokeWidth={2} />
-                  <Line type="monotone" dataKey="evaluaciones" stroke="#6366f1" strokeWidth={2} dot={{ fill: '#6366f1', strokeWidth: 2, r: 4 }} />
-                </AreaChart>
-              </ResponsiveContainer>
-            )}
+            <ResponsiveContainer width="100%" height={220}>
+              <AreaChart data={tendenciaMensual} margin={{ top: 10, right: 20, left: 0, bottom: 0 }}>
+                <defs>
+                  <linearGradient id="colorVuln" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="5%" stopColor="#ef4444" stopOpacity={0.3}/>
+                    <stop offset="95%" stopColor="#ef4444" stopOpacity={0}/>
+                  </linearGradient>
+                  <linearGradient id="colorRem" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="5%" stopColor="#22c55e" stopOpacity={0.3}/>
+                    <stop offset="95%" stopColor="#22c55e" stopOpacity={0}/>
+                  </linearGradient>
+                </defs>
+                <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" vertical={false} />
+                <XAxis dataKey="mes" stroke="#9ca3af" fontSize={11} tickLine={false} />
+                <YAxis stroke="#9ca3af" fontSize={11} tickLine={false} axisLine={false} />
+                <Tooltip 
+                  contentStyle={{ 
+                    background: '#1f2937', 
+                    border: 'none', 
+                    borderRadius: '8px',
+                    color: '#fff',
+                    fontSize: '12px'
+                  }}
+                />
+                <Area type="monotone" dataKey="vulnerabilidades" stroke="#ef4444" fillOpacity={1} fill="url(#colorVuln)" strokeWidth={2} />
+                <Area type="monotone" dataKey="remediadas" stroke="#22c55e" fillOpacity={1} fill="url(#colorRem)" strokeWidth={2} />
+                <Line type="monotone" dataKey="evaluaciones" stroke="#6366f1" strokeWidth={2} dot={{ fill: '#6366f1', strokeWidth: 2, r: 4 }} />
+              </AreaChart>
+            </ResponsiveContainer>
           </div>
         </div>
       </div>
@@ -434,55 +342,52 @@ export default function Dashboard() {
                 <Filter size={14} />
                 Filtrar
               </button>
-              <button className="btn-text" onClick={() => navigate('/audits')}>Ver todas →</button>
+              <button className="btn-text">Ver todas →</button>
             </div>
           </div>
           <div className="table-wrapper">
-            {loading ? (
-              <div className="table-loading">
-                <Loader2 size={32} className="animate-spin" />
-              </div>
-            ) : evaluacionesRecientes?.length === 0 ? (
-              <div className="table-empty">No hay evaluaciones recientes</div>
-            ) : (
-              <table>
-                <thead>
-                  <tr>
-                    <th>Entidad</th>
-                    <th>Tipo</th>
-                    <th>Estado</th>
-                    <th>Fecha</th>
-                    <th>CITE Informe</th>
-                    <th></th>
+            <table>
+              <thead>
+                <tr>
+                  <th>ID Evaluación</th>
+                  <th>Entidad</th>
+                  <th>Tipo</th>
+                  <th>Estado</th>
+                  <th>Nota Externa</th>
+                  <th>CITE Informe</th>
+                  <th></th>
+                </tr>
+              </thead>
+              <tbody>
+                {evaluacionesRecientes.map((eval_item) => (
+                  <tr key={eval_item.id}>
+                    <td className="id-cell">{eval_item.id}</td>
+                    <td className="entidad-cell">{eval_item.entidad}</td>
+                    <td><TipoBadge tipo={eval_item.tipo} /></td>
+                    <td><EstadoBadge estado={eval_item.estado} /></td>
+                    <td className="cite-cell">
+                      {eval_item.notaExterna ? (
+                        <span className="cite-link">{eval_item.notaExterna}</span>
+                      ) : (
+                        <span className="na">N/A</span>
+                      )}
+                    </td>
+                    <td className="cite-cell">
+                      {eval_item.citeInforme ? (
+                        <span className="cite-link">{eval_item.citeInforme}</span>
+                      ) : (
+                        <span className="pending">Pendiente</span>
+                      )}
+                    </td>
+                    <td>
+                      <button className="btn-icon-small">
+                        <ExternalLink size={14} />
+                      </button>
+                    </td>
                   </tr>
-                </thead>
-                <tbody>
-                  {evaluacionesRecientes?.map((item, index) => (
-                    <tr key={item.id || index}>
-                      <td className="entidad-cell">{item.entidad}</td>
-                      <td><TipoBadge tipo={item.tipo} /></td>
-                      <td><EstadoBadge estado={item.estado} /></td>
-                      <td className="date-cell">{item.fechaInicio}</td>
-                      <td className="cite-cell">
-                        {item.citeInforme ? (
-                          <span className="cite-link">{item.citeInforme}</span>
-                        ) : (
-                          <span className="pending">Pendiente</span>
-                        )}
-                      </td>
-                      <td>
-                        <button 
-                          className="btn-icon-small"
-                          onClick={() => navigate(`/audits/${item.id}`)}
-                        >
-                          <ExternalLink size={14} />
-                        </button>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            )}
+                ))}
+              </tbody>
+            </table>
           </div>
         </div>
 
@@ -490,60 +395,52 @@ export default function Dashboard() {
         <div className="card table-card entidades-card">
           <div className="card-header">
             <h3>Estado de Seguridad por Entidad</h3>
-            <button className="btn-text" onClick={() => navigate('/clients')}>Historial completo →</button>
+            <button className="btn-text">Historial completo →</button>
           </div>
           <div className="table-wrapper">
-            {loading ? (
-              <div className="table-loading">
-                <Loader2 size={32} className="animate-spin" />
-              </div>
-            ) : entidadesEvaluadas?.length === 0 ? (
-              <div className="table-empty">No hay entidades evaluadas</div>
-            ) : (
-              <table>
-                <thead>
-                  <tr>
-                    <th>Entidad</th>
-                    <th>Evals</th>
-                    <th>Críticas</th>
-                    <th>Altas</th>
-                    <th>Remediación</th>
-                    <th>Estado</th>
+            <table>
+              <thead>
+                <tr>
+                  <th>Entidad</th>
+                  <th>Evals</th>
+                  <th>Críticas</th>
+                  <th>Altas</th>
+                  <th>Remediación</th>
+                  <th>Estado</th>
+                </tr>
+              </thead>
+              <tbody>
+                {entidadesEvaluadas.map((entidad) => (
+                  <tr key={entidad.id}>
+                    <td className="entidad-name">{entidad.nombre}</td>
+                    <td className="center">{entidad.evaluaciones}</td>
+                    <td className="center">
+                      <span className={`vuln-count ${entidad.vulnCriticas > 0 ? 'critical' : 'safe'}`}>
+                        {entidad.vulnCriticas}
+                      </span>
+                    </td>
+                    <td className="center">
+                      <span className={`vuln-count ${entidad.vulnAltas > 10 ? 'high' : 'medium'}`}>
+                        {entidad.vulnAltas}
+                      </span>
+                    </td>
+                    <td>
+                      <div className="progress-bar">
+                        <div 
+                          className="progress-fill" 
+                          style={{ 
+                            width: `${entidad.tasaRemediacion}%`,
+                            background: entidad.tasaRemediacion > 80 ? '#22c55e' : entidad.tasaRemediacion > 50 ? '#eab308' : '#ef4444'
+                          }}
+                        ></div>
+                        <span className="progress-text">{entidad.tasaRemediacion}%</span>
+                      </div>
+                    </td>
+                    <td><EstadoBadge estado={entidad.estado} /></td>
                   </tr>
-                </thead>
-                <tbody>
-                  {entidadesEvaluadas?.map((entidad, index) => (
-                    <tr key={entidad.id || index}>
-                      <td className="entidad-name">{entidad.nombre}</td>
-                      <td className="center">{entidad.evaluaciones}</td>
-                      <td className="center">
-                        <span className={`vuln-count ${entidad.vulnCriticas > 0 ? 'critical' : 'safe'}`}>
-                          {entidad.vulnCriticas}
-                        </span>
-                      </td>
-                      <td className="center">
-                        <span className={`vuln-count ${entidad.vulnAltas > 10 ? 'high' : 'medium'}`}>
-                          {entidad.vulnAltas}
-                        </span>
-                      </td>
-                      <td>
-                        <div className="progress-bar">
-                          <div 
-                            className="progress-fill" 
-                            style={{ 
-                              width: `${entidad.tasaRemediacion}%`,
-                              background: entidad.tasaRemediacion > 80 ? '#22c55e' : entidad.tasaRemediacion > 50 ? '#eab308' : '#ef4444'
-                            }}
-                          ></div>
-                          <span className="progress-text">{entidad.tasaRemediacion}%</span>
-                        </div>
-                      </td>
-                      <td><EstadoBadge estado={entidad.estado} /></td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            )}
+                ))}
+              </tbody>
+            </table>
           </div>
         </div>
       </div>
@@ -556,7 +453,7 @@ export default function Dashboard() {
           <span>Manual ACGII-M01 v4</span>
         </div>
         <div className="footer-right">
-          <span>Última actualización: {new Date().toLocaleString('es-BO')}</span>
+          <span>Última actualización: 19/12/2025 14:32</span>
         </div>
       </footer>
 
@@ -575,15 +472,6 @@ export default function Dashboard() {
           min-height: 100vh;
           color: #e2e8f0;
           padding: 0;
-        }
-        
-        .animate-spin {
-          animation: spin 1s linear infinite;
-        }
-        
-        @keyframes spin {
-          from { transform: rotate(0deg); }
-          to { transform: rotate(360deg); }
         }
         
         /* Header */
@@ -703,11 +591,6 @@ export default function Dashboard() {
           color: #fff;
         }
         
-        .btn-icon:disabled {
-          opacity: 0.5;
-          cursor: not-allowed;
-        }
-        
         .notifications .notification-dot {
           position: absolute;
           top: 8px;
@@ -761,28 +644,6 @@ export default function Dashboard() {
         .btn-primary:hover {
           transform: translateY(-1px);
           box-shadow: 0 4px 20px rgba(99, 102, 241, 0.4);
-        }
-        
-        /* Error Banner */
-        .error-banner {
-          display: flex;
-          align-items: center;
-          gap: 12px;
-          background: linear-gradient(90deg, rgba(239, 68, 68, 0.15), rgba(239, 68, 68, 0.05));
-          border-left: 3px solid #ef4444;
-          padding: 12px 32px;
-          color: #fca5a5;
-        }
-        
-        .error-banner button {
-          background: rgba(239, 68, 68, 0.2);
-          border: none;
-          padding: 6px 12px;
-          border-radius: 6px;
-          color: #fca5a5;
-          cursor: pointer;
-          font-family: inherit;
-          font-size: 12px;
         }
         
         /* Alertas Banner */
@@ -902,9 +763,6 @@ export default function Dashboard() {
           color: #fff;
           letter-spacing: -1px;
           line-height: 1;
-          display: flex;
-          align-items: center;
-          min-height: 38px;
         }
         
         .stat-title {
@@ -969,11 +827,6 @@ export default function Dashboard() {
           color: #94a3b8;
         }
         
-        .btn-icon-small:disabled {
-          opacity: 0.5;
-          cursor: not-allowed;
-        }
-        
         .total-badge {
           font-size: 11px;
           color: #64748b;
@@ -984,15 +837,6 @@ export default function Dashboard() {
         
         .chart-container {
           padding: 16px;
-        }
-        
-        .chart-loading, .chart-empty, .table-loading, .table-empty {
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          min-height: 200px;
-          color: #64748b;
-          font-size: 14px;
         }
         
         /* Pie Chart */
@@ -1152,12 +996,6 @@ export default function Dashboard() {
           color: #e2e8f0;
         }
         
-        .date-cell {
-          font-family: 'IBM Plex Mono', monospace;
-          font-size: 12px;
-          color: #94a3b8;
-        }
-        
         .cite-cell {
           font-family: 'IBM Plex Mono', monospace;
           font-size: 11px;
@@ -1212,7 +1050,6 @@ export default function Dashboard() {
         .tipo-pr03 { background: rgba(16, 185, 129, 0.2); color: #6ee7b7; }
         .tipo-pr09 { background: rgba(245, 158, 11, 0.2); color: #fcd34d; }
         .tipo-verif { background: rgba(139, 92, 246, 0.2); color: #c4b5fd; }
-        .tipo-default { background: rgba(107, 114, 128, 0.2); color: #9ca3af; }
         
         .vuln-count {
           display: inline-flex;

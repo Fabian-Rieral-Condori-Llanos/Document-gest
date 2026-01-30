@@ -14,3 +14,4 @@ export { default as CommentsTab } from './CommentsTab';
 export { default as RetestModal } from './RetestModal';
 export { default as ApprovalCard } from './ApprovalCard';
 export { default as AuditStateCard } from './AuditStateCard';
+export { default as ProceduresTab } from './ProceduresTab';

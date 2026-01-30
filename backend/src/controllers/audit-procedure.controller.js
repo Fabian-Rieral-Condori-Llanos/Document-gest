@@ -41,18 +41,6 @@ class AuditProcedureController {
     }
 
     /**
-     * GET /api/audit-procedures/alcance-tipos
-     * Obtiene los tipos de alcance disponibles
-     */
-    static async getAlcanceTipos(req, res) {
-        try {
-            Response.Ok(res, AuditProcedureService.getAlcanceTipos());
-        } catch (err) {
-            Response.Internal(res, err);
-        }
-    }
-
-    /**
      * GET /api/audit-procedures/search
      * Busca procedimientos por origen
      */

@@ -103,6 +103,7 @@ const AuditFormPage = () => {
     }
   }, [isEditMode, id, dispatch]);
 
+  // Llenar formulario con datos de la auditoría cuando se carga
   useEffect(() => {
     if (isEditMode && selectedAudit && companies.length > 0 && clients.length > 0 && !isDataLoaded) {
       console.log('Cargando datos de auditoría:', selectedAudit);
@@ -148,22 +149,23 @@ const AuditFormPage = () => {
           return '';
         }
       };
+
       setFormData({
-        name: selectedAudit.audit.name || '',
-        auditType: selectedAudit.audit.auditType || '',
-        language: selectedAudit.audit.language || 'es',
+        name: selectedAudit.name || '',
+        auditType: selectedAudit.auditType || '',
+        language: selectedAudit.language || 'es',
         company: companyId,
         client: clientId,
-        collaborators: selectedAudit.audit.collaborators?.map(c => 
+        collaborators: selectedAudit.collaborators?.map(c => 
           typeof c === 'object' ? c._id : c
         ).filter(Boolean) || [],
-        reviewers: selectedAudit.audit.reviewers?.map(r => 
+        reviewers: selectedAudit.reviewers?.map(r => 
           typeof r === 'object' ? r._id : r
         ).filter(Boolean) || [],
-        date: formatDate(selectedAudit.audit.date),
-        date_start: formatDate(selectedAudit.audit.date_start),
-        date_end: formatDate(selectedAudit.audit.date_end),
-        summary: selectedAudit.audit.summary || '',
+        date: formatDate(selectedAudit.date),
+        date_start: formatDate(selectedAudit.date_start),
+        date_end: formatDate(selectedAudit.date_end),
+        summary: selectedAudit.summary || '',
         procedureTemplateId: typeof selectedAudit.procedureTemplate === 'object' 
           ? selectedAudit.procedureTemplate?._id 
           : selectedAudit.procedureTemplate || '',
@@ -198,7 +200,7 @@ const AuditFormPage = () => {
       
       if (selectedCompanyName) {
         clientsToShow = clients.filter(client => {
-          const clientCompanyName = typeof client.company === 'object'
+          const clientCompanyName = typeof client.company === 'object' 
             ? client.company?.name 
             : '';
           return clientCompanyName === selectedCompanyName;
@@ -474,40 +476,55 @@ const AuditFormPage = () => {
             </div>
           </Card>
 
-          {/* Plantilla de Procedimiento */}
-          <Card>
-            <h3 className="text-lg font-medium text-white mb-4 flex items-center gap-2">
-              <Layers className="w-5 h-5 text-purple-400" />
-              Plantilla de Procedimiento
-            </h3>
+          {/* Plantilla de Procedimiento - Solo en modo creación */}
+          {!isEditMode && (
+            <Card>
+              <h3 className="text-lg font-medium text-white mb-4 flex items-center gap-2">
+                <Layers className="w-5 h-5 text-purple-400" />
+                Plantilla de Procedimiento
+              </h3>
 
-            <ProcedureTemplateSelect
-              value={formData.procedureTemplateId}
-              onChange={handleProcedureTemplateChange}
-              label="Procedimiento"
-              placeholder="Seleccionar procedimiento..."
-              disabled={isEditMode && hasProcedureTemplate}
-            />
+              <ProcedureTemplateSelect
+                value={formData.procedureTemplateId}
+                onChange={handleProcedureTemplateChange}
+                label="Procedimiento / Alcance"
+                placeholder="Seleccionar procedimiento..."
+              />
 
-            {isEditMode && hasProcedureTemplate && (
-              <div className="mt-3 flex items-start gap-2 p-3 bg-info-500/10 border border-info-500/20 rounded-lg">
-                <AlertCircle className="w-4 h-4 text-info-400 flex-shrink-0 mt-0.5" />
-                <p className="text-sm text-info-400">
-                  Esta auditoría ya tiene un procedimiento asignado. No se puede cambiar para mantener la integridad de los datos.
-                </p>
-              </div>
-            )}
-
-            {!isEditMode && (
               <div className="mt-3 flex items-start gap-2 p-3 bg-gray-800/50 border border-gray-700 rounded-lg">
                 <AlertCircle className="w-4 h-4 text-gray-400 flex-shrink-0 mt-0.5" />
                 <p className="text-sm text-gray-400">
                   El procedimiento define el alcance y las secciones iniciales de la auditoría. 
-                  Puedes dejarlo vacío y asignarlo después si no tienes procedimientos creados.
+                  Puedes dejarlo vacío y configurarlo después desde el tab "Procedimiento".
                 </p>
               </div>
-            )}
-          </Card>
+            </Card>
+          )}
+
+          {/* Mensaje en modo edición - Procedimiento se edita en otro tab */}
+          {isEditMode && (
+            <Card>
+              <h3 className="text-lg font-medium text-white mb-4 flex items-center gap-2">
+                <Layers className="w-5 h-5 text-purple-400" />
+                Procedimiento y Alcance
+              </h3>
+
+              <div className="p-4 bg-info-500/10 border border-info-500/20 rounded-lg">
+                <div className="flex items-start gap-3">
+                  <Info className="w-5 h-5 text-info-400 flex-shrink-0 mt-0.5" />
+                  <div>
+                    <p className="text-sm text-info-300 font-medium">
+                      El origen, alcance y documentación CITE se gestionan desde el tab "Procedimiento"
+                    </p>
+                    <p className="text-xs text-info-400/70 mt-1">
+                      Accede a la vista de detalle de la auditoría y selecciona la pestaña "Procedimiento" 
+                      para editar esta información.
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </Card>
+          )}
 
           {/* Cliente y Empresa */}
           <Card>
@@ -518,7 +535,7 @@ const AuditFormPage = () => {
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <SearchableSelect
-                value={ formData.company }
+                value={formData.company}
                 onChange={handleCompanyChange}
                 options={companyOptions}
                 label="Empresa Auditora"
