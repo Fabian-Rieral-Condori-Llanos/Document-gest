@@ -16,6 +16,7 @@ import { procedureTemplatesReducer } from '../features/procedureTemplates';
 import { alcanceTemplatesReducer } from '../features/alcanceTemplates';
 import { reportTemplatesReducer } from '../features/reportTemplates';
 import { reportInstancesReducer } from '../features/reportInstances';
+import { backupsReducer } from '../features/backups';
 
 export const store = configureStore({
   reducer: {
@@ -38,6 +39,8 @@ export const store = configureStore({
     // Report Templates & Instances
     reportTemplates: reportTemplatesReducer,
     reportInstances: reportInstancesReducer,
+    // Backups
+    backups: backupsReducer,
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware({

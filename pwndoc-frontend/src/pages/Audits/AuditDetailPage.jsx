@@ -17,6 +17,7 @@ import {
   Globe,
   Calendar,
   RefreshCw,
+  Shield,
 } from 'lucide-react';
 
 // Redux
@@ -36,7 +37,7 @@ import {
 import Card from '../../components/common/Card/Card';
 import Button from '../../components/common/Button/Button';
 import Alert from '../../components/common/Alert/Alert';
-import { AuditStateBadge, AuditTypeBadge } from './components';
+import { AuditStateBadge, AuditTypeBadge, FindingsTab, NetworkTab, SectionsTab, CommentsTab, RetestModal, ApprovalCard, AuditStateCard } from './components';
 
 // Tabs
 const TABS = {
@@ -64,6 +65,7 @@ const AuditDetailPage = () => {
 
   // Local state
   const [activeTab, setActiveTab] = useState(TABS.GENERAL);
+  const [showRetestModal, setShowRetestModal] = useState(false);
 
   // Cargar auditoría
   useEffect(() => {
@@ -186,6 +188,14 @@ const AuditDetailPage = () => {
 
           <div className="flex items-center gap-3">
             <Button variant="ghost" icon={RefreshCw} onClick={() => dispatch(fetchAuditById(id))} />
+            <Button 
+              variant="secondary" 
+              onClick={() => setShowRetestModal(true)}
+              title="Crear verificación o retest"
+            >
+              <RefreshCw className="w-4 h-4 mr-2" />
+              Verificación
+            </Button>
             <Button variant="primary" icon={Edit} onClick={handleEdit}>
               Editar
             </Button>
@@ -368,133 +378,62 @@ const AuditDetailPage = () => {
                   </div>
                 </Card>
 
+                {/* State Management */}
+                <AuditStateCard 
+                  audit={audit} 
+                  onUpdate={() => dispatch(fetchAuditById(id))} 
+                />
+
                 {/* Approvals */}
-                <Card>
-                  <h3 className="text-lg font-medium text-white mb-4 flex items-center gap-2">
-                    <CheckCircle className="w-5 h-5 text-success-400" />
-                    Aprobaciones
-                  </h3>
-                  {audit.approvals?.length > 0 ? (
-                    <div className="space-y-2">
-                      {audit.approvals.map((approval, idx) => {
-                        const name = typeof approval === 'object' 
-                          ? `${approval.firstname || ''} ${approval.lastname || ''}`.trim() || approval.username
-                          : approval;
-                        return (
-                          <div key={idx} className="flex items-center gap-2">
-                            <CheckCircle className="w-4 h-4 text-success-400" />
-                            <span className="text-gray-300 text-sm">{name}</span>
-                          </div>
-                        );
-                      })}
-                    </div>
-                  ) : (
-                    <p className="text-gray-500 text-sm">Sin aprobaciones</p>
-                  )}
-                </Card>
+                <ApprovalCard 
+                  audit={audit} 
+                  onUpdate={() => dispatch(fetchAuditById(id))} 
+                />
               </div>
             </div>
           )}
 
           {/* Findings Tab */}
           {activeTab === TABS.FINDINGS && (
-            <Card>
-              <div className="flex items-center justify-between mb-4">
-                <h3 className="text-lg font-medium text-white">Hallazgos</h3>
-                <Button variant="primary" size="sm" onClick={() => navigate(`/audits/${id}/findings/create`)}>
-                  Agregar Hallazgo
-                </Button>
-              </div>
-
-              {findingsLoading ? (
-                <div className="py-8 text-center text-gray-400">
-                  Cargando hallazgos...
-                </div>
-              ) : findings.length === 0 ? (
-                <div className="py-8 text-center">
-                  <AlertTriangle className="w-12 h-12 text-gray-600 mx-auto mb-3" />
-                  <p className="text-gray-400">No hay hallazgos registrados</p>
-                </div>
-              ) : (
-                <div className="space-y-3">
-                  {findings.map((finding, idx) => (
-                    <div
-                      key={finding._id || finding.id || idx}
-                      className="p-4 bg-bg-tertiary rounded-lg hover:bg-gray-800/50 transition-colors cursor-pointer"
-                      onClick={() => navigate(`/audits/${id}/findings/${finding._id || finding.id}`)}
-                    >
-                      <div className="flex items-start justify-between">
-                        <div>
-                          <div className="flex items-center gap-2 mb-1">
-                            <span className="text-xs text-gray-500">#{finding.identifier || idx + 1}</span>
-                            {finding.cvssv3 && (
-                              <span className="px-2 py-0.5 bg-danger-500/10 text-danger-400 text-xs rounded">
-                                CVSS: {finding.cvssv3.split('/')[0]?.replace('CVSS:3.1', '').replace('/', '') || '-'}
-                              </span>
-                            )}
-                          </div>
-                          <h4 className="text-white font-medium">{finding.title || 'Sin título'}</h4>
-                          {finding.category && (
-                            <p className="text-sm text-gray-500 mt-1">{finding.category}</p>
-                          )}
-                        </div>
-                        <span className={`px-2 py-1 rounded text-xs font-medium ${
-                          finding.status === 0 
-                            ? 'bg-success-500/10 text-success-400' 
-                            : 'bg-warning-500/10 text-warning-400'
-                        }`}>
-                          {finding.status === 0 ? 'Completado' : 'Redactando'}
-                        </span>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </Card>
+            <FindingsTab
+              auditId={id}
+              findings={findings}
+              findingsLoading={findingsLoading}
+              language={audit?.language || 'es'}
+              onRefresh={() => dispatch(fetchAuditFindings(id))}
+            />
           )}
 
           {/* Network Tab */}
           {activeTab === TABS.NETWORK && (
-            <Card>
-              <h3 className="text-lg font-medium text-white mb-4">Información de Red</h3>
-              <p className="text-gray-400">
-                La gestión de scope y hosts está en desarrollo.
-              </p>
-            </Card>
+            <NetworkTab auditId={id} />
           )}
 
           {/* Sections Tab */}
           {activeTab === TABS.SECTIONS && (
-            <Card>
-              <h3 className="text-lg font-medium text-white mb-4">Secciones del Reporte</h3>
-              <p className="text-gray-400">
-                La gestión de secciones está en desarrollo.
-              </p>
-            </Card>
+            <SectionsTab auditId={id} />
           )}
 
           {/* Comments Tab */}
           {activeTab === TABS.COMMENTS && (
-            <Card>
-              <h3 className="text-lg font-medium text-white mb-4">Comentarios</h3>
-              {audit.comments?.length > 0 ? (
-                <div className="space-y-4">
-                  {audit.comments.map((comment, idx) => (
-                    <div key={comment._id || idx} className="p-4 bg-bg-tertiary rounded-lg">
-                      <p className="text-gray-300">{comment.text}</p>
-                      <p className="text-xs text-gray-500 mt-2">
-                        {formatDate(comment.createdAt)}
-                      </p>
-                    </div>
-                  ))}
-                </div>
-              ) : (
-                <p className="text-gray-400">No hay comentarios.</p>
-              )}
-            </Card>
+            <CommentsTab 
+              auditId={id} 
+              comments={audit.comments || []}
+              findings={findings}
+              sections={audit.sections || []}
+              onRefresh={() => dispatch(fetchAuditById(id))}
+            />
           )}
         </div>
       </div>
+
+      {/* Retest/Verification Modal */}
+      <RetestModal
+        isOpen={showRetestModal}
+        onClose={() => setShowRetestModal(false)}
+        audit={audit}
+        onSuccess={() => dispatch(fetchAuditById(id))}
+      />
     </div>
   );
 };

@@ -85,6 +85,34 @@ router.put('/:id/network',
 // FINDINGS
 // ============================================
 
+// Estadísticas de findings (DEBE ir antes de /:id/findings/:findingId)
+router.get('/:id/findings/stats',
+    verifyToken,
+    acl.hasPermission('audits:read'),
+    asyncHandler(AuditController.getFindingStats)
+);
+
+// Resumen de retest (DEBE ir antes de /:id/findings/:findingId)
+router.get('/:id/findings/retest-summary',
+    verifyToken,
+    acl.hasPermission('audits:read'),
+    asyncHandler(AuditController.getRetestSummary)
+);
+
+// Importar múltiples vulnerabilidades (DEBE ir antes de /:id/findings/:findingId)
+router.post('/:id/findings/import',
+    verifyToken,
+    acl.hasPermission('audits:update'),
+    asyncHandler(AuditController.importVulnerabilities)
+);
+
+// Importar una sola vulnerabilidad
+router.post('/:id/findings/import/:vulnerabilityId',
+    verifyToken,
+    acl.hasPermission('audits:update'),
+    asyncHandler(AuditController.importSingleVulnerability)
+);
+
 // Obtener todos los findings
 router.get('/:id/findings',
     verifyToken,
@@ -104,6 +132,13 @@ router.get('/:id/findings/:findingId',
     verifyToken,
     acl.hasPermission('audits:read'),
     asyncHandler(AuditController.getFinding)
+);
+
+// Obtener vulnerabilidad original de un finding
+router.get('/:id/findings/:findingId/vulnerability',
+    verifyToken,
+    acl.hasPermission('audits:read'),
+    asyncHandler(AuditController.getOriginalVulnerability)
 );
 
 // Actualizar finding
@@ -239,6 +274,42 @@ router.post('/:id/retest',
     verifyToken,
     acl.hasPermission('audits:create'),
     asyncHandler(AuditController.createRetest)
+);
+
+// Crear verificación
+router.post('/:id/verification',
+    verifyToken,
+    acl.hasPermission('audits:create'),
+    asyncHandler(AuditController.createVerification)
+);
+
+// ============================================
+// LIFECYCLE STATUS (AuditStatus)
+// ============================================
+
+// Obtener estado del ciclo de vida
+router.get('/:id/lifecycle-status',
+    verifyToken,
+    acl.hasPermission('audits:read'),
+    asyncHandler(AuditController.getLifecycleStatus)
+);
+
+// Actualizar estado del ciclo de vida
+router.put('/:id/lifecycle-status',
+    verifyToken,
+    acl.hasPermission('audits:update'),
+    asyncHandler(AuditController.updateLifecycleStatus)
+);
+
+// ============================================
+// FULL DATA
+// ============================================
+
+// Obtener auditoría completa con todos los datos relacionados
+router.get('/:id/full',
+    verifyToken,
+    acl.hasPermission('audits:read'),
+    asyncHandler(AuditController.getFullById)
 );
 
 // ============================================

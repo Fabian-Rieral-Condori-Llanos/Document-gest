@@ -22,7 +22,6 @@ const Vulnerability = require('./vulnerability.model');
 const VulnerabilityUpdate = require('./vulnerability-update.model');
 const Audit = require('./audit.model');
 const AuditStatus = require('./audit-status.model');
-const AuditVerification = require('./audit-verification.model');
 const AuditProcedure = require('./audit-procedure.model');
 const ProcedureTemplate = require('./procedure-template.model');
 const AlcanceTemplate = require('./alcance-template.model');
@@ -65,7 +64,6 @@ module.exports = {
     Audit,
 
     AuditStatus,
-    AuditVerification,
     AuditProcedure,
     ProcedureTemplate,
     AlcanceTemplate,

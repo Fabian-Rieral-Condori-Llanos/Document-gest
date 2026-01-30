@@ -97,10 +97,25 @@ const SectionSchema = {
 
 /**
  * Finding/Hallazgo
+ * 
+ * IMPORTANTE: Un finding es una COPIA de una vulnerabilidad de la biblioteca.
+ * - vulnerabilityId: referencia al original (opcional, para trazabilidad)
+ * - Todos los demás campos son copias editables independientemente
+ * - Editar un finding NO afecta la vulnerabilidad original en la biblioteca
  */
 const FindingSchema = {
     id: { type: Schema.Types.ObjectId },
     identifier: { type: Number },  // ID incremental para el reporte
+    
+    // Referencia a la vulnerabilidad original (opcional)
+    // Permite rastrear de dónde vino el finding
+    vulnerabilityId: { 
+        type: Schema.Types.ObjectId, 
+        ref: 'Vulnerability',
+        default: null
+    },
+    
+    // Campos copiados de Vulnerability (editables independientemente)
     title: { type: String },
     vulnType: { type: String },
     description: { type: String },
@@ -111,12 +126,16 @@ const FindingSchema = {
     references: [{ type: String }],
     cvssv3: { type: String },
     cvssv4: { type: String },
+    category: { type: String },
+    customFields: [CustomFieldValueSchema],
+    
+    // Campos específicos del finding (no existen en Vulnerability)
     paragraphs: [ParagraphSchema],
     poc: { type: String },
     scope: { type: String },
     status: { type: Number, enum: [0, 1], default: 1 },  // 0: done, 1: redacting
-    category: { type: String },
-    customFields: [CustomFieldValueSchema],
+    
+    // Campos de verificación/retest
     retestStatus: { type: String, enum: ['ok', 'ko', 'unknown', 'partial'] },
     retestDescription: { type: String }
 };
@@ -208,7 +227,7 @@ const AuditSchema = new Schema({
     }],
     type: {
         type: String,
-        enum: ['default', 'multi', 'retest'],
+        enum: ['default', 'multi', 'retest', 'verification'],
         default: 'default'
     },
     parentId: {
@@ -270,7 +289,8 @@ AuditSchema.statics.STATES = {
 AuditSchema.statics.TYPES = {
     DEFAULT: 'default',
     MULTI: 'multi',
-    RETEST: 'retest'
+    RETEST: 'retest',
+    VERIFICATION: 'verification'
 };
 
 /**

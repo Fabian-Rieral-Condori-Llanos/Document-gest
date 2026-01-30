@@ -26,6 +26,11 @@ const initialState = {
   findingsLoading: false,
   findingsError: null,
   
+  // Finding seleccionado (para detalle/edición)
+  selectedFinding: null,
+  selectedFindingLoading: false,
+  selectedFindingError: null,
+  
   // Secciones de la auditoría seleccionada
   sections: [],
   sectionsLoading: false,
@@ -35,9 +40,10 @@ const initialState = {
   filters: {
     search: '',
     state: '',
-    type: '',
+    auditType: '',
     company: '',
-    creator: '',
+    client: '',
+    language: '',
   },
   
   // Paginación
@@ -140,6 +146,18 @@ export const fetchAuditFindings = createAsyncThunk(
   }
 );
 
+export const fetchAuditFinding = createAsyncThunk(
+  'audits/fetchAuditFinding',
+  async ({ auditId, findingId }, { rejectWithValue }) => {
+    try {
+      const response = await auditsApi.getAuditFinding(auditId, findingId);
+      return response.data;
+    } catch (error) {
+      return rejectWithValue(error.response?.data?.message || 'Error al cargar finding');
+    }
+  }
+);
+
 export const createAuditFinding = createAsyncThunk(
   'audits/createAuditFinding',
   async ({ auditId, findingData }, { rejectWithValue }) => {
@@ -172,6 +190,30 @@ export const deleteAuditFinding = createAsyncThunk(
       return findingId;
     } catch (error) {
       return rejectWithValue(error.response?.data?.message || 'Error al eliminar finding');
+    }
+  }
+);
+
+export const moveAuditFinding = createAsyncThunk(
+  'audits/moveAuditFinding',
+  async ({ auditId, findingId, newIndex }, { rejectWithValue }) => {
+    try {
+      await auditsApi.moveAuditFinding(auditId, findingId, { newIndex });
+      return { findingId, newIndex };
+    } catch (error) {
+      return rejectWithValue(error.response?.data?.message || 'Error al mover finding');
+    }
+  }
+);
+
+export const importVulnerabilities = createAsyncThunk(
+  'audits/importVulnerabilities',
+  async ({ auditId, vulnerabilityIds, language = 'es' }, { rejectWithValue }) => {
+    try {
+      const response = await auditsApi.importVulnerabilities(auditId, vulnerabilityIds, language);
+      return response.data;
+    } catch (error) {
+      return rejectWithValue(error.response?.data?.message || 'Error al importar vulnerabilidades');
     }
   }
 );
@@ -216,12 +258,19 @@ const auditsSlice = createSlice({
       state.sections = [];
     },
     
+    // Limpiar finding seleccionado
+    clearSelectedFinding: (state) => {
+      state.selectedFinding = null;
+      state.selectedFindingError = null;
+    },
+    
     // Limpiar errores
     clearError: (state) => {
       state.error = null;
       state.selectedError = null;
       state.findingsError = null;
       state.sectionsError = null;
+      state.selectedFindingError = null;
     },
     
     // Paginación
@@ -342,11 +391,28 @@ const auditsSlice = createSlice({
       })
       .addCase(fetchAuditFindings.fulfilled, (state, action) => {
         state.findingsLoading = false;
-        state.findings = action.payload;
+        // El backend retorna { findings: [], sortFindings, total, filtered, auditType }
+        state.findings = action.payload?.findings || action.payload || [];
       })
       .addCase(fetchAuditFindings.rejected, (state, action) => {
         state.findingsLoading = false;
         state.findingsError = action.payload;
+      })
+      
+      // ============================================
+      // FETCH SINGLE FINDING
+      // ============================================
+      .addCase(fetchAuditFinding.pending, (state) => {
+        state.selectedFindingLoading = true;
+        state.selectedFindingError = null;
+      })
+      .addCase(fetchAuditFinding.fulfilled, (state, action) => {
+        state.selectedFindingLoading = false;
+        state.selectedFinding = action.payload;
+      })
+      .addCase(fetchAuditFinding.rejected, (state, action) => {
+        state.selectedFindingLoading = false;
+        state.selectedFindingError = action.payload;
       })
       
       // ============================================
@@ -371,6 +437,29 @@ const auditsSlice = createSlice({
       // ============================================
       .addCase(deleteAuditFinding.fulfilled, (state, action) => {
         state.findings = state.findings.filter(f => f._id !== action.payload);
+      })
+      
+      // ============================================
+      // MOVE FINDING
+      // ============================================
+      .addCase(moveAuditFinding.fulfilled, (state, action) => {
+        const { findingId, newIndex } = action.payload;
+        const oldIndex = state.findings.findIndex(f => 
+          f._id === findingId || f.id === findingId
+        );
+        
+        if (oldIndex !== -1 && oldIndex !== newIndex) {
+          const [finding] = state.findings.splice(oldIndex, 1);
+          state.findings.splice(newIndex, 0, finding);
+        }
+      })
+      
+      // ============================================
+      // IMPORT VULNERABILITIES
+      // ============================================
+      .addCase(importVulnerabilities.fulfilled, (state, action) => {
+        // El import fue exitoso, los findings se recargarán con fetchAuditFindings
+        // No intentamos agregar manualmente porque el backend retorna IDs, no findings completos
       })
       
       // ============================================
@@ -399,6 +488,7 @@ export const {
   setFilters,
   clearFilters,
   clearSelectedAudit,
+  clearSelectedFinding,
   clearError,
   setPage,
   setLimit,
@@ -407,6 +497,8 @@ export const {
 // ============================================
 // SELECTORS
 // ============================================
+
+console.log('State shape:', initialState);
 
 export const selectAllAudits = (state) => state.audits.audits;
 export const selectAuditsLoading = (state) => state.audits.loading;
@@ -420,6 +512,10 @@ export const selectAuditFindings = (state) => state.audits.findings;
 export const selectFindingsLoading = (state) => state.audits.findingsLoading;
 export const selectFindingsError = (state) => state.audits.findingsError;
 
+export const selectSelectedFinding = (state) => state.audits.selectedFinding;
+export const selectSelectedFindingLoading = (state) => state.audits.selectedFindingLoading;
+export const selectSelectedFindingError = (state) => state.audits.selectedFindingError;
+
 export const selectAuditSections = (state) => state.audits.sections;
 export const selectSectionsLoading = (state) => state.audits.sectionsLoading;
 
@@ -431,12 +527,11 @@ export const selectFilteredAudits = (state) => {
   const { audits, filters } = state.audits;
   
   return audits.filter(audit => {
-    // Filtro de búsqueda
+    // Filtro de búsqueda por nombre
     if (filters.search) {
       const searchLower = filters.search.toLowerCase();
       const matchName = audit.name?.toLowerCase().includes(searchLower);
-      const matchType = audit.auditType?.toLowerCase().includes(searchLower);
-      if (!matchName && !matchType) return false;
+      if (!matchName) return false;
     }
     
     // Filtro de estado
@@ -444,8 +539,8 @@ export const selectFilteredAudits = (state) => {
       return false;
     }
     
-    // Filtro de tipo
-    if (filters.type && audit.type !== filters.type) {
+    // Filtro de tipo de auditoría (desde datos maestros)
+    if (filters.auditType && audit.auditType !== filters.auditType) {
       return false;
     }
     
@@ -453,6 +548,17 @@ export const selectFilteredAudits = (state) => {
     if (filters.company) {
       const companyId = typeof audit.company === 'object' ? audit.company?._id : audit.company;
       if (companyId !== filters.company) return false;
+    }
+    
+    // Filtro de cliente/entidad
+    if (filters.client) {
+      const clientId = typeof audit.client === 'object' ? audit.client?._id : audit.client;
+      if (clientId !== filters.client) return false;
+    }
+    
+    // Filtro de idioma
+    if (filters.language && audit.language !== filters.language) {
+      return false;
     }
     
     return true;

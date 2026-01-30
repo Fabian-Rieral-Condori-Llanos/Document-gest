@@ -5,7 +5,23 @@ const Schema = mongoose.Schema;
  * AuditProcedure Model
  * 
  * Documentación completa del procedimiento de auditoría.
- * Incluye origen, alcance, documentos CITE, notas y sección de retest.
+ * Incluye origen, alcance, documentos CITE, notas y sección de verificación/retest.
+ * 
+ * FLUJO DE DOCUMENTACIÓN:
+ * 
+ * EVALUACIÓN (Auditoría Principal):
+ * - solicitud: CITE de solicitud recibida
+ * - instructivo: CITE del instructivo enviado
+ * - informe: CITE del informe enviado
+ * - respuesta: CITE de respuesta del cliente
+ * - notaExterna: Nota externa (indica completado de evaluación)
+ * - notaInterna: Nota interna (opcional)
+ * 
+ * VERIFICACIÓN (Cuando es auditoría de verificación):
+ * - notaRetest: Nota de verificación
+ * - informeRetest: CITE del informe de verificación
+ * - respuestaRetest: CITE de respuesta de verificación (indica completado)
+ * - notaInternaRetest: Nota interna de verificación (opcional)
  */
 
 /**
@@ -21,7 +37,7 @@ const DocumentReferenceSchema = new Schema({
     },
     descripcion: {
         type: String,
-        maxlength: [1000, 'Description cannot exceed 1000 characters']
+        maxlength: [2000, 'Description cannot exceed 2000 characters']
     }
 }, { _id: false });
 
@@ -40,12 +56,13 @@ const AuditProcedureSchema = new Schema({
     origen: {
         type: String,
         required: [true, 'Origen is required'],
+        // default: '',
         maxlength: [200, 'Origen cannot exceed 200 characters']
     },
     
     // Alcance (array de strings libres para flexibilidad)
     // Ejemplos: "Sistema Específico entidad", "Externa e Interna", "Externa", "Interna", 
-    //           "Sistema Específico Privado-Codigo", etc.
+    //           "Sistema Específico Privado-Codigo", "Verificación", etc.
     alcance: [{
         type: String,
         trim: true,
@@ -58,7 +75,9 @@ const AuditProcedureSchema = new Schema({
         maxlength: [2000, 'Alcance description cannot exceed 2000 characters']
     },
     
-    // === DOCUMENTACIÓN ===
+    // ═══════════════════════════════════════════
+    // DOCUMENTACIÓN DE EVALUACIÓN
+    // ═══════════════════════════════════════════
     
     // Solicitud (CITE de la solicitud recibida)
     solicitud: DocumentReferenceSchema,
@@ -69,47 +88,48 @@ const AuditProcedureSchema = new Schema({
     // Informe (CITE del informe enviado)
     informe: DocumentReferenceSchema,
     
-    // Respuesta del cliente
+    // Respuesta del cliente (CITE)
     respuesta: DocumentReferenceSchema,
     
-    // === NOTAS ===
-    
-    // Nota externa
+    // Nota externa - Indica que la evaluación está completa
     notaExterna: {
         type: String,
         maxlength: [5000, 'Nota externa cannot exceed 5000 characters']
     },
     
-    // Nota interna
+    // Nota interna (opcional, para uso interno)
     notaInterna: {
         type: String,
         maxlength: [5000, 'Nota interna cannot exceed 5000 characters']
     },
     
-    // === SECCIÓN RETEST ===
+    // ═══════════════════════════════════════════
+    // DOCUMENTACIÓN DE VERIFICACIÓN/RETEST
+    // (Solo se usa cuando la auditoría es de verificación)
+    // ═══════════════════════════════════════════
     
-    // Nota para retest (verificar si se solucionó)
+    // Nota para verificación
     notaRetest: {
         type: String,
         maxlength: [5000, 'Nota retest cannot exceed 5000 characters']
     },
     
-    // Informe de retest
+    // Informe de verificación (CITE)
     informeRetest: DocumentReferenceSchema,
     
-    // Nota externa de retest
-    notaExternaRetest: {
-        type: String,
-        maxlength: [5000, 'Nota externa retest cannot exceed 5000 characters']
-    },
+    // Respuesta de verificación (CITE) - Indica que la verificación está completa
+    // CAMBIO: Ahora es DocumentReferenceSchema para incluir cite, fecha y descripcion
+    respuestaRetest: DocumentReferenceSchema,
     
-    // Nota interna de retest
+    // Nota interna de verificación (opcional)
     notaInternaRetest: {
         type: String,
         maxlength: [5000, 'Nota interna retest cannot exceed 5000 characters']
     },
     
-    // === METADATA ===
+    // ═══════════════════════════════════════════
+    // METADATA
+    // ═══════════════════════════════════════════
     
     createdBy: {
         type: Schema.Types.ObjectId,
@@ -135,38 +155,58 @@ const AuditProcedureSchema = new Schema({
  */
 AuditProcedureSchema.index({ origen: 1 });
 AuditProcedureSchema.index({ createdAt: -1 });
-
-// ============================================
-// ÍNDICES ADICIONALES PARA ANALYTICS
-// ============================================
 AuditProcedureSchema.index({ origen: 1, createdAt: -1 });
 AuditProcedureSchema.index({ alcance: 1, createdAt: -1 });
 
 /**
- * Virtual: Tiene retest
+ * Virtual: Tiene sección de verificación
  */
 AuditProcedureSchema.virtual('hasRetest').get(function() {
     return !!(this.notaRetest || this.informeRetest?.cite || 
-              this.notaExternaRetest || this.notaInternaRetest);
+                this.respuestaRetest?.cite || this.notaInternaRetest);
 });
 
 /**
- * Virtual: Documentos completos
+ * Virtual: Documentos de evaluación completos
  */
-AuditProcedureSchema.virtual('documentosCompletos').get(function() {
+AuditProcedureSchema.virtual('documentosEvaluacion').get(function() {
     const docs = ['solicitud', 'instructivo', 'informe', 'respuesta'];
     const completed = docs.filter(d => this[d]?.cite).length;
     return {
         completed,
         total: docs.length,
-        percentage: Math.round((completed / docs.length) * 100)
+        percentage: Math.round((completed / docs.length) * 100),
+        // Evaluación se considera completa cuando tiene notaExterna
+        isComplete: !!this.notaExterna
     };
+});
+
+/**
+ * Virtual: Documentos de verificación completos
+ */
+AuditProcedureSchema.virtual('documentosVerificacion').get(function() {
+    const docs = ['informeRetest', 'respuestaRetest'];
+    const completed = docs.filter(d => this[d]?.cite).length;
+    return {
+        completed,
+        total: docs.length,
+        percentage: Math.round((completed / docs.length) * 100),
+        // Verificación se considera completa cuando tiene respuestaRetest
+        isComplete: !!this.respuestaRetest?.cite
+    };
+});
+
+/**
+ * Virtual: Estado de completitud general (retrocompatibilidad)
+ */
+AuditProcedureSchema.virtual('documentosCompletos').get(function() {
+    return this.documentosEvaluacion;
 });
 
 /**
  * Campos para listados
  */
-AuditProcedureSchema.statics.listFields = 'auditId origen alcance solicitud instructivo informe respuesta';
+AuditProcedureSchema.statics.listFields = 'auditId origen alcance solicitud instructivo informe respuesta notaExterna informeRetest respuestaRetest';
 
 /**
  * Obtener todos los tipos de alcance únicos (para estadísticas/filtros)

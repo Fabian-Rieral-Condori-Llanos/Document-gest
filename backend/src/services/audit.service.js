@@ -3,11 +3,14 @@ const Audit = mongoose.model('Audit');
 const AuditStatus = require('../models/audit-status.model');
 const AuditProcedure = require('../models/audit-procedure.model');
 const ProcedureTemplate = require('../models/procedure-template.model');
+const ReportInstance = require('../models/report-instance.model');
 const { getSockets } = require('../utils/helpers');
 
 class AuditService {
     /**
-     * Obtiene todas las auditorías para un usuario
+     * Obtiene todas las auditorías para un usuario (ENRIQUECIDO)
+     * Incluye: procedure, auditStatus, reportCount
+     * 
      * @param {boolean} isAdmin - Si el usuario es admin
      * @param {string} userId - ID del usuario
      * @param {Object} filters - Filtros de búsqueda
@@ -28,9 +31,55 @@ class AuditService {
         query.populate('reviewers', 'username firstname lastname');
         query.populate('approvals', 'username firstname lastname');
         query.populate('company', 'name');
+        query.populate('client', 'firstname lastname email');
         query.select(Audit.listFields);
 
-        return query.exec();
+        const audits = await query.exec();
+        
+        // Si no hay auditorías, retornar vacío
+        if (audits.length === 0) {
+            return [];
+        }
+
+        const auditIds = audits.map(a => a._id);
+
+        // Obtener datos relacionados en paralelo
+        const [procedures, statuses, reportCounts] = await Promise.all([
+            AuditProcedure.find({ auditId: { $in: auditIds } })
+                .select(AuditProcedure.listFields)
+                .lean(),
+            AuditStatus.find({ auditId: { $in: auditIds } })
+                .select('auditId status updatedAt')
+                .lean(),
+            ReportInstance.aggregate([
+                { $match: { auditId: { $in: auditIds } } },
+                { $group: { _id: '$auditId', count: { $sum: 1 } } }
+            ])
+        ]);
+
+        // Crear mapas para búsqueda O(1)
+        const procedureMap = new Map(
+            procedures.map(p => [p.auditId.toString(), p])
+        );
+        const statusMap = new Map(
+            statuses.map(s => [s.auditId.toString(), s])
+        );
+        const reportCountMap = new Map(
+            reportCounts.map(r => [r._id.toString(), r.count])
+        );
+
+        // Combinar datos
+        return audits.map(audit => {
+            const auditObj = audit.toObject();
+            const auditIdStr = audit._id.toString();
+
+            return {
+                ...auditObj,
+                procedure: procedureMap.get(auditIdStr) || null,
+                auditStatus: statusMap.get(auditIdStr) || null,
+                reportCount: reportCountMap.get(auditIdStr) || 0
+            };
+        });
     }
 
     /**
@@ -83,6 +132,38 @@ class AuditService {
     }
 
     /**
+     * Obtiene una auditoría completa con todos sus datos relacionados
+     * @param {boolean} isAdmin
+     * @param {string} auditId
+     * @param {string} userId
+     */
+    static async getFullById(isAdmin, auditId, userId) {
+        const audit = await this.getById(isAdmin, auditId, userId);
+        
+        const [procedure, status, reports, children] = await Promise.all([
+            AuditProcedure.findOne({ auditId }).lean(),
+            AuditStatus.findOne({ auditId })
+                .populate('history.changedBy', 'username firstname lastname')
+                .lean(),
+            ReportInstance.find({ auditId })
+                .populate('templateId', 'name category')
+                .select('name status currentVersion createdAt updatedAt')
+                .lean(),
+            Audit.find({ parentId: auditId })
+                .select('name type state createdAt')
+                .lean()
+        ]);
+
+        return {
+            ...audit.toObject(),
+            procedure,
+            auditStatus: status,
+            reports,
+            children
+        };
+    }
+
+    /**
      * Obtiene información general de una auditoría
      * @param {boolean} isAdmin
      * @param {string} auditId
@@ -132,6 +213,9 @@ class AuditService {
             ]);
         }
 
+        query.populate('creator', 'username');
+        query.select('name type state createdAt updatedAt');
+
         return query.exec();
     }
 
@@ -142,7 +226,7 @@ class AuditService {
      * @param {string} userId
      */
     static async getRetest(isAdmin, auditId, userId) {
-        let query = Audit.findOne({ parentId: auditId, type: 'retest' });
+        let query = Audit.findOne({ parentId: auditId, type: { $in: ['retest', 'verification'] } });
 
         if (!isAdmin) {
             query.or([
@@ -154,7 +238,7 @@ class AuditService {
 
         const retest = await query.exec();
         if (!retest) {
-            throw { fn: 'NotFound', message: 'No retest found for this audit' };
+            throw { fn: 'NotFound', message: 'No retest/verification found for this audit' };
         }
 
         return retest;
@@ -177,7 +261,7 @@ class AuditService {
         const audit = new Audit({
             ...auditFields,
             creator: creatorId,
-            collaborators: [creatorId]
+            collaborators: auditFields.collaborators || [creatorId]
         });
 
         try {
@@ -198,7 +282,7 @@ class AuditService {
             await auditStatus.save();
             
             // Crear AuditProcedure automáticamente
-            let origen = '';
+            let origen = auditData.origen || '';
             
             // Si se proporcionó un template, obtener el código
             if (procedureTemplateId) {
@@ -211,7 +295,7 @@ class AuditService {
             const auditProcedure = new AuditProcedure({
                 auditId: audit._id,
                 origen: origen,
-                alcance: [],
+                alcance: auditData.alcance || [],
                 createdBy: creatorId
             });
             await auditProcedure.save();
@@ -235,7 +319,7 @@ class AuditService {
     }
 
     /**
-     * Crea un retest de una auditoría
+     * Crea un retest de una auditoría (legacy)
      * @param {boolean} isAdmin
      * @param {string} auditId
      * @param {string} userId
@@ -270,6 +354,79 @@ class AuditService {
     }
 
     /**
+     * Crea una auditoría de verificación
+     * Se crea desde una auditoría COMPLETADA
+     * Hereda los findings para verificar si fueron solucionados
+     * Permite verificación de verificación (cadena)
+     * 
+     * @param {boolean} isAdmin
+     * @param {string} auditId - ID de la auditoría padre
+     * @param {string} userId
+     * @param {Object} options - Opciones adicionales
+     * @param {string} options.name - Nombre personalizado (opcional)
+     * @param {Array} options.alcance - Alcance personalizado (opcional)
+     */
+    static async createVerification(isAdmin, auditId, userId, options = {}) {
+        const parentAudit = await this.getById(isAdmin, auditId, userId);
+
+        // Verificar que la auditoría padre está COMPLETADA
+        const parentStatus = await AuditStatus.findOne({ auditId });
+        if (!parentStatus || parentStatus.status !== AuditStatus.STATUS.COMPLETADO) {
+            throw { 
+                fn: 'BadParameters', 
+                message: 'Parent audit must be COMPLETADO to create verification' 
+            };
+        }
+
+        // Contar verificaciones existentes para numeración
+        const existingVerifications = await Audit.countDocuments({ 
+            parentId: auditId, 
+            type: 'verification' 
+        });
+        const verificationNumber = existingVerifications + 1;
+
+        // Preparar nombre
+        const baseName = parentAudit.name.replace(/^\[VERIFICACIÓN.*?\]\s*/, '');
+        const verificationName = options.name || 
+            `[VERIFICACIÓN ${verificationNumber}] ${baseName}`;
+
+        // Preparar findings heredados
+        const inheritedFindings = parentAudit.findings.map(f => {
+            const findingObj = f.toObject ? f.toObject() : { ...f };
+            return {
+                ...findingObj,
+                id: new mongoose.Types.ObjectId(),
+                retestStatus: 'unknown',
+                retestDescription: ''
+            };
+        });
+
+        // Crear auditoría de verificación
+        const verificationData = {
+            name: verificationName,
+            language: parentAudit.language,
+            auditType: parentAudit.auditType,
+            type: 'verification',
+            parentId: auditId,
+            company: parentAudit.company?._id,
+            client: parentAudit.client?._id,
+            collaborators: parentAudit.collaborators?.map(c => c._id || c) || [userId],
+            reviewers: parentAudit.reviewers?.map(r => r._id || r) || [],
+            scope: parentAudit.scope,
+            template: parentAudit.template?._id || parentAudit.template,
+            findings: inheritedFindings,
+            origen: options.origen || '',
+            alcance: options.alcance || ['Verificación']
+        };
+
+        const verification = await this.create(verificationData, userId);
+
+        console.log(`[Audit] Created verification ${verification._id} for parent ${auditId}`);
+
+        return verification;
+    }
+
+    /**
      * Actualiza información general de una auditoría
      * @param {boolean} isAdmin
      * @param {string} auditId
@@ -291,20 +448,56 @@ class AuditService {
             throw { fn: 'NotFound', message: 'Audit not found or Insufficient Privileges' };
         }
 
-        // Aplicar actualizaciones
-        Object.keys(updateData).forEach(key => {
-            if (updateData[key] !== undefined) {
-                audit[key] = updateData[key];
+        // Extraer procedureTemplateId si se proporciona
+        const { procedureTemplateId, ...auditUpdateData } = updateData;
+
+        // Aplicar actualizaciones a la auditoría
+        Object.keys(auditUpdateData).forEach(key => {
+            if (auditUpdateData[key] !== undefined) {
+                audit[key] = auditUpdateData[key];
             }
         });
 
         await audit.save();
+
+        // Si se proporciona procedureTemplateId, crear o actualizar AuditProcedure
+        if (procedureTemplateId) {
+            // Verificar si ya existe un AuditProcedure
+            let auditProcedure = await AuditProcedure.findOne({ auditId });
+            
+            // Obtener el código del template
+            const template = await ProcedureTemplate.findById(procedureTemplateId);
+            if (!template) {
+                throw { fn: 'NotFound', message: 'Procedure template not found' };
+            }
+
+            if (auditProcedure) {
+                // Si ya existe y no tiene origen, actualizar
+                if (!auditProcedure.origen) {
+                    auditProcedure.origen = template.code;
+                    auditProcedure.updatedBy = userId;
+                    await auditProcedure.save();
+                    console.log(`[Audit] Updated procedure for audit ${auditId} with template ${template.code}`);
+                }
+            } else {
+                // Crear nuevo AuditProcedure
+                const newProcedure = new AuditProcedure({
+                    auditId: audit._id,
+                    origen: template.code,
+                    alcance: [],
+                    createdBy: userId
+                });
+                await newProcedure.save();
+                console.log(`[Audit] Created procedure for audit ${auditId} with template ${template.code}`);
+            }
+        }
+
         return 'Audit updated successfully';
     }
 
     /**
      * Elimina una auditoría
-     * También elimina: AuditStatus, AuditProcedure, AuditVerification relacionados
+     * También elimina: AuditStatus, AuditProcedure, ReportInstances relacionados
      * @param {boolean} isAdmin
      * @param {string} auditId
      * @param {string} userId
@@ -322,17 +515,19 @@ class AuditService {
         }
 
         // Eliminar registros relacionados
-        const AuditVerification = require('../models/audit-verification.model');
-        
         await Promise.all([
             AuditStatus.deleteOne({ auditId }),
             AuditProcedure.deleteOne({ auditId }),
-            AuditVerification.deleteMany({ auditId })
+            ReportInstance.deleteMany({ auditId })
         ]);
 
-        // Eliminar auditoría y sus hijos
+        // Eliminar auditoría y sus hijos (recursivamente)
+        const children = await Audit.find({ parentId: auditId }).select('_id');
+        for (const child of children) {
+            await this.delete(true, child._id, userId); // Admin para poder eliminar hijos
+        }
+
         await Audit.deleteOne({ _id: auditId });
-        await Audit.deleteMany({ parentId: auditId });
 
         console.log(`[Audit] Deleted audit ${auditId} with related records`);
 
@@ -526,6 +721,300 @@ class AuditService {
 
             jsonStream.on('error', reject);
         });
+    }
+
+    // ============================================
+    // STATE MANAGEMENT
+    // ============================================
+
+    /**
+     * Actualiza el estado de una auditoría
+     * Estados válidos: EDIT, REVIEW, APPROVED
+     * @param {boolean} isAdmin
+     * @param {string} auditId
+     * @param {string} userId
+     * @param {string} newState
+     */
+    static async updateState(isAdmin, auditId, userId, newState) {
+        // Validar estado
+        const validStates = ['EDIT', 'REVIEW', 'APPROVED'];
+        if (!validStates.includes(newState)) {
+            throw { fn: 'BadParameters', message: `Invalid state. Must be one of: ${validStates.join(', ')}` };
+        }
+
+        let query = Audit.findById(auditId);
+
+        if (!isAdmin) {
+            query.or([
+                { creator: userId },
+                { collaborators: userId },
+                { reviewers: userId }
+            ]);
+        }
+
+        const audit = await query.exec();
+        if (!audit) {
+            throw { fn: 'NotFound', message: 'Audit not found or Insufficient Privileges' };
+        }
+
+        const currentState = audit.state;
+
+        // Validar transiciones de estado
+        const validTransitions = {
+            'EDIT': ['REVIEW'],
+            'REVIEW': ['EDIT', 'APPROVED'],
+            'APPROVED': ['REVIEW']  // Puede volver a revisión si se necesitan cambios
+        };
+
+        if (!validTransitions[currentState]?.includes(newState)) {
+            throw { 
+                fn: 'BadParameters', 
+                message: `Invalid state transition from ${currentState} to ${newState}` 
+            };
+        }
+
+        // Si va a APPROVED, verificar que haya al menos una aprobación
+        if (newState === 'APPROVED' && (!audit.approvals || audit.approvals.length === 0)) {
+            throw { 
+                fn: 'BadParameters', 
+                message: 'Cannot approve audit without any approvals' 
+            };
+        }
+
+        // Si vuelve de APPROVED a REVIEW, limpiar aprobaciones
+        if (currentState === 'APPROVED' && newState === 'REVIEW') {
+            audit.approvals = [];
+        }
+
+        audit.state = newState;
+        await audit.save();
+
+        console.log(`[Audit] State changed from ${currentState} to ${newState} for audit ${auditId}`);
+
+        return { 
+            message: 'State updated successfully',
+            previousState: currentState,
+            newState: newState
+        };
+    }
+
+    /**
+     * Marca una auditoría como lista para revisión
+     * @param {boolean} isAdmin
+     * @param {string} auditId
+     * @param {string} userId
+     * @param {string[]} reviewers - IDs de revisores a asignar
+     */
+    static async updateReadyForReview(isAdmin, auditId, userId, reviewers = []) {
+        let query = Audit.findById(auditId);
+
+        if (!isAdmin) {
+            query.or([
+                { creator: userId },
+                { collaborators: userId }
+            ]);
+        }
+
+        const audit = await query.exec();
+        if (!audit) {
+            throw { fn: 'NotFound', message: 'Audit not found or Insufficient Privileges' };
+        }
+
+        if (audit.state !== 'EDIT') {
+            throw { fn: 'BadParameters', message: 'Audit must be in EDIT state to mark as ready for review' };
+        }
+
+        // Asignar revisores si se proporcionan
+        if (reviewers && reviewers.length > 0) {
+            audit.reviewers = reviewers;
+        }
+
+        audit.state = 'REVIEW';
+        await audit.save();
+
+        console.log(`[Audit] Marked as ready for review: ${auditId}`);
+
+        return { message: 'Audit is now ready for review' };
+    }
+
+    /**
+     * Gestiona las aprobaciones de una auditoría
+     * @param {boolean} isAdmin
+     * @param {string} auditId
+     * @param {string} userId
+     * @param {string} action - 'add' o 'remove'
+     */
+    static async updateApprovals(isAdmin, auditId, userId, action) {
+        let query = Audit.findById(auditId);
+
+        if (!isAdmin) {
+            query.or([
+                { creator: userId },
+                { collaborators: userId },
+                { reviewers: userId }
+            ]);
+        }
+
+        const audit = await query.exec();
+        if (!audit) {
+            throw { fn: 'NotFound', message: 'Audit not found or Insufficient Privileges' };
+        }
+
+        if (audit.state !== 'REVIEW') {
+            throw { fn: 'BadParameters', message: 'Audit must be in REVIEW state to manage approvals' };
+        }
+
+        // Verificar que el usuario sea revisor (o admin)
+        const isReviewer = audit.reviewers?.some(r => r.toString() === userId) || isAdmin;
+        if (!isReviewer) {
+            throw { fn: 'Forbidden', message: 'Only reviewers can approve audits' };
+        }
+
+        if (!audit.approvals) {
+            audit.approvals = [];
+        }
+
+        const userIdStr = userId.toString();
+        const hasApproved = audit.approvals.some(a => a.toString() === userIdStr);
+
+        if (action === 'add') {
+            if (hasApproved) {
+                throw { fn: 'BadParameters', message: 'User has already approved this audit' };
+            }
+            audit.approvals.push(userId);
+        } else if (action === 'remove') {
+            if (!hasApproved) {
+                throw { fn: 'BadParameters', message: 'User has not approved this audit' };
+            }
+            audit.approvals = audit.approvals.filter(a => a.toString() !== userIdStr);
+        } else {
+            throw { fn: 'BadParameters', message: 'Action must be "add" or "remove"' };
+        }
+
+        await audit.save();
+
+        console.log(`[Audit] Approval ${action}ed by user ${userId} for audit ${auditId}`);
+
+        return {
+            message: `Approval ${action === 'add' ? 'added' : 'removed'} successfully`,
+            approvals: audit.approvals,
+            approvalCount: audit.approvals.length
+        };
+    }
+
+    /**
+     * Obtiene información de red de una auditoría
+     */
+    static async getNetwork(isAdmin, auditId, userId) {
+        let query = Audit.findById(auditId);
+
+        if (!isAdmin) {
+            query.or([
+                { creator: userId },
+                { collaborators: userId },
+                { reviewers: userId }
+            ]);
+        }
+
+        query.select('scope');
+
+        const audit = await query.exec();
+        if (!audit) {
+            throw { fn: 'NotFound', message: 'Audit not found or Insufficient Privileges' };
+        }
+
+        return { scope: audit.scope || [] };
+    }
+
+    /**
+     * Actualiza información de red de una auditoría
+     */
+    static async updateNetwork(isAdmin, auditId, userId, scope) {
+        let query = Audit.findById(auditId);
+
+        if (!isAdmin) {
+            query.or([
+                { creator: userId },
+                { collaborators: userId }
+            ]);
+        }
+
+        const audit = await query.exec();
+        if (!audit) {
+            throw { fn: 'NotFound', message: 'Audit not found or Insufficient Privileges' };
+        }
+
+        audit.scope = scope || [];
+        await audit.save();
+
+        return { message: 'Network information updated successfully' };
+    }
+
+    /**
+     * Actualiza las opciones de ordenamiento de findings
+     */
+    static async updateSortFindings(isAdmin, auditId, userId, sortFindings) {
+        let query = Audit.findById(auditId);
+
+        if (!isAdmin) {
+            query.or([
+                { creator: userId },
+                { collaborators: userId }
+            ]);
+        }
+
+        const audit = await query.exec();
+        if (!audit) {
+            throw { fn: 'NotFound', message: 'Audit not found or Insufficient Privileges' };
+        }
+
+        audit.sortFindings = sortFindings || [];
+        await audit.save();
+
+        return { message: 'Sort options updated successfully' };
+    }
+
+    /**
+     * Mueve un finding a una nueva posición
+     */
+    static async moveFinding(isAdmin, auditId, userId, findingId, newIndex) {
+        let query = Audit.findById(auditId);
+
+        if (!isAdmin) {
+            query.or([
+                { creator: userId },
+                { collaborators: userId }
+            ]);
+        }
+
+        const audit = await query.exec();
+        if (!audit) {
+            throw { fn: 'NotFound', message: 'Audit not found or Insufficient Privileges' };
+        }
+
+        // Encontrar el finding por _id o id (ambos son válidos)
+        const currentIndex = audit.findings.findIndex(f => {
+            const fId = f._id?.toString();
+            const fCustomId = f.id?.toString();
+            const targetId = findingId.toString();
+            return fId === targetId || fCustomId === targetId;
+        });
+
+        if (currentIndex === -1) {
+            throw { fn: 'NotFound', message: 'Finding not found' };
+        }
+
+        if (newIndex < 0 || newIndex >= audit.findings.length) {
+            throw { fn: 'BadParameters', message: 'Invalid new index' };
+        }
+
+        // Mover el finding
+        const [finding] = audit.findings.splice(currentIndex, 1);
+        audit.findings.splice(newIndex, 0, finding);
+
+        await audit.save();
+
+        return { message: 'Finding moved successfully' };
     }
 }
 

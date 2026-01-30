@@ -1,7 +1,6 @@
 const Audit = require('../models/audit.model');
 const AuditProcedure = require('../models/audit-procedure.model');
 const AuditStatus = require('../models/audit-status.model');
-const AuditVerification = require('../models/audit-verification.model');
 const Client = require('../models/client.model');
 const Company = require('../models/company.model');
 
@@ -28,7 +27,7 @@ class AnalyticsService {
         const { year, startDate, endDate } = filters;
         const dateFilter = this._buildDateFilter(startDate, endDate, year);
         
-        console.log('📊 [Analytics] Dashboard global - Filtro:', dateFilter);
+        console.log('[Analytics] Dashboard global - Filtro:', dateFilter);
         
         // Construir filtro completo con createdAt
         const matchFilter = { createdAt: dateFilter };
@@ -82,7 +81,7 @@ class AnalyticsService {
     async getCompanyDashboard(companyId, filters = {}) {
         const { year, startDate, endDate } = filters;
         
-        console.log(`📊 [Analytics] Dashboard compañía: ${companyId}`);
+        console.log(`[Analytics] Dashboard compañía: ${companyId}`);
         
         const company = await Company.findById(companyId);
         if (!company) {

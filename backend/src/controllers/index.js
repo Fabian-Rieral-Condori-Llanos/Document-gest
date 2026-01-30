@@ -15,7 +15,6 @@ const VulnerabilityController = require('./vulnerability.controller');
 const AuditController = require('./audit.controller');
 const DataController = require('./data.controller');
 const BackupController = require('./backup.controller');
-const AuditVerificationController = require('./audit-verification.controller');
 const AuditStatusController = require('./audit-status.controller');
 const AuditProcedureController = require('./audit-procedure.controller');
 
@@ -32,6 +31,5 @@ module.exports = {
     BackupController,
 
     AuditStatusController,
-    AuditVerificationController,
     AuditProcedureController
 };

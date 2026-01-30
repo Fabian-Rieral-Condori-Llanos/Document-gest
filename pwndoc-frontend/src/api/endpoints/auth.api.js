@@ -41,9 +41,9 @@ export const authApi = {
    * Público (sin autenticación)
    */
   login: async (credentials) => {
-    console.log('📤 [authApi] Login request:', { username: credentials.username });
+    console.log('[authApi] Login request:', { username: credentials.username });
     const response = await api.post('/users/login', credentials);
-    console.log('📥 [authApi] Login response:', response.data);
+    console.log('[authApi] Login response:', response.data);
     return response.data;
   },
 
@@ -53,13 +53,13 @@ export const authApi = {
    * Público (sin autenticación)
    */
   loginWithTOTP: async (credentials) => {
-    console.log('📤 [authApi] Login TOTP request');
+    console.log('[authApi] Login TOTP request');
     const response = await api.post('/users/login', {
       username: credentials.username,
       password: credentials.password,
       totpToken: credentials.totpToken
     });
-    console.log('📥 [authApi] Login TOTP response:', response.data);
+    console.log('[authApi] Login TOTP response:', response.data);
     return response.data;
   },
 
@@ -83,9 +83,9 @@ export const authApi = {
    * Requiere: refreshToken cookie
    */
   refreshToken: async () => {
-    console.log('🔄 [authApi] Refresh token request...');
+    console.log('[authApi] Refresh token request...');
     const response = await api.get('/users/refreshtoken');
-    console.log('📥 [authApi] Refresh response:', response.data);
+    console.log('[authApi] Refresh response:', response.data);
     return response.data;
   },
 
@@ -95,9 +95,9 @@ export const authApi = {
    * Requiere: refreshToken cookie
    */
   logout: async () => {
-    console.log('🚪 [authApi] Logout request...');
+    console.log('[authApi] Logout request...');
     const response = await api.delete('/users/refreshtoken');
-    console.log('📥 [authApi] Logout response:', response.data);
+    console.log('[authApi] Logout response:', response.data);
     return response.data;
   },
 
@@ -127,3 +127,4 @@ export const authApi = {
 };
 
 export default authApi;
+

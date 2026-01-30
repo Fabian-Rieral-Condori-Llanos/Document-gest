@@ -1,12 +1,107 @@
 const mongoose = require('mongoose');
 const AuditProcedure = require('../models/audit-procedure.model');
+const AuditStatus = require('../models/audit-status.model');
 
 /**
  * AuditProcedure Service
  * 
  * Lógica de negocio para el manejo de procedimientos de auditoría.
+ * 
+ * CAMBIO AUTOMÁTICO A COMPLETADO:
+ * ===============================
+ * El estado de AuditStatus cambia automáticamente a COMPLETADO cuando:
+ * 
+ * 1. Para EVALUACIONES (type: default, multi):
+ *    - Se llena el campo respuesta.cite
+ * 
+ * 2. Para VERIFICACIONES (type: verification, retest):
+ *    - Se llena el campo respuestaRetest.cite
+ * 
+ * El sistema detecta automáticamente el tipo de auditoría basándose en:
+ * - El campo audit.type
+ * - El alcance (si incluye "verificación" o "retest")
  */
 class AuditProcedureService {
+    /**
+     * Verifica si la auditoría debe marcarse como COMPLETADA
+     * y actualiza el estado automáticamente
+     * 
+     * @private
+     * @param {Object} procedure - Documento de AuditProcedure
+     * @param {string} userId - ID del usuario que hace el cambio
+     */
+    static async _checkAndUpdateCompletionStatus(procedure, userId) {
+        const Audit = mongoose.model('Audit');
+        const audit = await Audit.findById(procedure.auditId).select('type state');
+        
+        if (!audit) return;
+
+        // Solo auto-completar si la auditoría está APPROVED
+        if (audit.state !== 'APPROVED') {
+            console.log(`[AuditProcedure] Audit ${procedure.auditId} not APPROVED, skipping auto-complete`);
+            return;
+        }
+
+        let shouldComplete = false;
+        let completionReason = '';
+
+        // Determinar si es auditoría de verificación
+        const isVerification = this._isVerificationAudit(audit, procedure);
+
+        if (isVerification) {
+            // Para verificaciones: completar cuando tiene respuestaRetest.cite
+            if (procedure.respuestaRetest?.cite) {
+                shouldComplete = true;
+                completionReason = `Verificación completada - CITE respuestaRetest: ${procedure.respuestaRetest.cite}`;
+            }
+        } else {
+            // Para evaluaciones: completar cuando tiene respuesta.cite
+            if (procedure.respuesta?.cite) {
+                shouldComplete = true;
+                completionReason = `Evaluación completada - CITE respuesta: ${procedure.respuesta.cite}`;
+            }
+        }
+
+        if (shouldComplete) {
+            try {
+                const status = await AuditStatus.findOne({ auditId: procedure.auditId });
+                if (status && status.status !== AuditStatus.STATUS.COMPLETADO) {
+                    await status.changeStatus(
+                        AuditStatus.STATUS.COMPLETADO, 
+                        userId, 
+                        completionReason
+                    );
+                    console.log(`[AuditProcedure] Auto-completed audit ${procedure.auditId}: ${completionReason}`);
+                }
+            } catch (err) {
+                console.error('[AuditProcedure] Error auto-completing:', err.message);
+            }
+        }
+    }
+
+    /**
+     * Determina si una auditoría es de tipo verificación
+     * @private
+     */
+    static _isVerificationAudit(audit, procedure) {
+        // Verificar por tipo de auditoría
+        if (audit.type === 'verification' || audit.type === 'retest') {
+            return true;
+        }
+
+        // Verificar por alcance (si incluye palabras clave)
+        if (procedure.alcance && Array.isArray(procedure.alcance)) {
+            const verificationKeywords = ['verificación', 'verificacion', 'retest', 'seguimiento'];
+            return procedure.alcance.some(a => 
+                verificationKeywords.some(keyword => 
+                    a.toLowerCase().includes(keyword)
+                )
+            );
+        }
+
+        return false;
+    }
+
     /**
      * Obtiene todos los procedimientos
      */
@@ -26,7 +121,7 @@ class AuditProcedureService {
         }
         
         return await AuditProcedure.find(query)
-            .populate('auditId', 'name language auditType')
+            .populate('auditId', 'name language auditType type state')
             .populate('createdBy', 'username firstname lastname')
             .populate('updatedBy', 'username firstname lastname')
             .sort({ createdAt: -1 });
@@ -37,7 +132,7 @@ class AuditProcedureService {
      */
     static async getById(id) {
         const procedure = await AuditProcedure.findById(id)
-            .populate('auditId', 'name language auditType findings')
+            .populate('auditId', 'name language auditType type state findings')
             .populate('createdBy', 'username firstname lastname')
             .populate('updatedBy', 'username firstname lastname');
         
@@ -53,7 +148,7 @@ class AuditProcedureService {
      */
     static async getByAuditId(auditId) {
         const procedure = await AuditProcedure.findOne({ auditId })
-            .populate('auditId', 'name language auditType')
+            .populate('auditId', 'name language auditType type state')
             .populate('createdBy', 'username firstname lastname')
             .populate('updatedBy', 'username firstname lastname');
         
@@ -100,19 +195,23 @@ class AuditProcedureService {
             notaInterna: data.notaInterna,
             notaRetest: data.notaRetest,
             informeRetest: data.informeRetest,
-            notaExternaRetest: data.notaExternaRetest,
+            respuestaRetest: data.respuestaRetest,
             notaInternaRetest: data.notaInternaRetest,
             createdBy: userId
         };
         
         const procedure = new AuditProcedure(procedureData);
         await procedure.save();
+
+        // Verificar si debe auto-completar
+        await this._checkAndUpdateCompletionStatus(procedure, userId);
         
         return procedure;
     }
 
     /**
      * Actualiza un procedimiento
+     * IMPORTANTE: Esto puede auto-completar la auditoría si se llena respuesta.cite o respuestaRetest.cite
      */
     static async update(id, data, userId) {
         const procedure = await AuditProcedure.findById(id);
@@ -134,7 +233,7 @@ class AuditProcedureService {
             'notaInterna',
             'notaRetest',
             'informeRetest',
-            'notaExternaRetest',
+            'respuestaRetest',
             'notaInternaRetest'
         ];
         
@@ -152,6 +251,9 @@ class AuditProcedureService {
         procedure.updatedBy = userId;
         
         await procedure.save();
+
+        // Verificar si debe auto-completar
+        await this._checkAndUpdateCompletionStatus(procedure, userId);
         
         return procedure;
     }
@@ -194,6 +296,7 @@ class AuditProcedureService {
 
     /**
      * Actualiza solo la sección de respuesta
+     * IMPORTANTE: Esto puede AUTO-COMPLETAR la auditoría de evaluación
      */
     static async updateRespuesta(id, respuestaData, userId) {
         return await this.update(id, { respuesta: respuestaData }, userId);
@@ -211,13 +314,14 @@ class AuditProcedureService {
     }
 
     /**
-     * Actualiza solo la sección de retest
+     * Actualiza solo la sección de verificación/retest
+     * IMPORTANTE: Esto puede AUTO-COMPLETAR la auditoría de verificación
      */
     static async updateRetest(id, retestData, userId) {
         const updateData = {};
         if (retestData.notaRetest !== undefined) updateData.notaRetest = retestData.notaRetest;
         if (retestData.informeRetest !== undefined) updateData.informeRetest = retestData.informeRetest;
-        if (retestData.notaExternaRetest !== undefined) updateData.notaExternaRetest = retestData.notaExternaRetest;
+        if (retestData.respuestaRetest !== undefined) updateData.respuestaRetest = retestData.respuestaRetest;
         if (retestData.notaInternaRetest !== undefined) updateData.notaInternaRetest = retestData.notaInternaRetest;
         
         return await this.update(id, updateData, userId);
@@ -274,11 +378,30 @@ class AuditProcedureService {
             },
             { $sort: { count: -1 } }
         ]);
+
+        // Estadísticas de completitud
+        const completionStats = await AuditProcedure.aggregate([
+            {
+                $project: {
+                    hasRespuesta: { $cond: [{ $ifNull: ['$respuesta.cite', false] }, 1, 0] },
+                    hasRespuestaRetest: { $cond: [{ $ifNull: ['$respuestaRetest.cite', false] }, 1, 0] }
+                }
+            },
+            {
+                $group: {
+                    _id: null,
+                    total: { $sum: 1 },
+                    withRespuesta: { $sum: '$hasRespuesta' },
+                    withRespuestaRetest: { $sum: '$hasRespuestaRetest' }
+                }
+            }
+        ]);
         
         return {
             total: await AuditProcedure.countDocuments(),
             byOrigen: stats,
-            byAlcance: alcanceStats
+            byAlcance: alcanceStats,
+            completion: completionStats[0] || { total: 0, withRespuesta: 0, withRespuestaRetest: 0 }
         };
     }
 
@@ -289,8 +412,44 @@ class AuditProcedureService {
         return await AuditProcedure.find({
             origen: { $regex: searchTerm, $options: 'i' }
         })
-        .populate('auditId', 'name')
+        .populate('auditId', 'name type state')
         .sort({ createdAt: -1 });
+    }
+
+    /**
+     * Verifica el estado de completitud de un procedimiento
+     * Útil para el frontend para mostrar indicadores
+     */
+    static async getCompletionStatus(auditId) {
+        const procedure = await AuditProcedure.findOne({ auditId });
+        const Audit = mongoose.model('Audit');
+        const audit = await Audit.findById(auditId).select('type state');
+
+        if (!procedure || !audit) {
+            return null;
+        }
+
+        const isVerification = this._isVerificationAudit(audit, procedure);
+
+        return {
+            auditId,
+            auditType: audit.type,
+            auditState: audit.state,
+            isVerification,
+            documentsStatus: {
+                solicitud: !!procedure.solicitud?.cite,
+                instructivo: !!procedure.instructivo?.cite,
+                informe: !!procedure.informe?.cite,
+                respuesta: !!procedure.respuesta?.cite,
+                // Solo para verificaciones
+                informeRetest: !!procedure.informeRetest?.cite,
+                respuestaRetest: !!procedure.respuestaRetest?.cite
+            },
+            isComplete: isVerification 
+                ? !!procedure.respuestaRetest?.cite 
+                : !!procedure.respuesta?.cite,
+            canComplete: audit.state === 'APPROVED'
+        };
     }
 }
 

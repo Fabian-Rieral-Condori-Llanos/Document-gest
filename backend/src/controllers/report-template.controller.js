@@ -105,6 +105,66 @@ class ReportTemplateController {
     }
     
     /**
+     * GET /api/report-templates/page-number-formats
+     * Obtiene formatos de numeración de página
+     */
+    static async getPageNumberFormats(req, res) {
+        try {
+            const formats = ReportTemplateService.getPageNumberFormats();
+            
+            return Response.Ok(res, formats);
+        } catch (err) {
+            console.error('[ReportTemplate] Error getting page number formats:', err);
+            return Response.Internal(res, err);
+        }
+    }
+    
+    /**
+     * GET /api/report-templates/defaults/header
+     * Obtiene configuración por defecto del header
+     */
+    static async getDefaultHeaderConfig(req, res) {
+        try {
+            const config = ReportTemplateService.getDefaultHeaderConfig();
+            
+            return Response.Ok(res, config);
+        } catch (err) {
+            console.error('[ReportTemplate] Error getting default header config:', err);
+            return Response.Internal(res, err);
+        }
+    }
+    
+    /**
+     * GET /api/report-templates/defaults/footer
+     * Obtiene configuración por defecto del footer
+     */
+    static async getDefaultFooterConfig(req, res) {
+        try {
+            const config = ReportTemplateService.getDefaultFooterConfig();
+            
+            return Response.Ok(res, config);
+        } catch (err) {
+            console.error('[ReportTemplate] Error getting default footer config:', err);
+            return Response.Internal(res, err);
+        }
+    }
+    
+    /**
+     * GET /api/report-templates/defaults/page-numbering
+     * Obtiene configuración por defecto de numeración de página
+     */
+    static async getDefaultPageNumbering(req, res) {
+        try {
+            const config = ReportTemplateService.getDefaultPageNumbering();
+            
+            return Response.Ok(res, config);
+        } catch (err) {
+            console.error('[ReportTemplate] Error getting default page numbering:', err);
+            return Response.Internal(res, err);
+        }
+    }
+    
+    /**
      * GET /api/report-templates/:id
      * Obtiene una plantilla por ID
      */

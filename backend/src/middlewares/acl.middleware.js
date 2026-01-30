@@ -67,14 +67,8 @@ const builtInRoles = {
             'report-templates:read'
         ]
     },
-    // analytics: {
-    //     allows: [
-    //         'analytics:read',
-    //         "companies:read"
-    //     ]
-    // },
     admin: {
-        allows: '*'  // Todos los permisos
+        allows: '*'
     }
 };
 

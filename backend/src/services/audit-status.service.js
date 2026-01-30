@@ -146,25 +146,26 @@ class AuditStatusService {
 
     /**
      * Valida las transiciones de estado permitidas
+     * 
+     * Transiciones válidas:
+     * - EVALUANDO → COMPLETADO (manual, cuando toda la documentación está lista)
+     * - EVALUANDO → PENDIENTE (manual, cuando hay bloqueos)
+     * - PENDIENTE → EVALUANDO (reabrir)
+     * - PENDIENTE → COMPLETADO (completar desde pendiente)
+     * - COMPLETADO → PENDIENTE (reabrir si es necesario)
      */
     static validateStatusTransition(currentStatus, newStatus) {
         const validTransitions = {
             [AuditStatus.STATUS.EVALUANDO]: [
-                AuditStatus.STATUS.VERIFICACION,
-                AuditStatus.STATUS.PENDIENTE
-            ],
-            [AuditStatus.STATUS.VERIFICACION]: [
                 AuditStatus.STATUS.COMPLETADO,
-                AuditStatus.STATUS.PENDIENTE,
-                AuditStatus.STATUS.EVALUANDO  // Volver atrás
+                AuditStatus.STATUS.PENDIENTE
             ],
             [AuditStatus.STATUS.PENDIENTE]: [
-                AuditStatus.STATUS.VERIFICACION,
-                AuditStatus.STATUS.EVALUANDO
+                AuditStatus.STATUS.EVALUANDO,
+                AuditStatus.STATUS.COMPLETADO
             ],
             [AuditStatus.STATUS.COMPLETADO]: [
-                AuditStatus.STATUS.VERIFICACION,  // Reabrir para retest
-                AuditStatus.STATUS.PENDIENTE
+                AuditStatus.STATUS.PENDIENTE  // Reabrir si es necesario
             ]
         };
         
@@ -173,7 +174,7 @@ class AuditStatusService {
         if (!allowed.includes(newStatus)) {
             throw { 
                 fn: 'BadParameters', 
-                message: `Cannot transition from ${currentStatus} to ${newStatus}` 
+                message: `Cannot transition from ${currentStatus} to ${newStatus}. Allowed: ${allowed.join(', ')}` 
             };
         }
         

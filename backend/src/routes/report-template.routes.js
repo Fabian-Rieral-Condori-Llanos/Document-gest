@@ -81,6 +81,46 @@ router.get(
 );
 
 /**
+ * GET /api/report-templates/page-number-formats
+ * Obtiene formatos de numeración de página disponibles
+ */
+router.get(
+    '/page-number-formats',
+    acl.hasPermission('report-templates:read'),
+    ReportTemplateController.getPageNumberFormats
+);
+
+/**
+ * GET /api/report-templates/defaults/header
+ * Obtiene configuración por defecto del header
+ */
+router.get(
+    '/defaults/header',
+    acl.hasPermission('report-templates:read'),
+    ReportTemplateController.getDefaultHeaderConfig
+);
+
+/**
+ * GET /api/report-templates/defaults/footer
+ * Obtiene configuración por defecto del footer
+ */
+router.get(
+    '/defaults/footer',
+    acl.hasPermission('report-templates:read'),
+    ReportTemplateController.getDefaultFooterConfig
+);
+
+/**
+ * GET /api/report-templates/defaults/page-numbering
+ * Obtiene configuración por defecto de numeración
+ */
+router.get(
+    '/defaults/page-numbering',
+    acl.hasPermission('report-templates:read'),
+    ReportTemplateController.getDefaultPageNumbering
+);
+
+/**
  * POST /api/report-templates/upload
  * Crea plantilla desde archivo DOCX
  */

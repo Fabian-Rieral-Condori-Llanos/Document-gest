@@ -21,13 +21,13 @@ const initialToken = getInitialToken();
 const initialState = {
   user: null,
   token: initialToken,
-  isAuthenticated: !!initialToken, // Si hay token, está autenticado
+  isAuthenticated: !!initialToken,
   isLoading: false,
   error: null,
   requiresTOTP: false,
 };
 
-console.log('🏁 [authSlice] Estado inicial:', {
+console.log('[authSlice] Estado inicial:', {
   hasToken: !!initialState.token,
   isAuthenticated: initialState.isAuthenticated
 });
@@ -75,7 +75,7 @@ const authSlice = createSlice({
     },
     
     logout: (state) => {
-      console.log('🚪 [logout] Iniciando logout...');
+      console.log('[logout] Iniciando logout...');
       
       state.user = null;
       state.token = null;

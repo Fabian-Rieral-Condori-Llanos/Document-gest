@@ -1,8 +1,17 @@
-import { useState, useEffect, memo } from 'react';
-import { X, UserPlus, Users, Check } from 'lucide-react';
+import { useState, memo } from 'react';
+import { X, UserPlus, Check } from 'lucide-react';
 
 /**
  * CollaboratorsSelect - Selector múltiple de colaboradores
+ * 
+ * @param {Array} users - Lista de usuarios disponibles
+ * @param {Array} selectedIds - IDs de usuarios seleccionados
+ * @param {Function} onChange - Callback al cambiar selección
+ * @param {string} label - Etiqueta del campo
+ * @param {string} placeholder - Placeholder del botón
+ * @param {Array} excludeUserIds - IDs de usuarios a excluir
+ * @param {Array} excludeRoles - Roles a excluir (ej: ['analyst'])
+ * @param {number} maxVisible - Máximo de usuarios visibles antes de mostrar "+X más"
  */
 const CollaboratorsSelect = ({
   users = [],
@@ -11,20 +20,43 @@ const CollaboratorsSelect = ({
   label = 'Colaboradores',
   placeholder = 'Agregar colaboradores...',
   excludeUserIds = [],
+  excludeRoles = [],
   maxVisible = 5,
   className = '',
 }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
 
-  // Filtrar usuarios disponibles (excluir los ya seleccionados y los excluidos)
-  const availableUsers = users.filter(user => 
-    !excludeUserIds.includes(user._id) &&
-    (user.username?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-     user.firstname?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-     user.lastname?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-     user.email?.toLowerCase().includes(searchTerm.toLowerCase()))
-  );
+  // Filtrar usuarios disponibles
+  // - Excluir por IDs específicos
+  // - Excluir por roles específicos
+  // - Aplicar búsqueda
+  const availableUsers = users.filter(user => {
+    // Excluir por ID
+    if (excludeUserIds.includes(user._id)) {
+      return false;
+    }
+    
+    // Excluir por rol
+    if (excludeRoles.length > 0 && excludeRoles.includes(user.role)) {
+      return false;
+    }
+    
+    // Aplicar búsqueda
+    if (searchTerm) {
+      const search = searchTerm.toLowerCase();
+      const matchUsername = user.username?.toLowerCase().includes(search);
+      const matchFirstname = user.firstname?.toLowerCase().includes(search);
+      const matchLastname = user.lastname?.toLowerCase().includes(search);
+      const matchEmail = user.email?.toLowerCase().includes(search);
+      
+      if (!matchUsername && !matchFirstname && !matchLastname && !matchEmail) {
+        return false;
+      }
+    }
+    
+    return true;
+  });
 
   // Obtener usuarios seleccionados
   const selectedUsers = users.filter(user => selectedIds.includes(user._id));
@@ -53,6 +85,17 @@ const CollaboratorsSelect = ({
       return `${user.firstname[0]}${user.lastname[0]}`.toUpperCase();
     }
     return user.username?.substring(0, 2).toUpperCase() || '??';
+  };
+
+  const getRoleBadgeColor = (role) => {
+    switch (role) {
+      case 'admin':
+        return 'bg-red-500/10 text-red-400';
+      case 'user':
+        return 'bg-blue-500/10 text-blue-400';
+      default:
+        return 'bg-gray-500/10 text-gray-400';
+    }
   };
 
   return (
@@ -151,9 +194,16 @@ const CollaboratorsSelect = ({
                         </span>
                       </div>
                       <div className="flex-1 text-left min-w-0">
-                        <p className="text-sm font-medium text-white truncate">
-                          {getUserDisplayName(user)}
-                        </p>
+                        <div className="flex items-center gap-2">
+                          <p className="text-sm font-medium text-white truncate">
+                            {getUserDisplayName(user)}
+                          </p>
+                          {user.role && (
+                            <span className={`px-1.5 py-0.5 text-xs rounded capitalize ${getRoleBadgeColor(user.role)}`}>
+                              {user.role}
+                            </span>
+                          )}
+                        </div>
                         <p className="text-xs text-gray-500 truncate">
                           {user.email || user.username}
                         </p>

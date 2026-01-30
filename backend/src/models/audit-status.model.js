@@ -5,7 +5,15 @@ const Schema = mongoose.Schema;
  * AuditStatus Model
  * 
  * Controla el estado general del ciclo de vida de una auditoría.
- * Estados: EVALUANDO → VERIFICACION → PENDIENTE/COMPLETADO
+ * Estados: EVALUANDO → COMPLETADO
+ * 
+ * FLUJO:
+ * - EVALUANDO: Auditoría en progreso (estado inicial)
+ * - PENDIENTE: Bloqueada/Esperando acciones (opcional)
+ * - COMPLETADO: Auditoría finalizada (manual)
+ * 
+ * NOTA: La verificación ahora es una auditoría separada (hija),
+ * no un estado dentro de la misma auditoría.
  */
 
 /**
@@ -13,7 +21,6 @@ const Schema = mongoose.Schema;
  */
 const STATUS_ENUM = {
     EVALUANDO: 'EVALUANDO',
-    VERIFICACION: 'VERIFICACION',
     PENDIENTE: 'PENDIENTE',
     COMPLETADO: 'COMPLETADO'
 };
@@ -55,7 +62,7 @@ const AuditStatusSchema = new Schema({
         type: String,
         enum: {
             values: Object.values(STATUS_ENUM),
-            message: 'Status must be one of: EVALUANDO, VERIFICACION, PENDIENTE, COMPLETADO'
+            message: 'Status must be one of: EVALUANDO, PENDIENTE, COMPLETADO'
         },
         default: STATUS_ENUM.EVALUANDO
     },

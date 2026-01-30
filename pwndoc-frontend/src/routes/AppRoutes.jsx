@@ -41,18 +41,38 @@ import { DataPage } from '../pages/Data';
 import { SettingsPage } from '../pages/Settings';
 
 // Pages - Audits (Evaluaciones)
-import { AuditsPage, AuditFormPage, AuditDetailPage } from '../pages/Audits';
+import { AuditsPage, AuditFormPage, AuditDetailPage, FindingFormPage, FindingDetailPage } from '../pages/Audits';
+
+// Pages - Audit Status
+// import { AuditStatusPage } from '../pages/AuditStatus';
+
+// Pages - Audit Verifications
+// import { AuditVerificationsPage } from '../pages/AuditVerifications';
+
+// Pages - Audit Procedures
+// import { AuditProceduresPage } from '../pages/AuditProcedures';
 
 // Pages - Procedure Templates (Admin)
 import { ProcedureTemplatesPage } from '../pages/ProcedureTemplates';
-import { AlcanceTemplatesPage } from '../pages/AlcanceTemplates';
 
 // Pages - Report Templates (Admin)
-import { ReportTemplatesPage } from '../pages/ReportTemplates';
+import { ReportTemplatesPage, ReportTemplateEditorPage } from '../pages/ReportTemplates';
+
+// Pages - Reports (Editor de reportes de auditorías)
+import { ReportEditorPage } from '../pages/Reports';
+
+// Pages - Alcance Templates (Admin)
+import { AlcanceTemplatesPage } from '../pages/AlcanceTemplates';
+
+// Pages - Backups (Admin)
+import { BackupsPage } from '../pages/Backups';
 
 // Pages - Error
 import NotFound from '../pages/NotFound/NotFound';
 import Forbidden from '../pages/Forbidden/Forbidden';
+import AuditStatusPage from '../pages/AuditStatus/AuditStatusPage';
+import AuditVerificationsPage from '../pages/AuditVerifications/AuditVerificationsPage';
+import { AuditProceduresPage } from '../pages/AuditProcedures';
 
 const AppRoutes = () => {
   const dispatch = useDispatch();
@@ -62,7 +82,7 @@ const AppRoutes = () => {
 
   useEffect(() => {
     const checkAuth = async () => {
-      console.log('🔍 Verificando autenticación...');
+      console.log('Verificando autenticación...');
       
       // Primero, hidratar desde localStorage
       dispatch(hydrateAuth());
@@ -71,19 +91,19 @@ const AppRoutes = () => {
       const hasSession = localStorage.getItem('hasSession') === 'true';
       
       if (hasSession) {
-        console.log('🔑 Sesión previa detectada, verificando con servidor...');
+        console.log('Sesión previa detectada, verificando con servidor...');
         
         // Si hay sesión previa, intentar obtener perfil (validará las cookies)
         try {
-          console.log('👤 Obteniendo perfil del usuario...');
+          console.log('Obteniendo perfil del usuario...');
           await dispatch(getProfile()).unwrap();
-          console.log('✅ Perfil obtenido correctamente');
+          console.log('Perfil obtenido correctamente');
         } catch (error) {
-          console.error('❌ Error obteniendo perfil:', error);
+          console.error('Error obteniendo perfil:', error);
           // El interceptor manejará el refresh o logout si es necesario
         }
       } else {
-        console.log('⚠️ No hay sesión previa');
+        console.log('No hay sesión previa');
       }
       
       setIsCheckingAuth(false);
@@ -152,9 +172,17 @@ const AppRoutes = () => {
         <Route path="/audits/create" element={<AuditFormPage />} />
         <Route path="/audits/:id" element={<AuditDetailPage />} />
         <Route path="/audits/:id/edit" element={<AuditFormPage />} />
-        <Route path="/audit-status" element={<ComingSoon title="Seguimiento" />} />
-        <Route path="/audit-verifications" element={<ComingSoon title="Verificaciones" />} />
-        <Route path="/audit-procedures" element={<ComingSoon title="Procedimientos" />} />
+        <Route path="/audits/:auditId/report" element={<ReportEditorPage />} />
+        
+        {/* Findings (Hallazgos) */}
+        <Route path="/audits/:auditId/findings/create" element={<FindingFormPage />} />
+        <Route path="/audits/:auditId/findings/:findingId" element={<FindingDetailPage />} />
+        <Route path="/audits/:auditId/findings/:findingId/edit" element={<FindingFormPage />} />
+        
+        {/* Sub-módulos de Auditoría */}
+        <Route path="/audit-status" element={<AuditStatusPage />} />
+        <Route path="/audit-verifications" element={<AuditVerificationsPage />} />
+        <Route path="/audit-procedures" element={<AuditProceduresPage />} />
         
         {/* ============================================ */}
         {/* VULNERABILIDADES (Base de Conocimiento) - Todos los roles */}
@@ -186,19 +214,46 @@ const AppRoutes = () => {
             <ProcedureTemplatesPage />
           </AdminOnly>
         } />
+        
+        {/* ============================================ */}
+        {/* PLANTILLAS DE REPORTES - Admin */}
+        {/* ============================================ */}
+        <Route path="/report-templates" element={
+          <AdminOnly>
+            <ReportTemplatesPage />
+          </AdminOnly>
+        } />
+        <Route path="/report-templates/new" element={
+          <AdminOnly>
+            <ReportTemplateEditorPage />
+          </AdminOnly>
+        } />
+        <Route path="/report-templates/:id/edit" element={
+          <AdminOnly>
+            <ReportTemplateEditorPage />
+          </AdminOnly>
+        } />
+        <Route path="/report-templates/:id/preview" element={
+          <AdminOnly>
+            <ReportTemplateEditorPage />
+          </AdminOnly>
+        } />
+
+        {/* ============================================ */}
+        {/* PLANTILLAS DE ALCANCE - Admin */}
+        {/* ============================================ */}
         <Route path="/alcance-templates" element={
           <AdminOnly>
-            <AlcanceTemplatesPage title="Plantillas de Alcance" />
+            <AlcanceTemplatesPage />
           </AdminOnly>
         } />
-        <Route path="/templates" element={
-          <AdminOnly>
-            <ReportTemplatesPage title="Plantillas de Reportes" />
-          </AdminOnly>
-        } />
+
+        {/* ============================================ */}
+        {/* BACKUPS - Solo Admin */}
+        {/* ============================================ */}
         <Route path="/backups" element={
           <AdminOnly>
-            <ComingSoon title="Backups" />
+            <BackupsPage />
           </AdminOnly>
         } />
         

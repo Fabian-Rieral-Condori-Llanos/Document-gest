@@ -94,7 +94,7 @@ class AuditController {
             }
 
             const audit = await AuditService.create(
-                { name, language, auditType, template, type },
+                req.body,
                 req.decodedToken.id
             );
 
@@ -112,7 +112,6 @@ class AuditController {
         try {
             const isAdmin = AuditController.isAdmin(req);
             const userId = req.decodedToken.id;
-
             await AuditService.delete(isAdmin, req.params.id, userId);
             Response.Ok(res, 'Audit deleted successfully');
         } catch (err) {
@@ -576,6 +575,94 @@ class AuditController {
         }
     }
 
+    /**
+     * POST /api/audits/:id/verification
+     * Crea una auditoría de verificación
+     */
+    static async createVerification(req, res) {
+        try {
+            const isAdmin = AuditController.isAdmin(req);
+            const userId = req.decodedToken.id;
+
+            const verification = await AuditService.createVerification(
+                isAdmin, 
+                req.params.id, 
+                userId, 
+                {
+                    name: req.body.name,
+                    alcance: req.body.alcance,
+                    origen: req.body.origen
+                }
+            );
+
+            Response.Created(res, verification);
+        } catch (err) {
+            Response.Internal(res, err);
+        }
+    }
+
+    /**
+     * GET /api/audits/:id/full
+     * Obtiene auditoría completa con todos los datos relacionados
+     */
+    static async getFullById(req, res) {
+        try {
+            const isAdmin = AuditController.isAdmin(req);
+            const userId = req.decodedToken.id;
+
+            const audit = await AuditService.getFullById(isAdmin, req.params.id, userId);
+            
+            // Obtener usuarios conectados
+            const connectedUsers = AuditService.getConnectedUsers(AuditController.io, req.params.id);
+
+            Response.Ok(res, { ...audit, connectedUsers });
+        } catch (err) {
+            Response.Internal(res, err);
+        }
+    }
+
+    /**
+     * PUT /api/audits/:id/lifecycle-status
+     * Actualiza el estado del ciclo de vida (AuditStatus)
+     */
+    static async updateLifecycleStatus(req, res) {
+        try {
+            const userId = req.decodedToken.id;
+            const { status, notes } = req.body;
+
+            if (!status) {
+                return Response.BadParameters(res, 'Status is required');
+            }
+
+            const AuditStatusService = require('../services/audit-status.service');
+            const result = await AuditStatusService.updateStatusByAuditId(
+                req.params.id,
+                status,
+                userId,
+                notes || ''
+            );
+
+            AuditController.emitUpdate(req.params.id, { type: 'lifecycle-status' });
+            Response.Ok(res, result);
+        } catch (err) {
+            Response.Internal(res, err);
+        }
+    }
+
+    /**
+     * GET /api/audits/:id/lifecycle-status
+     * Obtiene el estado del ciclo de vida de una auditoría
+     */
+    static async getLifecycleStatus(req, res) {
+        try {
+            const AuditStatusService = require('../services/audit-status.service');
+            const status = await AuditStatusService.getByAuditId(req.params.id);
+            Response.Ok(res, status);
+        } catch (err) {
+            Response.Internal(res, err);
+        }
+    }
+
     // ============================================
     // SORTING
     // ============================================
@@ -615,6 +702,116 @@ class AuditController {
 
             AuditController.emitUpdate(req.params.id, { type: 'findings' });
             Response.Ok(res, 'Finding moved successfully');
+        } catch (err) {
+            Response.Internal(res, err);
+        }
+    }
+
+    // ============================================
+    // IMPORT FROM VULNERABILITY LIBRARY
+    // ============================================
+
+    /**
+     * POST /api/audits/:id/findings/import
+     * Importa vulnerabilidades de la biblioteca como findings
+     * 
+     * Body: { vulnerabilityIds: ["id1", "id2"], language: "es" }
+     */
+    static async importVulnerabilities(req, res) {
+        try {
+            const isAdmin = AuditController.isAdmin(req);
+            const userId = req.decodedToken.id;
+            const { vulnerabilityIds, language } = req.body;
+
+            if (!vulnerabilityIds || !Array.isArray(vulnerabilityIds) || vulnerabilityIds.length === 0) {
+                return Response.BadParameters(res, 'vulnerabilityIds array is required');
+            }
+
+            const result = await AuditFindingService.importFromVulnerability(
+                isAdmin,
+                req.params.id,
+                userId,
+                vulnerabilityIds,
+                language || 'es'
+            );
+
+            AuditController.emitUpdate(req.params.id, { type: 'findings' });
+            Response.Created(res, result);
+        } catch (err) {
+            Response.Internal(res, err);
+        }
+    }
+
+    /**
+     * POST /api/audits/:id/findings/import/:vulnerabilityId
+     * Importa una sola vulnerabilidad de la biblioteca
+     */
+    static async importSingleVulnerability(req, res) {
+        try {
+            const isAdmin = AuditController.isAdmin(req);
+            const userId = req.decodedToken.id;
+            const { language } = req.query;
+
+            const result = await AuditFindingService.importSingleVulnerability(
+                isAdmin,
+                req.params.id,
+                userId,
+                req.params.vulnerabilityId,
+                language || 'es'
+            );
+
+            AuditController.emitUpdate(req.params.id, { type: 'findings' });
+            Response.Created(res, result);
+        } catch (err) {
+            Response.Internal(res, err);
+        }
+    }
+
+    /**
+     * GET /api/audits/:id/findings/:findingId/vulnerability
+     * Obtiene la vulnerabilidad original de un finding (si existe)
+     */
+    static async getOriginalVulnerability(req, res) {
+        try {
+            const vulnerability = await AuditFindingService.getOriginalVulnerability(
+                req.params.id,
+                req.params.findingId
+            );
+
+            if (!vulnerability) {
+                return Response.Ok(res, { 
+                    message: 'Finding was created manually, not from vulnerability library',
+                    vulnerability: null 
+                });
+            }
+
+            Response.Ok(res, vulnerability);
+        } catch (err) {
+            Response.Internal(res, err);
+        }
+    }
+
+    /**
+     * GET /api/audits/:id/findings/stats
+     * Obtiene estadísticas de findings
+     */
+    static async getFindingStats(req, res) {
+        try {
+            const stats = await AuditFindingService.getStats(req.params.id);
+            Response.Ok(res, stats);
+        } catch (err) {
+            Response.Internal(res, err);
+        }
+    }
+
+    /**
+     * GET /api/audits/:id/findings/retest-summary
+     * Obtiene resumen de retest de findings
+     */
+    static async getRetestSummary(req, res) {
+        try {
+            const summary = await AuditFindingService.getRetestSummary(req.params.id);
+            Response.Ok(res, summary);
         } catch (err) {
             Response.Internal(res, err);
         }

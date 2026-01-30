@@ -727,28 +727,142 @@ ${customCSS}
 
     /**
      * Genera template del header para Puppeteer
+     * Usa la configuración de headerConfig del template/instance
      * @private
      */
     _generateHeaderTemplate(reportInstance) {
+        const template = reportInstance.templateId;
+        const headerConfig = reportInstance.headerConfig || template?.headerConfig;
+        const pageNumbering = reportInstance.pageNumbering || template?.pageNumbering || {};
         const data = reportInstance.injectedData || {};
-        return `
-<div style="font-size: 9pt; width: 100%; padding: 0 20mm; display: flex; justify-content: space-between; color: #6b7280;">
-    <span>${data.company?.shortName || data.company?.name || ''}</span>
-    <span>${data.audit?.name || ''}</span>
-</div>`;
+
+        // Si no hay configuración o está deshabilitado
+        if (!headerConfig || !headerConfig.enabled) {
+            return '<div></div>';
+        }
+
+        // Usar el nuevo método de construcción
+        return this._buildHeaderFooterTemplate(headerConfig, pageNumbering, data, 'header');
     }
 
     /**
      * Genera template del footer para Puppeteer
+     * Usa la configuración de footerConfig del template/instance
      * @private
      */
     _generateFooterTemplate(reportInstance) {
+        const template = reportInstance.templateId;
+        const footerConfig = reportInstance.footerConfig || template?.footerConfig;
+        const pageNumbering = reportInstance.pageNumbering || template?.pageNumbering || {};
         const data = reportInstance.injectedData || {};
+
+        // Si no hay configuración o está deshabilitado
+        if (!footerConfig || !footerConfig.enabled) {
+            return '<div></div>';
+        }
+
+        // Usar el nuevo método de construcción
+        return this._buildHeaderFooterTemplate(footerConfig, pageNumbering, data, 'footer');
+    }
+
+    /**
+     * Construye el template HTML de header/footer
+     * @private
+     */
+    _buildHeaderFooterTemplate(config, pageNumbering, data, position) {
+        const height = config.height || 15;
+        const showLine = config.showLine || false;
+        const lineColor = config.lineColor || '#e5e7eb';
+
+        // Procesar contenido de cada posición
+        const leftContent = this._processHeaderFooterPosition(config.left, pageNumbering, data);
+        const centerContent = this._processHeaderFooterPosition(config.center, pageNumbering, data);
+        const rightContent = this._processHeaderFooterPosition(config.right, pageNumbering, data);
+
+        const borderStyle = position === 'header'
+            ? (showLine ? `border-bottom: 1px solid ${lineColor};` : '')
+            : (showLine ? `border-top: 1px solid ${lineColor};` : '');
+
         return `
-<div style="font-size: 9pt; width: 100%; padding: 0 20mm; display: flex; justify-content: space-between; color: #6b7280;">
-    <span>CONFIDENCIAL</span>
-    <span>Página <span class="pageNumber"></span> de <span class="totalPages"></span></span>
+<div style="
+    font-size: 9pt;
+    width: 100%;
+    padding: 5mm 15mm;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    ${borderStyle}
+    color: #6b7280;
+    font-family: Arial, sans-serif;
+    box-sizing: border-box;
+">
+    <span style="flex: 1; text-align: left;">${leftContent}</span>
+    <span style="flex: 1; text-align: center;">${centerContent}</span>
+    <span style="flex: 1; text-align: right;">${rightContent}</span>
 </div>`;
+    }
+
+    /**
+     * Procesa una posición del header/footer (left, center, right)
+     * @private
+     */
+    _processHeaderFooterPosition(posConfig, pageNumbering, data) {
+        if (!posConfig || posConfig.type === 'none') {
+            return '';
+        }
+
+        const style = posConfig.style || {};
+        const styleStr = `
+            font-size: ${style.fontSize || 9}pt;
+            font-weight: ${style.fontWeight || 'normal'};
+            color: ${style.color || '#6b7280'};
+            font-style: ${style.fontStyle || 'normal'};
+        `.replace(/\s+/g, ' ').trim();
+
+        switch (posConfig.type) {
+            case 'text':
+                return `<span style="${styleStr}">${this._escapeHeaderFooterHtml(posConfig.content || '')}</span>`;
+
+            case 'variable':
+                let content = posConfig.content || '';
+                try {
+                    const compiled = Handlebars.compile(content, { strict: false });
+                    content = compiled(data);
+                } catch (e) {
+                    // Mantener contenido original si falla
+                }
+                return `<span style="${styleStr}">${this._escapeHeaderFooterHtml(content)}</span>`;
+
+            case 'image':
+                if (posConfig.image) {
+                    const maxHeight = (style.fontSize || 9) * 2;
+                    return `<img src="${posConfig.image}" style="max-height: ${maxHeight}pt; vertical-align: middle;" />`;
+                }
+                return '';
+
+            case 'pageNumber':
+                const template = pageNumbering.template || 'Página {{pageNumber}} de {{totalPages}}';
+                const formattedTemplate = template
+                    .replace(/\{\{pageNumber\}\}/g, '<span class="pageNumber"></span>')
+                    .replace(/\{\{totalPages\}\}/g, '<span class="totalPages"></span>');
+                return `<span style="${styleStr}">${formattedTemplate}</span>`;
+
+            default:
+                return '';
+        }
+    }
+
+    /**
+     * Escapa HTML para header/footer (más simple, sin preservar Handlebars)
+     * @private
+     */
+    _escapeHeaderFooterHtml(text) {
+        if (!text) return '';
+        return String(text)
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;');
     }
 
     /**

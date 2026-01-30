@@ -108,10 +108,16 @@ const ReportInstanceSchema = new Schema({
     // Estilos (copiados del template, pueden modificarse)
     styles: Schema.Types.Mixed,
     
-    // Header/Footer (copiados del template)
+    // Header/Footer legacy (para compatibilidad)
     header: Schema.Types.Mixed,
     footer: Schema.Types.Mixed,
     coverPage: Schema.Types.Mixed,
+    
+    // Configuración avanzada de header/footer (nueva)
+    headerConfig: Schema.Types.Mixed,
+    footerConfig: Schema.Types.Mixed,
+    pageNumbering: Schema.Types.Mixed,
+    tableOfContents: Schema.Types.Mixed,
     
     // Datos inyectados de la auditoría
     injectedData: {
@@ -206,7 +212,8 @@ const ReportInstanceSchema = new Schema({
 /**
  * Índices
  */
-ReportInstanceSchema.index({ auditId: 1 }, { unique: true }); // Una instancia por auditoría
+ReportInstanceSchema.index({ auditId: 1 }); // Permite múltiples reportes por auditoría
+ReportInstanceSchema.index({ auditId: 1, templateId: 1 }, { unique: true }); // Único por combinación audit+template
 ReportInstanceSchema.index({ templateId: 1 });
 ReportInstanceSchema.index({ status: 1 });
 ReportInstanceSchema.index({ 'activeCollaborators.userId': 1 });

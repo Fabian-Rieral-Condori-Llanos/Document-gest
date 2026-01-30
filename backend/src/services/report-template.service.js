@@ -580,7 +580,22 @@ class ReportTemplateService {
             topUsage
         };
     }
-    
+
+    /**
+     * Obtiene formatos de numeración de página disponibles
+     */
+    static getPageNumberFormats() {
+        return ReportTemplate.PAGE_NUMBER_FORMATS;
+    }
+
+    static getDefaultHeaderConfig() {
+        return ReportTemplate.DEFAULT_HEADER_CONFIG;
+    }
+
+    static getDefaultFooterConfig() {
+        return ReportTemplate.DEFAULT_FOOTER_CONFIG;
+    }
+
     /**
      * Inicializa plantillas por defecto
      */

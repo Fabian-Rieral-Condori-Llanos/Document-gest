@@ -13,7 +13,6 @@ const backupRoutes = require('./backup.routes');
 
 // Nuevas rutas de seguimiento
 const auditStatusRoutes = require('./audit-status.routes');
-const auditVerificationRoutes = require('./audit-verification.routes');
 const auditProcedureRoutes = require('./audit-procedure.routes');
 
 // Rutas de plantillas de procedimientos
@@ -59,7 +58,6 @@ const registerRoutes = (app) => {
 
     // Nuevas rutas de seguimiento
     app.use(`${API_PREFIX}/audit-status`, auditStatusRoutes);
-    app.use(`${API_PREFIX}/audit-verifications`, auditVerificationRoutes);
     app.use(`${API_PREFIX}/audit-procedures`, auditProcedureRoutes);
 
     // Rutas de plantillas de procedimientos
@@ -105,7 +103,6 @@ const registerRoutes = (app) => {
     console.log('   - /api/data');
     console.log('   - /api/backups');
     console.log('   - /api/audit-status');
-    console.log('   - /api/audit-verifications');
     console.log('   - /api/audit-procedures');
     console.log('   - /api/procedure-templates');
     console.log('   - /api/alcance-templates');
@@ -130,7 +127,6 @@ module.exports = {
     dataRoutes,
     backupRoutes,
     auditStatusRoutes,
-    auditVerificationRoutes,
     auditProcedureRoutes,
     procedureTemplateRoutes,
     alcanceTemplateRoutes,

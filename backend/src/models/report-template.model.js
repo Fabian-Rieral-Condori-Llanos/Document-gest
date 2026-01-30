@@ -11,76 +11,154 @@ const Schema = mongoose.Schema;
  * para permitir edición colaborativa en tiempo real.
  */
 
-// Sub-schema para variables del template (mapeo de datos)
+// ============================================
+// SUB-SCHEMAS
+// ============================================
+
+/**
+ * Variable del template (mapeo de datos)
+ */
 const TemplateVariableSchema = new Schema({
-    // ID único de la variable en el template
-    id: {
-        type: String,
-        required: true
-    },
-    // Nombre visible para el usuario
-    label: {
-        type: String,
-        required: true,
-        trim: true
-    },
-    // Ruta al dato en el esquema (ej: "audit.name", "findings.title")
-    dataPath: {
-        type: String,
-        required: true,
-        trim: true
-    },
-    // Tipo de dato
+    id: { type: String, required: true },
+    label: { type: String, required: true, trim: true },
+    dataPath: { type: String, required: true, trim: true },
     type: {
         type: String,
         enum: ['text', 'date', 'number', 'list', 'image', 'table', 'rich-text', 'computed'],
         default: 'text'
     },
-    // Formato de presentación (para fechas, números, etc.)
-    format: {
-        type: String,
-        trim: true
-    },
-    // Valor por defecto si el dato no existe
+    format: { type: String, trim: true },
     defaultValue: Schema.Types.Mixed,
-    // Si es requerido en el reporte
-    required: {
-        type: Boolean,
-        default: false
+    required: { type: Boolean, default: false },
+    isLoop: { type: Boolean, default: false },
+    loopVar: { type: String, default: 'item' },
+    placeholder: { type: String },
+    description: { type: String, trim: true }
+}, { _id: false });
+
+/**
+ * Configuración de Header/Footer
+ * Permite personalización completa del encabezado y pie de página
+ */
+const HeaderFooterConfigSchema = new Schema({
+    // Si está habilitado
+    enabled: { type: Boolean, default: true },
+    
+    // Altura en mm
+    height: { type: Number, default: 15 },
+    
+    // Contenido para cada posición (left, center, right)
+    left: {
+        type: { type: String, enum: ['text', 'variable', 'image', 'none'], default: 'none' },
+        content: { type: String, default: '' },  // Texto o variable como {{company.name}}
+        image: { type: String },  // Base64 o URL de imagen
+        style: {
+            fontSize: { type: Number, default: 9 },
+            fontWeight: { type: String, enum: ['normal', 'bold'], default: 'normal' },
+            color: { type: String, default: '#6b7280' },
+            fontStyle: { type: String, enum: ['normal', 'italic'], default: 'normal' }
+        }
     },
-    // Si es un loop sobre un array
-    isLoop: {
-        type: Boolean,
-        default: false
+    center: {
+        type: { type: String, enum: ['text', 'variable', 'image', 'pageNumber', 'none'], default: 'none' },
+        content: { type: String, default: '' },
+        image: { type: String },
+        style: {
+            fontSize: { type: Number, default: 9 },
+            fontWeight: { type: String, enum: ['normal', 'bold'], default: 'normal' },
+            color: { type: String, default: '#6b7280' },
+            fontStyle: { type: String, enum: ['normal', 'italic'], default: 'normal' }
+        }
     },
-    // Variable del iterador (para loops)
-    loopVar: {
-        type: String,
-        default: 'item'
+    right: {
+        type: { type: String, enum: ['text', 'variable', 'image', 'pageNumber', 'none'], default: 'none' },
+        content: { type: String, default: '' },
+        image: { type: String },
+        style: {
+            fontSize: { type: Number, default: 9 },
+            fontWeight: { type: String, enum: ['normal', 'bold'], default: 'normal' },
+            color: { type: String, default: '#6b7280' },
+            fontStyle: { type: String, enum: ['normal', 'italic'], default: 'normal' }
+        }
     },
-    // Placeholder en el editor (ej: "{{audit.name}}")
-    placeholder: {
-        type: String
-    },
-    // Descripción para ayuda al usuario
-    description: {
-        type: String,
-        trim: true
+    
+    // Línea separadora
+    showLine: { type: Boolean, default: false },
+    lineColor: { type: String, default: '#e5e7eb' },
+    lineWidth: { type: Number, default: 1 },
+    
+    // Mostrar en primera página
+    showOnFirstPage: { type: Boolean, default: true },
+    
+    // Mostrar en páginas pares/impares (para documentos a doble cara)
+    showOnEvenPages: { type: Boolean, default: true },
+    showOnOddPages: { type: Boolean, default: true },
+    
+    // Contenido diferente para primera página
+    differentFirstPage: { type: Boolean, default: false },
+    firstPageContent: {
+        left: { type: String, default: '' },
+        center: { type: String, default: '' },
+        right: { type: String, default: '' }
     }
 }, { _id: false });
 
-// Sub-schema para estilos del documento
+/**
+ * Configuración de numeración de páginas
+ */
+const PageNumberingSchema = new Schema({
+    // Si está habilitado
+    enabled: { type: Boolean, default: true },
+    
+    // Formato: 'numeric' (1, 2, 3), 'roman' (i, ii, iii), 'romanUpper' (I, II, III), 'alpha' (a, b, c)
+    format: { 
+        type: String, 
+        enum: ['numeric', 'roman', 'romanUpper', 'alpha', 'alphaUpper'],
+        default: 'numeric'
+    },
+    
+    // Posición: header o footer
+    position: { 
+        type: String, 
+        enum: ['header', 'footer'],
+        default: 'footer'
+    },
+    
+    // Alineación dentro del header/footer
+    alignment: {
+        type: String,
+        enum: ['left', 'center', 'right'],
+        default: 'right'
+    },
+    
+    // Plantilla de texto: {{pageNumber}}, {{totalPages}}
+    // Ejemplos: "Página {{pageNumber}} de {{totalPages}}", "{{pageNumber}}/{{totalPages}}", "- {{pageNumber}} -"
+    template: { type: String, default: 'Página {{pageNumber}} de {{totalPages}}' },
+    
+    // Número inicial (por defecto 1)
+    startNumber: { type: Number, default: 1 },
+    
+    // No mostrar número en primera página
+    skipFirstPage: { type: Boolean, default: false },
+    
+    // Estilo
+    style: {
+        fontSize: { type: Number, default: 9 },
+        fontWeight: { type: String, enum: ['normal', 'bold'], default: 'normal' },
+        color: { type: String, default: '#6b7280' },
+        fontStyle: { type: String, enum: ['normal', 'italic'], default: 'normal' }
+    }
+}, { _id: false });
+
+/**
+ * Estilos del documento
+ */
 const DocumentStylesSchema = new Schema({
     // Fuente principal
-    fontFamily: {
-        type: String,
-        default: 'Arial, sans-serif'
-    },
-    // Tamaño de fuente base
-    fontSize: {
-        type: Number,
-        default: 12
-    },
+    fontFamily: { type: String, default: 'Arial, sans-serif' },
+    fontSize: { type: Number, default: 11 },
+    lineHeight: { type: Number, default: 1.5 },
+    
     // Márgenes (en mm)
     margins: {
         top: { type: Number, default: 25 },
@@ -88,72 +166,159 @@ const DocumentStylesSchema = new Schema({
         bottom: { type: Number, default: 25 },
         left: { type: Number, default: 20 }
     },
-    // Tamaño de página
-    pageSize: {
-        type: String,
-        enum: ['A4', 'Letter', 'Legal'],
-        default: 'A4'
-    },
-    // Orientación
-    orientation: {
-        type: String,
-        enum: ['portrait', 'landscape'],
-        default: 'portrait'
-    },
+    
+    // Tamaño y orientación de página
+    pageSize: { type: String, enum: ['A4', 'Letter', 'Legal', 'A3'], default: 'A4' },
+    orientation: { type: String, enum: ['portrait', 'landscape'], default: 'portrait' },
+    
     // Estilos de encabezados
     headings: {
-        h1: { fontSize: { type: Number, default: 24 }, color: { type: String, default: '#1a1a1a' } },
-        h2: { fontSize: { type: Number, default: 20 }, color: { type: String, default: '#1a1a1a' } },
-        h3: { fontSize: { type: Number, default: 16 }, color: { type: String, default: '#1a1a1a' } }
+        h1: { 
+            fontSize: { type: Number, default: 22 }, 
+            color: { type: String, default: '#1a1a1a' },
+            marginTop: { type: Number, default: 24 },
+            marginBottom: { type: Number, default: 12 },
+            fontWeight: { type: String, default: 'bold' },
+            borderBottom: { type: Boolean, default: true },
+            borderColor: { type: String, default: '#2563eb' }
+        },
+        h2: { 
+            fontSize: { type: Number, default: 18 }, 
+            color: { type: String, default: '#1a1a1a' },
+            marginTop: { type: Number, default: 20 },
+            marginBottom: { type: Number, default: 10 },
+            fontWeight: { type: String, default: 'bold' },
+            borderBottom: { type: Boolean, default: true },
+            borderColor: { type: String, default: '#e5e7eb' }
+        },
+        h3: { 
+            fontSize: { type: Number, default: 14 }, 
+            color: { type: String, default: '#374151' },
+            marginTop: { type: Number, default: 16 },
+            marginBottom: { type: Number, default: 8 },
+            fontWeight: { type: String, default: 'bold' },
+            borderBottom: { type: Boolean, default: false }
+        },
+        h4: { 
+            fontSize: { type: Number, default: 12 }, 
+            color: { type: String, default: '#374151' },
+            marginTop: { type: Number, default: 12 },
+            marginBottom: { type: Number, default: 6 },
+            fontWeight: { type: String, default: 'bold' }
+        }
     },
-    // Color primario (para tablas, bordes, etc)
-    primaryColor: {
-        type: String,
-        default: '#2563eb'
+    
+    // Colores del tema
+    colors: {
+        primary: { type: String, default: '#2563eb' },
+        secondary: { type: String, default: '#64748b' },
+        accent: { type: String, default: '#0891b2' },
+        success: { type: String, default: '#16a34a' },
+        warning: { type: String, default: '#ca8a04' },
+        danger: { type: String, default: '#dc2626' },
+        info: { type: String, default: '#2563eb' }
     },
-    // CSS personalizado
-    customCSS: {
-        type: String,
-        default: ''
-    }
+    
+    // Estilos de tablas
+    tables: {
+        headerBackground: { type: String, default: '#2563eb' },
+        headerColor: { type: String, default: '#ffffff' },
+        borderColor: { type: String, default: '#d1d5db' },
+        stripedRows: { type: Boolean, default: true },
+        stripedColor: { type: String, default: '#f9fafb' }
+    },
+    
+    // Estilos de código
+    code: {
+        fontFamily: { type: String, default: "'Courier New', monospace" },
+        fontSize: { type: Number, default: 10 },
+        background: { type: String, default: '#1f2937' },
+        color: { type: String, default: '#e5e7eb' },
+        padding: { type: Number, default: 12 }
+    },
+    
+    // CSS personalizado adicional
+    customCSS: { type: String, default: '' }
 }, { _id: false });
 
-// Sub-schema para secciones del documento
+/**
+ * Sección del documento
+ */
 const DocumentSectionSchema = new Schema({
-    // ID único de la sección
-    id: {
-        type: String,
-        required: true
-    },
-    // Nombre de la sección
-    name: {
-        type: String,
-        required: true
-    },
-    // Orden de la sección
-    order: {
-        type: Number,
-        default: 0
-    },
-    // Si la sección es requerida
-    required: {
-        type: Boolean,
-        default: false
-    },
-    // Si la sección se repite (ej: una por vulnerabilidad)
-    repeatable: {
-        type: Boolean,
-        default: false
-    },
-    // Si es repetible, sobre qué lista itera
-    repeatOver: {
-        type: String // ej: "vulnerabilities", "findings"
-    }
+    id: { type: String, required: true },
+    name: { type: String, required: true },
+    order: { type: Number, default: 0 },
+    required: { type: Boolean, default: false },
+    repeatable: { type: Boolean, default: false },
+    repeatOver: { type: String },
+    // Si esta sección inicia en nueva página
+    pageBreakBefore: { type: Boolean, default: false }
 }, { _id: false });
 
-// Schema principal
+/**
+ * Configuración de portada
+ */
+const CoverPageSchema = new Schema({
+    enabled: { type: Boolean, default: true },
+    
+    // Contenido TipTap JSON
+    content: { type: Schema.Types.Mixed },
+    
+    // Logo principal (empresa evaluadora)
+    showCompanyLogo: { type: Boolean, default: true },
+    companyLogoPosition: { type: String, enum: ['top', 'center', 'bottom'], default: 'top' },
+    companyLogoMaxHeight: { type: Number, default: 60 },
+    
+    // Logo del cliente
+    showClientLogo: { type: Boolean, default: false },
+    clientLogoPosition: { type: String, enum: ['top', 'center', 'bottom'], default: 'bottom' },
+    clientLogoMaxHeight: { type: Number, default: 50 },
+    
+    // Título
+    title: {
+        text: { type: String, default: '{{audit.name}}' },
+        fontSize: { type: Number, default: 28 },
+        color: { type: String, default: '#1a1a1a' },
+        alignment: { type: String, enum: ['left', 'center', 'right'], default: 'center' }
+    },
+    
+    // Subtítulo
+    subtitle: {
+        text: { type: String, default: 'Informe de Evaluación de Seguridad' },
+        fontSize: { type: Number, default: 16 },
+        color: { type: String, default: '#6b7280' },
+        alignment: { type: String, enum: ['left', 'center', 'right'], default: 'center' }
+    },
+    
+    // Información adicional
+    showDate: { type: Boolean, default: true },
+    showVersion: { type: Boolean, default: true },
+    showConfidentiality: { type: Boolean, default: true },
+    confidentialityText: { type: String, default: 'CONFIDENCIAL' },
+    
+    // Color de fondo o imagen
+    backgroundColor: { type: String, default: '#ffffff' },
+    backgroundImage: { type: String }
+}, { _id: false });
+
+/**
+ * Configuración de tabla de contenidos
+ */
+const TOCConfigSchema = new Schema({
+    enabled: { type: Boolean, default: true },
+    title: { type: String, default: 'Tabla de Contenidos' },
+    maxLevel: { type: Number, default: 3 },  // Hasta h3
+    showPageNumbers: { type: Boolean, default: true },
+    dotLeader: { type: Boolean, default: true },  // Puntos entre título y número
+    pageBreakAfter: { type: Boolean, default: true }
+}, { _id: false });
+
+// ============================================
+// SCHEMA PRINCIPAL
+// ============================================
+
 const ReportTemplateSchema = new Schema({
-    // Nombre de la plantilla
+    // Nombre único de la plantilla
     name: {
         type: String,
         required: [true, 'Template name is required'],
@@ -200,31 +365,58 @@ const ReportTemplateSchema = new Schema({
         default: () => ({})
     },
     
-    // Encabezado del documento (HTML/TipTap JSON)
-    header: {
-        type: Schema.Types.Mixed,
-        default: null
+    // Configuración de Header
+    headerConfig: {
+        type: HeaderFooterConfigSchema,
+        default: () => ({
+            enabled: true,
+            height: 15,
+            left: { type: 'variable', content: '{{company.shortName}}' },
+            center: { type: 'none' },
+            right: { type: 'variable', content: '{{audit.name}}' },
+            showLine: true,
+            showOnFirstPage: false
+        })
     },
     
-    // Pie de página del documento (HTML/TipTap JSON)
-    footer: {
-        type: Schema.Types.Mixed,
-        default: null
+    // Configuración de Footer
+    footerConfig: {
+        type: HeaderFooterConfigSchema,
+        default: () => ({
+            enabled: true,
+            height: 15,
+            left: { type: 'text', content: 'CONFIDENCIAL' },
+            center: { type: 'none' },
+            right: { type: 'pageNumber' },
+            showLine: true,
+            showOnFirstPage: false
+        })
     },
     
-    // Portada (si aplica)
+    // Configuración de numeración de páginas
+    pageNumbering: {
+        type: PageNumberingSchema,
+        default: () => ({})
+    },
+    
+    // Configuración de portada
     coverPage: {
-        type: Schema.Types.Mixed,
-        default: null
+        type: CoverPageSchema,
+        default: () => ({})
     },
     
-    // Extensión original si se importó desde archivo
-    originalExtension: {
-        type: String,
-        maxlength: 10
+    // Configuración de tabla de contenidos
+    tableOfContents: {
+        type: TOCConfigSchema,
+        default: () => ({})
     },
     
-    // Archivo original (para referencia)
+    // Campos legacy (para compatibilidad)
+    header: { type: Schema.Types.Mixed, default: null },
+    footer: { type: Schema.Types.Mixed, default: null },
+    
+    // Metadatos del archivo original
+    originalExtension: { type: String, maxlength: 10 },
     originalFile: {
         filename: String,
         mimetype: String,
@@ -233,48 +425,28 @@ const ReportTemplateSchema = new Schema({
     },
     
     // Versión del template
-    version: {
-        type: Number,
-        default: 1
-    },
+    version: { type: Number, default: 1 },
     
     // Estado
-    isActive: {
-        type: Boolean,
-        default: true
-    },
+    isActive: { type: Boolean, default: true },
+    isSystem: { type: Boolean, default: false },
     
-    // Si es plantilla del sistema (no eliminable)
-    isSystem: {
-        type: Boolean,
-        default: false
-    },
-    
-    // Categoría de la plantilla
+    // Categoría
     category: {
         type: String,
-        enum: ['security-audit', 'vulnerability-assessment', 'pentest', 'compliance', 'custom'],
+        enum: ['security-audit', 'vulnerability-assessment', 'pentest', 'compliance', 'verification', 'custom'],
         default: 'security-audit'
     },
     
-    // Idioma del template
-    language: {
-        type: String,
-        default: 'es'
-    },
+    // Idioma
+    language: { type: String, default: 'es' },
     
-    // Thumbnail/preview image (base64 o URL)
+    // Thumbnail
     thumbnail: String,
     
-    // Metadata
-    createdBy: {
-        type: Schema.Types.ObjectId,
-        ref: 'User'
-    },
-    updatedBy: {
-        type: Schema.Types.ObjectId,
-        ref: 'User'
-    }
+    // Auditoría
+    createdBy: { type: Schema.Types.ObjectId, ref: 'User' },
+    updatedBy: { type: Schema.Types.ObjectId, ref: 'User' }
 }, {
     timestamps: true,
     toJSON: {
@@ -286,55 +458,80 @@ const ReportTemplateSchema = new Schema({
     }
 });
 
-/**
- * Índices
- */
+// ============================================
+// ÍNDICES
+// ============================================
+
 ReportTemplateSchema.index({ name: 1 }, { unique: true });
 ReportTemplateSchema.index({ isActive: 1 });
 ReportTemplateSchema.index({ category: 1 });
+ReportTemplateSchema.index({ language: 1 });
 ReportTemplateSchema.index({ name: 'text', description: 'text' });
 
+// ============================================
+// CONSTANTES ESTÁTICAS
+// ============================================
+
 /**
- * Variables predefinidas del sistema
- * Estas variables están disponibles automáticamente en todos los templates
+ * Variables del sistema disponibles automáticamente
  */
 ReportTemplateSchema.statics.SYSTEM_VARIABLES = [
     // Auditoría
-    { name: 'audit.name', type: 'text', description: 'Nombre de la auditoría', dataPath: 'audit.name' },
-    { name: 'audit.date.start', type: 'date', description: 'Fecha de inicio', dataPath: 'audit.date.start' },
-    { name: 'audit.date.end', type: 'date', description: 'Fecha de fin', dataPath: 'audit.date.end' },
-    { name: 'audit.scope', type: 'rich-text', description: 'Alcance de la auditoría', dataPath: 'audit.scope' },
+    { id: 'audit.name', label: 'Nombre de Auditoría', dataPath: 'audit.name', type: 'text' },
+    { id: 'audit.auditType', label: 'Tipo de Auditoría', dataPath: 'audit.auditType', type: 'text' },
+    { id: 'audit.date', label: 'Fecha de Auditoría', dataPath: 'audit.date', type: 'date' },
+    { id: 'audit.date_start', label: 'Fecha Inicio', dataPath: 'audit.date_start', type: 'date' },
+    { id: 'audit.date_end', label: 'Fecha Fin', dataPath: 'audit.date_end', type: 'date' },
+    { id: 'audit.summary', label: 'Resumen', dataPath: 'audit.summary', type: 'rich-text' },
+    { id: 'audit.language', label: 'Idioma', dataPath: 'audit.language', type: 'text' },
+    
+    // Procedure
+    { id: 'procedure.alcance', label: 'Alcance', dataPath: 'procedure.alcance', type: 'list' },
+    { id: 'procedure.alcanceDescripcion', label: 'Descripción del Alcance', dataPath: 'procedure.alcanceDescripcion', type: 'rich-text' },
+    { id: 'procedure.solicitud.cite', label: 'CITE Solicitud', dataPath: 'procedure.solicitud.cite', type: 'text' },
+    { id: 'procedure.informe.cite', label: 'CITE Informe', dataPath: 'procedure.informe.cite', type: 'text' },
     
     // Cliente
-    { name: 'client.name', type: 'text', description: 'Nombre del cliente', dataPath: 'client.name' },
-    { name: 'client.logo', type: 'image', description: 'Logo del cliente', dataPath: 'client.logo' },
+    { id: 'client.firstname', label: 'Nombre del Contacto', dataPath: 'client.firstname', type: 'text' },
+    { id: 'client.lastname', label: 'Apellido del Contacto', dataPath: 'client.lastname', type: 'text' },
+    { id: 'client.email', label: 'Email del Contacto', dataPath: 'client.email', type: 'text' },
+    { id: 'client.title', label: 'Cargo del Contacto', dataPath: 'client.title', type: 'text' },
     
-    // Empresa evaluadora
-    { name: 'company.name', type: 'text', description: 'Nombre de la empresa', dataPath: 'company.name' },
-    { name: 'company.logo', type: 'image', description: 'Logo de la empresa', dataPath: 'company.logo' },
+    // Empresa (cliente)
+    { id: 'company.name', label: 'Nombre de Empresa', dataPath: 'company.name', type: 'text' },
+    { id: 'company.shortName', label: 'Nombre Corto', dataPath: 'company.shortName', type: 'text' },
+    { id: 'company.logo', label: 'Logo de Empresa', dataPath: 'company.logo', type: 'image' },
     
-    // Vulnerabilidades
-    { name: 'vulnerabilities', type: 'list', description: 'Lista de vulnerabilidades', dataPath: 'findings' },
-    { name: 'vulnerabilities.critical', type: 'list', description: 'Vulnerabilidades críticas', dataPath: 'findings.critical' },
-    { name: 'vulnerabilities.high', type: 'list', description: 'Vulnerabilidades altas', dataPath: 'findings.high' },
-    { name: 'vulnerabilities.medium', type: 'list', description: 'Vulnerabilidades medias', dataPath: 'findings.medium' },
-    { name: 'vulnerabilities.low', type: 'list', description: 'Vulnerabilidades bajas', dataPath: 'findings.low' },
-    { name: 'vulnerabilities.info', type: 'list', description: 'Vulnerabilidades informativas', dataPath: 'findings.info' },
+    // Findings/Vulnerabilidades
+    { id: 'findings', label: 'Lista de Hallazgos', dataPath: 'findings', type: 'list', isLoop: true },
+    { id: 'findings.critical', label: 'Hallazgos Críticos', dataPath: 'findings.critical', type: 'list', isLoop: true },
+    { id: 'findings.high', label: 'Hallazgos Altos', dataPath: 'findings.high', type: 'list', isLoop: true },
+    { id: 'findings.medium', label: 'Hallazgos Medios', dataPath: 'findings.medium', type: 'list', isLoop: true },
+    { id: 'findings.low', label: 'Hallazgos Bajos', dataPath: 'findings.low', type: 'list', isLoop: true },
+    { id: 'findings.info', label: 'Hallazgos Informativos', dataPath: 'findings.info', type: 'list', isLoop: true },
     
     // Estadísticas
-    { name: 'stats.total', type: 'number', description: 'Total de vulnerabilidades', dataPath: 'stats.total' },
-    { name: 'stats.critical', type: 'number', description: 'Cantidad de críticas', dataPath: 'stats.critical' },
-    { name: 'stats.high', type: 'number', description: 'Cantidad de altas', dataPath: 'stats.high' },
-    { name: 'stats.medium', type: 'number', description: 'Cantidad de medias', dataPath: 'stats.medium' },
-    { name: 'stats.low', type: 'number', description: 'Cantidad de bajas', dataPath: 'stats.low' },
-    { name: 'stats.info', type: 'number', description: 'Cantidad de informativas', dataPath: 'stats.info' },
+    { id: 'stats.total', label: 'Total de Hallazgos', dataPath: 'stats.total', type: 'number' },
+    { id: 'stats.critical', label: 'Cantidad Críticos', dataPath: 'stats.critical', type: 'number' },
+    { id: 'stats.high', label: 'Cantidad Altos', dataPath: 'stats.high', type: 'number' },
+    { id: 'stats.medium', label: 'Cantidad Medios', dataPath: 'stats.medium', type: 'number' },
+    { id: 'stats.low', label: 'Cantidad Bajos', dataPath: 'stats.low', type: 'number' },
+    { id: 'stats.info', label: 'Cantidad Informativos', dataPath: 'stats.info', type: 'number' },
+    
+    // Retest (para verificaciones)
+    { id: 'retest.total', label: 'Total Verificados', dataPath: 'retest.total', type: 'number' },
+    { id: 'retest.ok', label: 'Corregidos', dataPath: 'retest.ok', type: 'number' },
+    { id: 'retest.ko', label: 'No Corregidos', dataPath: 'retest.ko', type: 'number' },
+    { id: 'retest.partial', label: 'Parcialmente Corregidos', dataPath: 'retest.partial', type: 'number' },
     
     // Colaboradores
-    { name: 'collaborators', type: 'list', description: 'Lista de colaboradores', dataPath: 'collaborators' },
+    { id: 'collaborators', label: 'Colaboradores', dataPath: 'collaborators', type: 'list' },
+    { id: 'reviewers', label: 'Revisores', dataPath: 'reviewers', type: 'list' },
     
-    // Fechas del documento
-    { name: 'document.date', type: 'date', description: 'Fecha del documento', dataPath: 'document.date' },
-    { name: 'document.version', type: 'text', description: 'Versión del documento', dataPath: 'document.version' }
+    // Documento
+    { id: 'document.date', label: 'Fecha del Documento', dataPath: 'document.date', type: 'date' },
+    { id: 'document.version', label: 'Versión del Documento', dataPath: 'document.version', type: 'text' },
+    { id: 'document.generatedAt', label: 'Fecha de Generación', dataPath: 'document.generatedAt', type: 'date' }
 ];
 
 /**
@@ -345,11 +542,27 @@ ReportTemplateSchema.statics.CATEGORIES = {
     'vulnerability-assessment': 'Evaluación de Vulnerabilidades',
     'pentest': 'Prueba de Penetración',
     'compliance': 'Cumplimiento',
+    'verification': 'Verificación/Retest',
     'custom': 'Personalizado'
 };
 
 /**
- * Método para obtener todas las variables (sistema + custom)
+ * Formatos de numeración de página
+ */
+ReportTemplateSchema.statics.PAGE_NUMBER_FORMATS = {
+    'numeric': { name: 'Numérico', example: '1, 2, 3...' },
+    'roman': { name: 'Romano minúscula', example: 'i, ii, iii...' },
+    'romanUpper': { name: 'Romano mayúscula', example: 'I, II, III...' },
+    'alpha': { name: 'Alfabético minúscula', example: 'a, b, c...' },
+    'alphaUpper': { name: 'Alfabético mayúscula', example: 'A, B, C...' }
+};
+
+// ============================================
+// MÉTODOS DE INSTANCIA
+// ============================================
+
+/**
+ * Obtiene todas las variables (sistema + custom)
  */
 ReportTemplateSchema.methods.getAllVariables = function() {
     const systemVars = ReportTemplateSchema.statics.SYSTEM_VARIABLES;
@@ -358,7 +571,7 @@ ReportTemplateSchema.methods.getAllVariables = function() {
 };
 
 /**
- * Método para clonar template
+ * Clona el template
  */
 ReportTemplateSchema.methods.clone = function(newName) {
     const cloned = this.toObject();
@@ -371,8 +584,12 @@ ReportTemplateSchema.methods.clone = function(newName) {
     return new this.constructor(cloned);
 };
 
+// ============================================
+// MÉTODOS ESTÁTICOS
+// ============================================
+
 /**
- * Método estático para obtener templates activos
+ * Obtiene templates activos
  */
 ReportTemplateSchema.statics.getActive = function() {
     return this.find({ isActive: true })
@@ -380,8 +597,12 @@ ReportTemplateSchema.statics.getActive = function() {
         .sort({ name: 1 });
 };
 
+// ============================================
+// MIDDLEWARE
+// ============================================
+
 /**
- * Middleware pre-save para incrementar versión
+ * Incrementa versión al modificar contenido
  */
 ReportTemplateSchema.pre('save', function(next) {
     if (this.isModified('content') && !this.isNew) {

@@ -133,6 +133,35 @@ export const moveAuditFinding = async (auditId, findingId, data) => {
   return response.data;
 };
 
+/**
+ * Importar múltiples vulnerabilidades como findings
+ * @param {string} auditId - ID de la auditoría
+ * @param {string[]} vulnerabilityIds - Array de IDs de vulnerabilidades
+ * @param {string} language - Idioma para la importación (default: 'es')
+ */
+export const importVulnerabilities = async (auditId, vulnerabilityIds, language = 'es') => {
+  const response = await apiClient.post(`/audits/${auditId}/findings/import`, {
+    vulnerabilityIds,
+    language
+  });
+  return response.data;
+};
+
+/**
+ * Importar una sola vulnerabilidad como finding
+ * @param {string} auditId - ID de la auditoría
+ * @param {string} vulnerabilityId - ID de la vulnerabilidad
+ * @param {string} language - Idioma para la importación (default: 'es')
+ */
+export const importSingleVulnerability = async (auditId, vulnerabilityId, language = 'es') => {
+  const response = await apiClient.post(
+    `/audits/${auditId}/findings/import/${vulnerabilityId}`,
+    null,
+    { params: { language } }
+  );
+  return response.data;
+};
+
 // ============================================
 // SECTIONS
 // ============================================
@@ -261,6 +290,14 @@ export const createAuditRetest = async (id, retestData) => {
   return response.data;
 };
 
+/**
+ * Crear verificación
+ */
+export const createAuditVerification = async (id, verificationData) => {
+  const response = await apiClient.post(`/audits/${id}/verification`, verificationData);
+  return response.data;
+};
+
 // ============================================
 // SORTING
 // ============================================
@@ -310,6 +347,7 @@ export default {
   getAuditChildren,
   getAuditRetest,
   createAuditRetest,
+  createAuditVerification,
   // Sorting
   updateAuditSortFindings,
 };

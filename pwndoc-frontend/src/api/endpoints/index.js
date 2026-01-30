@@ -4,7 +4,7 @@ export { clientsApi } from './clients.api';
 export { companiesApi } from './companies.api';
 export { dataApi } from './data.api';
 export { settingsApi } from './settings.api';
-export { vulnerabilitiesApi, dataApi } from './vulnerabilities.api';
+export { vulnerabilitiesApi } from './vulnerabilities.api';
 
 // Audits Module
 export { default as auditsApi } from './audits.api';
@@ -14,6 +14,7 @@ export { default as auditProceduresApi } from './audit-procedures.api';
 
 // Procedure Templates
 export { default as procedureTemplatesApi } from './procedure-templates.api';
+
 // Alcance Templates
 export { default as alcanceTemplatesApi } from './alcance-templates.api';
 
@@ -28,3 +29,6 @@ export { default as reportInstancesApi } from './report-instances.api';
 
 // PDF Generation
 export { default as pdfApi, downloadBlob } from './pdf.api';
+
+// Backups
+export { default as backupsApi } from './backups.api';

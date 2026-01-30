@@ -14,6 +14,7 @@ class ReportInstanceService {
 
     /**
      * Obtiene la instancia de reporte de una auditoría
+     * NOTA: Ahora puede haber múltiples, este método retorna el primero (para retrocompatibilidad)
      * @param {string} auditId
      */
     static async getByAuditId(auditId) {
@@ -23,6 +24,20 @@ class ReportInstanceService {
             .populate('lastModifiedBy', 'username firstname lastname');
 
         return instance;
+    }
+
+    /**
+     * Obtiene todas las instancias de reporte de una auditoría
+     * @param {string} auditId
+     */
+    static async getAllByAuditId(auditId) {
+        const instances = await ReportInstance.find({ auditId })
+            .populate('templateId', 'name category version')
+            .populate('createdBy', 'username firstname lastname')
+            .populate('lastModifiedBy', 'username firstname lastname')
+            .sort({ createdAt: -1 });
+
+        return instances;
     }
 
     /**
@@ -45,15 +60,40 @@ class ReportInstanceService {
 
     /**
      * Crea una instancia de reporte para una auditoría
+     * REQUIERE: Auditoría debe estar en estado APPROVED
+     * PERMITE: Múltiples reportes por auditoría (con diferentes templates)
+     * 
      * @param {string} auditId
      * @param {string} templateId
      * @param {string} userId
      */
     static async create(auditId, templateId, userId) {
-        // Verificar que no exista ya una instancia para esta auditoría
-        const existing = await ReportInstance.findOne({ auditId });
+        // Obtener la auditoría primero para validaciones
+        const audit = await Audit.findById(auditId)
+            .populate('company')
+            .populate('client')
+            .populate('creator', 'username firstname lastname email phone')
+            .populate('collaborators', 'username firstname lastname email phone jobTitle');
+
+        if (!audit) {
+            throw { fn: 'NotFound', message: 'Audit not found' };
+        }
+
+        // VALIDACIÓN: La auditoría debe estar APPROVED
+        if (audit.state !== 'APPROVED') {
+            throw { 
+                fn: 'Forbidden', 
+                message: 'Audit must be APPROVED before creating reports. Current state: ' + audit.state 
+            };
+        }
+
+        // Verificar que no exista ya una instancia con este template para esta auditoría
+        const existing = await ReportInstance.findOne({ auditId, templateId });
         if (existing) {
-            throw { fn: 'BadParameters', message: 'A report instance already exists for this audit' };
+            throw { 
+                fn: 'BadParameters', 
+                message: 'A report with this template already exists for this audit' 
+            };
         }
 
         // Obtener la plantilla
@@ -64,17 +104,6 @@ class ReportInstanceService {
 
         if (!template.isActive) {
             throw { fn: 'BadParameters', message: 'Template is not active' };
-        }
-
-        // Obtener la auditoría con datos poblados
-        const audit = await Audit.findById(auditId)
-            .populate('company')
-            .populate('client')
-            .populate('creator', 'username firstname lastname email phone')
-            .populate('collaborators', 'username firstname lastname email phone jobTitle');
-
-        if (!audit) {
-            throw { fn: 'NotFound', message: 'Audit not found' };
         }
 
         // Crear la instancia con copia del contenido del template
@@ -95,6 +124,8 @@ class ReportInstanceService {
         instance.injectedData = this._extractAuditData(audit);
 
         await instance.save();
+
+        console.log(`[ReportInstance] Created report instance ${instance._id} for audit ${auditId}`);
 
         return instance;
     }

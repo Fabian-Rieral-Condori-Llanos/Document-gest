@@ -24,7 +24,8 @@ import {
   clearError,
 } from '../../features/audits';
 import { fetchCompanies, selectAllCompanies } from '../../features/companies/companiesSlice';
-import { fetchLanguages, selectLanguages } from '../../features/data/dataSlice';
+import { fetchClients, selectAllClients } from '../../features/clients/clientsSlice';
+import { fetchLanguages, selectLanguages, fetchAuditTypes, selectAuditTypes } from '../../features/data/dataSlice';
 
 // Components
 import Card from '../../components/common/Card/Card';
@@ -51,7 +52,9 @@ const AuditsPage = () => {
   const loading = useSelector(selectAuditsLoading);
   const error = useSelector(selectAuditsError);
   const companies = useSelector(selectAllCompanies);
+  const clients = useSelector(selectAllClients);
   const languages = useSelector(selectLanguages);
+  const auditTypes = useSelector(selectAuditTypes);
 
   // Local state
   const [viewMode, setViewMode] = useState('grid'); // 'grid' | 'list'
@@ -64,7 +67,9 @@ const AuditsPage = () => {
   useEffect(() => {
     dispatch(fetchAudits());
     dispatch(fetchCompanies());
+    dispatch(fetchClients());
     dispatch(fetchLanguages());
+    dispatch(fetchAuditTypes());
   }, [dispatch]);
 
   // Reset página al cambiar filtros
@@ -111,15 +116,6 @@ const AuditsPage = () => {
     } finally {
       setDeleteConfirm(null);
     }
-  };
-
-  const handleDuplicate = (auditId) => {
-    // TODO: Implementar duplicación
-    console.log('Duplicar auditoría:', auditId);
-  };
-
-  const handleCreateRetest = (auditId) => {
-    navigate(`/audits/${auditId}/retest`);
   };
 
   const handlePageChange = (page) => {
@@ -214,7 +210,9 @@ const AuditsPage = () => {
             onFilterChange={handleFilterChange}
             onClearFilters={handleClearFilters}
             companies={companies}
+            clients={clients}
             languages={languages}
+            auditTypes={auditTypes}
           />
         </Card>
 
@@ -286,8 +284,6 @@ const AuditsPage = () => {
                   key={audit._id}
                   audit={audit}
                   onDelete={handleDeleteClick}
-                  onDuplicate={handleDuplicate}
-                  onCreateRetest={handleCreateRetest}
                 />
               ))}
             </div>
