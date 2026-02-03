@@ -1,21 +1,42 @@
 {
-  "name": "pwndoc-backend",
+  "name": "discover-backend",
   "version": "0.0.1",
-  "description": "pwndoc backend",
-  "productName": "pwndoc",
-  "author": "Stanley HAMMER",
+  "description": "discover backend",
+  "productName": "discover",
+  "author": "Hunert",
   "scripts": {
     "start": "node server.js",
     "dev": "nodemon server.js",
     "generate-api-doc": "node swagger-autogen.js",
     "prod": "NODE_ENV=prod nodemon src/app.js",
+    "build": "pkg . --compress Brotli --out-path dist",
     "test": "NODE_ENV=test jest tests/index.test.js --testTimeout=10000 --forceExit"
+  },
+  "bin": "server.js",
+  "pkg": {
+    "scripts": [
+      "server.js",
+      "src/**/*.js",
+      "node_modules/lib0/**/*.js",
+      "node_modules/lib0/**/*.cjs"
+    ],
+    "assets": [
+      "node_modules/lib0/dist/**/*",
+      "node_modules/bcrypt/lib/binding/**/*",
+      "src/config/**/*.json",
+      "src/public/**/*"
+    ],
+    "targets": [
+      "node18-linux-x64"
+    ],
+    "outputPath": "dist"
   },
   "devDependencies": {
     "@babel/core": "^7.26.0",
     "@babel/preset-env": "^7.26.0",
     "jest": "^29.7.0",
     "nodemon": "^3.1.7",
+    "pkg": "^5.8.1",
     "supertest": "^7.0.0"
   },
   "dependencies": {
@@ -30,8 +51,7 @@
     "docx": "^7.8.2",
     "docx-templates": "^4.11.0",
     "docxtemplater": "^3.34.2",
-    "docxtemplater-image-module-pwndoc": "github:pwndoc/docxtemplater-image-module-pwndoc",
-    "express": "^5.0.1",
+    "express": "^5.2.1",
     "full-icu": "^1.5.0",
     "handlebars": "^4.7.8",
     "helmet": "^7.0.0",

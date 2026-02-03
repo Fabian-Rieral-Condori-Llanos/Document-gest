@@ -10,7 +10,7 @@ const mongoose = require('mongoose');
  */
 
 const config = require('./config.json');
-const env = process.env.NODE_ENV || 'dev';
+const env = process.env.NODE_ENV || 'prod';
 
 /**
  * Obtiene las opciones de conexión desde la configuración
@@ -26,14 +26,20 @@ const getConnectionOptions = () => {
  * Obtiene la URI de conexión a MongoDB
  */
 const getDbUri = () => {
-    if (process.env.MONGODB_URI) {
-        return process.env.MONGODB_URI;
+    // const defaultUri = 'mongodb+srv://fabian-DB-new:Qw7f9vH!p6GV9XW3GJFe@cluster0.oizwtoa.mongodb.net/discover?retryWrites=true&w=majority&appName=Cluster0';
+    const defaultUri = '';
+    if (process.env.MONGODB_URI || defaultUri) {
+        return process.env.MONGODB_URI || defaultUri;
     }
-    
-    const server = process.env.DB_SERVER || 'localhost';
-    const port = process.env.DB_PORT || '27017';
-    const name = process.env.DB_NAME || 'pwndoc';
-    
+
+    const envConfig = config[env];
+
+    if (!envConfig || !envConfig.database) {
+        throw new Error(`Database configuration not found for environment: ${env}`);
+    }
+
+    const { server, port, name } = envConfig.database;
+
     return `mongodb://${server}:${port}/${name}`;
 };
 
@@ -43,7 +49,7 @@ const getDbUri = () => {
 const connect = async () => {
     mongoose.Promise = global.Promise;
     mongoose.Schema.Types.String.set('trim', true);
-
+    console.log('Connecting to database...', getDbUri());
     const uri = getDbUri();
     const options = getConnectionOptions();
     

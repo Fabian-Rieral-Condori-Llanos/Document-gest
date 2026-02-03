@@ -11,9 +11,6 @@ import {
 } from 'lucide-react';
 import analyticsApi from '../../api/endpoints/analytics.api';
 
-// API
-// import { analyticsApi } from '../../api/endpoints/analytics.api';
-
 // Componente StatCard
 const StatCard = ({ icon: Icon, title, value, subtitle, trend, trendUp, color, loading }) => (
   <div className="stat-card">
@@ -142,6 +139,7 @@ export default function Dashboard() {
     alertasActivas 
   } = dashboardData;
 
+  console.log("dashboardData", dashboardData);
   // Usar evaluacionesPorProcedimiento o evaluacionesPorTipo
   const chartEvaluaciones = evaluacionesPorProcedimiento || evaluacionesPorTipo || [];
 

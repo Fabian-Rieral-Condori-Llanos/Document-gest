@@ -14,7 +14,7 @@ import {
 import {
   fetchAudits,
   deleteAudit,
-  selectAllAudits,
+  // selectAuditsExcludingVerifications,
   selectAuditsLoading,
   selectAuditsError,
   selectFilteredAudits,
@@ -22,6 +22,7 @@ import {
   setFilters,
   clearFilters,
   clearError,
+  selectAllAudits,
 } from '../../features/audits';
 import { fetchCompanies, selectAllCompanies } from '../../features/companies/companiesSlice';
 import { fetchClients, selectAllClients } from '../../features/clients/clientsSlice';

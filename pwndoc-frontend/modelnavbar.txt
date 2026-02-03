@@ -5,7 +5,7 @@
 │                                 │
 │  📊 Dashboard                   │  ← /dashboard
 │                                 │
-│  ─── EVALUACIONES ───           │  
+│  ─── EVALUACIONES ───           │
 │  📋 Evaluaciones                │  ← /audits (listado)
 │  📈 Seguimiento                 │  ← /audit-status (estados)
 │  ✓  Verificaciones              │  ← /audit-verifications

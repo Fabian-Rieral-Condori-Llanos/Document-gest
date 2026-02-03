@@ -181,7 +181,6 @@ class AnalyticsService {
         });
         
         const entidadesEvaluadas = await Audit.distinct('client', matchFilter);
-        
         const totalEntidades = await Client.countDocuments();
         
         const vulnStats = await this._countVulnerabilities(matchFilter);
@@ -396,7 +395,7 @@ class AnalyticsService {
         const audits = await Audit.find(filter).select('findings');
         
         let total = 0, criticas = 0, altas = 0, medias = 0, bajas = 0, info = 0, remediadas = 0;
-        
+
         audits.forEach(audit => {
             if (audit.findings && Array.isArray(audit.findings)) {
                 audit.findings.forEach(finding => {
@@ -409,8 +408,9 @@ class AnalyticsService {
                     else if (score > 0) bajas++;
                     else info++;
                     
-                    // Status: 0 = done (remediado), 1 = redacting
-                    if (finding.status === 0) remediadas++;
+                if (finding.retestStatus === Audit.RETEST_STATUS.OK) {
+                    remediadas++;
+                    }
                 });
             }
         });
@@ -481,7 +481,7 @@ class AnalyticsService {
      */
     async _getTendenciaMensual(year) {
         const meses = ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'];
-        
+
         const results = await Audit.aggregate([
             {
                 $match: {
@@ -520,7 +520,7 @@ class AnalyticsService {
             let remediadas = 0;
             mesData.findings.forEach(findingsArray => {
                 if (findingsArray && Array.isArray(findingsArray)) {
-                    remediadas += findingsArray.filter(f => f.status === 0).length;
+                    remediadas += findingsArray.filter(f => f.retestStatus === Audit.RETEST_STATUS.OK).length;
                 }
             });
             
@@ -598,13 +598,13 @@ class AnalyticsService {
             { $match: filter },
             {
                 $lookup: {
-                    from: 'clients',
-                    localField: 'client',
+                    from: 'companies',
+                    localField: 'company',
                     foreignField: '_id',
-                    as: 'clientInfo'
+                    as: 'companyInfo'
                 }
             },
-            { $unwind: { path: '$clientInfo', preserveNullAndEmptyArrays: true } },
+            { $unwind: { path: '$companyInfo', preserveNullAndEmptyArrays: true } },
             {
                 $lookup: {
                     from: 'auditstatus',
@@ -617,7 +617,7 @@ class AnalyticsService {
             {
                 $project: {
                     client: 1,
-                    clientName: { $concat: ['$clientInfo.firstname', ' ', '$clientInfo.lastname'] },
+                    clientName: { $concat: ['$companyInfo.name', ' ', '$companyInfo.shortName'] },
                     state: 1,
                     status: '$statusInfo.status',
                     createdAt: 1,
@@ -638,7 +638,6 @@ class AnalyticsService {
             { $sort: { evaluaciones: -1 } },
             { $limit: 10 }
         ]);
-        
         // Enriquecer con progreso de verificación
         const entidadesConProgreso = await Promise.all(
             results.map(async (item, index) => {
@@ -685,7 +684,7 @@ class AnalyticsService {
         const audits = await Audit.find()
             .sort({ createdAt: -1 })
             .limit(limit)
-            .populate('client', 'firstname lastname')
+            .populate('company', 'name shortName')
             .select('name createdAt');
         
         // Enriquecer con datos de AuditProcedure y AuditStatus
@@ -696,12 +695,12 @@ class AnalyticsService {
                 
                 const status = await AuditStatus.findOne({ auditId: audit._id })
                     .select('status');
-                
                 return {
                     id: audit._id,
-                    entidad: audit.client 
-                        ? `${audit.client.firstname} ${audit.client.lastname}` 
+                    entidad: audit.company 
+                        ? `${audit.company.name} (${audit.company.shortName})` 
                         : 'Sin entidad',
+                    
                     tipo: procedure?.origen || 'Sin tipo',
                     estado: status?.status || 'Sin estado',
                     fechaInicio: audit.createdAt.toISOString().split('T')[0],
@@ -721,7 +720,7 @@ class AnalyticsService {
         const audits = await Audit.find({ company: companyId })
             .sort({ createdAt: -1 })
             .limit(limit)
-            .populate('client', 'firstname lastname')
+            .populate('company', 'name shortName')
             .select('name createdAt');
         
         const evaluacionesConDatos = await Promise.all(
@@ -734,8 +733,8 @@ class AnalyticsService {
                 
                 return {
                     id: audit._id,
-                    entidad: audit.client 
-                        ? `${audit.client.firstname} ${audit.client.lastname}` 
+                    entidad: audit.company 
+                        ? `${audit.company.name} (${audit.company.shortName})` 
                         : 'Sin entidad',
                     tipo: procedure?.origen || 'Sin tipo',
                     estado: status?.status || 'Sin estado',

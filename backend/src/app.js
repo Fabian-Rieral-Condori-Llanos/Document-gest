@@ -122,7 +122,7 @@ class Application {
 
         // Servir index.html para rutas del frontend (SPA)
         if (fs.existsSync(frontendPath)) {
-            this.app.get('*', (req, res, next) => {
+            this.app.get('/*splat', (req, res, next) => {
                 // Ignorar rutas de API
                 if (req.path.startsWith('/api')) {
                     return next();

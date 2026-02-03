@@ -101,19 +101,23 @@ const AuditDetailPage = () => {
 
   // Obtener nombres
   const getCompanyName = () => {
-    if (!audit?.company) return '-';
-    return typeof audit.company === 'object' ? audit.company.name : audit.company;
+    if (!audit.audit?.company) return '-';
+    return typeof audit.audit.company === 'object' ? audit.audit.company.name : audit.audit.company;
   };
+  
+  console.log("audit in detail page", audit);
 
   const getClientName = () => {
-    if (!audit?.client) return '-';
-    return typeof audit.client === 'object' ? audit.client.name : audit.client;
+    if (!audit.audit?.client) return '-';
+    const firstname = audit.audit.client?.firstname;
+    const lastname = audit.audit.client?.lastname;
+    return typeof audit.audit.client === 'object' ? `${firstname || ''} ${lastname || ''}`.trim() : audit.audit.client;
   };
 
   const getCreatorName = () => {
-    if (!audit?.creator) return '-';
-    if (typeof audit.creator === 'object') {
-      return `${audit.creator.firstname || ''} ${audit.creator.lastname || ''}`.trim() || audit.creator.username;
+    if (!audit.audit?.creator) return '-';
+    if (typeof audit.audit.creator === 'object') {
+      return `${audit.audit.creator.firstname || ''} ${audit.audit.creator.lastname || ''}`.trim() || audit.audit.creator.username;
     }
     return audit.creator;
   };
@@ -163,10 +167,12 @@ const AuditDetailPage = () => {
     { id: TABS.GENERAL, label: 'General', icon: Settings },
     { id: TABS.FINDINGS, label: `Hallazgos (${findings.length})`, icon: AlertTriangle },
     { id: TABS.NETWORK, label: 'Red', icon: Network },
-    { id: TABS.SECTIONS, label: 'Secciones', icon: FileCode },
+    // { id: TABS.SECTIONS, label: 'Secciones', icon: FileCode },
     { id: TABS.PROCEDURES, label: 'Procedimiento', icon: FolderOpen },
     { id: TABS.COMMENTS, label: 'Comentarios', icon: MessageSquare },
   ];
+
+  console.log("audit.audit", audit.audit);
 
   return (
     <div className="min-h-screen bg-bg-primary p-6 lg:p-8">
@@ -215,13 +221,16 @@ const AuditDetailPage = () => {
         {/* Info Cards */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
           <Card className="p-4">
-            <div className="flex items-center gap-3">
+            <div className="flex items-start gap-3">
               <div className="p-2 rounded-lg bg-info-500/10">
                 <Building2 className="w-5 h-5 text-info-400" />
               </div>
-              <div>
+
+              <div className="min-w-0">
                 <p className="text-xs text-gray-500">Empresa</p>
-                <p className="text-sm font-medium text-white truncate">{getCompanyName()}</p>
+                <p className="text-sm font-medium text-white break-words">
+                  {getCompanyName()}
+                </p>
               </div>
             </div>
           </Card>
@@ -233,7 +242,7 @@ const AuditDetailPage = () => {
               </div>
               <div>
                 <p className="text-xs text-gray-500">Idioma</p>
-                <p className="text-sm font-medium text-white uppercase">{audit.language || '-'}</p>
+                <p className="text-sm font-medium text-white uppercase">{audit.audit.language || '-'}</p>
               </div>
             </div>
           </Card>
@@ -245,7 +254,7 @@ const AuditDetailPage = () => {
               </div>
               <div>
                 <p className="text-xs text-gray-500">Creada</p>
-                <p className="text-sm font-medium text-white">{formatDate(audit.createdAt)}</p>
+                <p className="text-sm font-medium text-white">{formatDate(audit.audit.createdAt)}</p>
               </div>
             </div>
           </Card>
@@ -306,19 +315,19 @@ const AuditDetailPage = () => {
                     </div>
                     <div>
                       <p className="text-sm text-gray-500 mb-1">Fecha Inicio</p>
-                      <p className="text-white">{formatDate(audit.date_start)}</p>
+                      <p className="text-white">{formatDate(audit.audit.date_start)}</p>
                     </div>
                     <div>
                       <p className="text-sm text-gray-500 mb-1">Fecha Fin</p>
-                      <p className="text-white">{formatDate(audit.date_end)}</p>
+                      <p className="text-white">{formatDate(audit.audit.date_end)}</p>
                     </div>
                   </div>
                 </Card>
 
-                {audit.summary && (
+                {audit.audit.summary && (
                   <Card>
                     <h3 className="text-lg font-medium text-white mb-4">Resumen Ejecutivo</h3>
-                    <p className="text-gray-300 whitespace-pre-wrap">{audit.summary}</p>
+                    <p className="text-gray-300 whitespace-pre-wrap">{audit.audit.summary}</p>
                   </Card>
                 )}
               </div>
@@ -413,9 +422,9 @@ const AuditDetailPage = () => {
           )}
 
           {/* Sections Tab */}
-          {activeTab === TABS.SECTIONS && (
+          {/* {activeTab === TABS.SECTIONS && (
             <SectionsTab auditId={id} />
-          )}
+          )} */}
 
           {/* Procedures Tab */}
           {activeTab === TABS.PROCEDURES && (
@@ -431,7 +440,7 @@ const AuditDetailPage = () => {
               auditId={id} 
               comments={audit.comments || []}
               findings={findings}
-              sections={audit.sections || []}
+              // sections={audit.sections || []}
               onRefresh={() => dispatch(fetchAuditById(id))}
             />
           )}

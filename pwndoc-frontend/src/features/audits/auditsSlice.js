@@ -501,6 +501,9 @@ export const {
 console.log('State shape:', initialState);
 
 export const selectAllAudits = (state) => state.audits.audits;
+// Selector que excluye verificaciones (para lista principal de auditorías)
+export const selectAuditsExcludingVerifications = (state) => 
+  state.audits.audits.filter(audit => audit.type !== 'verification');
 export const selectAuditsLoading = (state) => state.audits.loading;
 export const selectAuditsError = (state) => state.audits.error;
 
@@ -522,11 +525,16 @@ export const selectSectionsLoading = (state) => state.audits.sectionsLoading;
 export const selectAuditsFilters = (state) => state.audits.filters;
 export const selectAuditsPagination = (state) => state.audits.pagination;
 
-// Selector con filtros aplicados
+// Selector con filtros aplicados (excluye verificaciones)
 export const selectFilteredAudits = (state) => {
   const { audits, filters } = state.audits;
   
   return audits.filter(audit => {
+    // Excluir verificaciones de la lista principal
+    if (audit.type === 'verification') {
+      return false;
+    }
+    
     // Filtro de búsqueda por nombre
     if (filters.search) {
       const searchLower = filters.search.toLowerCase();

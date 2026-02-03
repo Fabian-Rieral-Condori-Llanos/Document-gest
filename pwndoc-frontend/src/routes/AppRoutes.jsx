@@ -71,7 +71,7 @@ import { BackupsPage } from '../pages/Backups';
 import NotFound from '../pages/NotFound/NotFound';
 import Forbidden from '../pages/Forbidden/Forbidden';
 import AuditStatusPage from '../pages/AuditStatus/AuditStatusPage';
-import AuditVerificationsPage from '../pages/AuditVerifications/AuditVerificationsPage';
+import { AuditVerificationsPage, VerificationDetailPage } from '../pages/AuditVerifications';
 import { AuditProceduresPage } from '../pages/AuditProcedures';
 
 const AppRoutes = () => {
@@ -182,6 +182,7 @@ const AppRoutes = () => {
         {/* Sub-módulos de Auditoría */}
         <Route path="/audit-status" element={<AuditStatusPage />} />
         <Route path="/audit-verifications" element={<AuditVerificationsPage />} />
+        <Route path="/audit-verifications/:auditId" element={<VerificationDetailPage />} />
         <Route path="/audit-procedures" element={<AuditProceduresPage />} />
         
         {/* ============================================ */}

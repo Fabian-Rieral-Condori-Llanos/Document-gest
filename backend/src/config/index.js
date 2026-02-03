@@ -9,7 +9,7 @@ const auth = require('./auth');
 const configFile = require('./config.json');
 const roles = require('./roles.json');
 
-const env = process.env.NODE_ENV || 'development';
+const env = process.env.NODE_ENV || 'prod';
 
 module.exports = {
     // Módulos de configuración
@@ -41,6 +41,6 @@ module.exports = {
 
         // Configuración CORS
     cors: {
-        origin: process.env.CORS_ORIGIN || ['http://localhost:5173', 'http://localhost:3000', 'http://127.0.0.1:5173']
+        origin: "*"
     }
 };

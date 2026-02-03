@@ -292,7 +292,7 @@ const AuditFormPage = () => {
 
     try {
       const auditData = {
-        name: formData.name,
+        name: formData.audit.name,
         auditType: formData.auditType || undefined,
         language: formData.language,
         company: formData.company || undefined,

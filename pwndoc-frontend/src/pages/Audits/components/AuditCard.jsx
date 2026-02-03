@@ -170,13 +170,6 @@ const AuditCard = ({
 
       {/* Findings Summary */}
       <div className="flex items-center justify-between pt-4 border-t border-gray-800">
-        <div className="flex items-center gap-2">
-          <AlertTriangle className="w-4 h-4 text-warning-400" />
-          <span className="text-sm text-gray-300">
-            <span className="font-semibold text-white">{findingsCount}</span> hallazgo{findingsCount !== 1 ? 's' : ''}
-          </span>
-        </div>
-
         {/* Creator */}
         {creatorName && (
           <span className="text-xs text-gray-500">
