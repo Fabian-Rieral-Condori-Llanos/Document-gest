@@ -44,14 +44,49 @@ class AuditStatusService {
 
     /**
      * Obtiene el estado de una auditoría específica
+     * MODIFICADO: Crea automáticamente si no existe (para auditorías antiguas)
      */
-    static async getByAuditId(auditId) {
-        const status = await AuditStatus.findOne({ auditId })
+    static async getByAuditId(auditId, createIfNotExists = true) {
+        let status = await AuditStatus.findOne({ auditId })
             .populate('auditId', 'name language auditType')
             .populate('history.changedBy', 'username firstname lastname');
         
         if (!status) {
-            throw { fn: 'NotFound', message: 'Audit status not found for this audit' };
+            if (createIfNotExists) {
+                // Verificar que la auditoría existe
+                const Audit = mongoose.model('Audit');
+                const audit = await Audit.findById(auditId);
+                
+                if (!audit) {
+                    throw { fn: 'NotFound', message: 'Audit not found' };
+                }
+                
+                // Crear AuditStatus con estado inicial basado en el state de la auditoría
+                const initialStatus = audit.state === 'APPROVED' 
+                    ? AuditStatus.STATUS.COMPLETADO 
+                    : AuditStatus.STATUS.EVALUANDO;
+                
+                const newStatus = new AuditStatus({
+                    auditId,
+                    status: initialStatus,
+                    history: [{
+                        status: initialStatus,
+                        changedAt: new Date(),
+                        changedBy: null,
+                        notes: 'Estado inicial creado automáticamente'
+                    }]
+                });
+                
+                await newStatus.save();
+                console.log(`[AuditStatus] Created auto status for audit ${auditId}: ${initialStatus}`);
+                
+                // Re-fetch con populate
+                status = await AuditStatus.findOne({ auditId })
+                    .populate('auditId', 'name language auditType')
+                    .populate('history.changedBy', 'username firstname lastname');
+            } else {
+                throw { fn: 'NotFound', message: 'Audit status not found for this audit' };
+            }
         }
         
         return status;

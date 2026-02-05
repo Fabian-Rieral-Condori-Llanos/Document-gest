@@ -343,6 +343,7 @@ class AuditService {
             company: parentAudit.company?._id,
             client: parentAudit.client?._id,
             scope: parentAudit.scope,
+            origen: 'RETEST-001',
             findings: parentAudit.findings.map(f => ({
                 ...f.toObject(),
                 retestStatus: 'unknown',
@@ -415,8 +416,8 @@ class AuditService {
             scope: parentAudit.scope,
             template: parentAudit.template?._id || parentAudit.template,
             findings: inheritedFindings,
-            origen: options.origen || '',
-            alcance: options.alcance || ['Verificación']
+            origen: 'VERIF-001',
+            alcance: ['Verificación']
         };
 
         const verification = await this.create(verificationData, userId);

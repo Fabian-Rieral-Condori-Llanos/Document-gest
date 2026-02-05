@@ -23,10 +23,11 @@ import {
   User,
   Menu,
   X,
-  Lock
+  Lock,
+  BarChart3,
 } from 'lucide-react';
 
-// Configuración de navegación
+// Configuración de navegación para usuarios normales y admin
 const navigationConfig = [
   {
     id: 'dashboard',
@@ -89,6 +90,23 @@ const navigationConfig = [
       { id: 'data', label: 'Datos del Sistema', icon: Layers, path: '/data' },
       { id: 'settings', label: 'Configuración', icon: Settings, path: '/settings' },
     ],
+  },
+];
+
+// Configuración de navegación SIMPLIFICADA para rol ANALYST
+// Solo puede ver Dashboard y Empresas (según permisos: analytics:read, companies:read)
+const analystNavigationConfig = [
+  {
+    id: 'dashboard',
+    label: 'Panel de Análisis',
+    icon: BarChart3,
+    path: '/dashboard',
+  },
+  {
+    id: 'companies',
+    label: 'Empresas',
+    icon: Landmark,
+    path: '/companies',
   },
 ];
 
@@ -266,20 +284,28 @@ const Navbar = () => {
   };
 
   // Filtrar navegación según rol del usuario
-  const filteredNavigation = navigationConfig.filter(item => {
-    // Si el item requiere un rol específico
-    if (item.requiredRole) {
-      // Si no hay usuario o no tiene rol, ocultar
-      if (!user || !user.role) {
-        return false;
-      }
-      // Si el rol no coincide, ocultar
-      if (user.role !== item.requiredRole) {
-        return false;
-      }
+  const filteredNavigation = (() => {
+    // Si es rol analyst, usar navegación simplificada
+    if (user?.role === 'analyst') {
+      return analystNavigationConfig;
     }
-    return true;
-  });
+    
+    // Para otros roles, filtrar según permisos
+    return navigationConfig.filter(item => {
+      // Si el item requiere un rol específico
+      if (item.requiredRole) {
+        // Si no hay usuario o no tiene rol, ocultar
+        if (!user || !user.role) {
+          return false;
+        }
+        // Si el rol no coincide, ocultar
+        if (user.role !== item.requiredRole) {
+          return false;
+        }
+      }
+      return true;
+    });
+  })();
 
   return (
     <>

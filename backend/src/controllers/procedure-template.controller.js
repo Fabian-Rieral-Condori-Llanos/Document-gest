@@ -111,7 +111,7 @@ class ProcedureTemplateController {
     async create(req, res) {
         try {
             const userId = req.decodedToken.id;
-            const { name, code, description, isActive } = req.body;
+            const { name, code, description, color, isActive } = req.body;
             
             // Validaciones básicas
             if (!name || !code) {
@@ -119,7 +119,7 @@ class ProcedureTemplateController {
             }
             
             const template = await ProcedureTemplateService.create(
-                { name, code, description, isActive },
+                { name, code, description, color, isActive },
                 userId
             );
             
@@ -138,11 +138,11 @@ class ProcedureTemplateController {
         try {
             const { id } = req.params;
             const userId = req.decodedToken.id;
-            const { name, code, description, isActive } = req.body;
+            const { name, code, description, color, isActive } = req.body;
             
             const template = await ProcedureTemplateService.update(
                 id,
-                { name, code, description, isActive },
+                { name, code, description, color, isActive },
                 userId
             );
             

@@ -90,6 +90,7 @@ class ProcedureTemplateService {
             name: data.name,
             code: data.code.toUpperCase(),
             description: data.description || '',
+            color: data.color || '#6b7280',
             isActive: data.isActive !== undefined ? data.isActive : true,
             createdBy: userId
         };
@@ -127,6 +128,7 @@ class ProcedureTemplateService {
         // Actualizar campos permitidos
         if (data.name !== undefined) template.name = data.name;
         if (data.description !== undefined) template.description = data.description;
+        if (data.color !== undefined) template.color = data.color;
         if (data.isActive !== undefined) template.isActive = data.isActive;
         
         template.updatedBy = userId;
@@ -208,6 +210,7 @@ class ProcedureTemplateService {
                 id: template._id,
                 code: template.code,
                 name: template.name,
+                color: template.color,
                 isActive: template.isActive,
                 usageCount: usage ? usage.count : 0
             };
@@ -229,22 +232,38 @@ class ProcedureTemplateService {
             {
                 code: 'PR01',
                 name: 'Evaluación por Solicitud de Entidades',
-                description: 'Procedimiento para evaluaciones de seguridad solicitadas por entidades externas al AGETIC.'
+                description: 'Procedimiento para evaluaciones de seguridad solicitadas por entidades externas al AGETIC.',
+                color: '#2563eb'
             },
             {
                 code: 'PR02',
                 name: 'Evaluación Interna AGETIC',
-                description: 'Procedimiento para evaluaciones de seguridad internas realizadas por iniciativa del AGETIC.'
+                description: 'Procedimiento para evaluaciones de seguridad internas realizadas por iniciativa del AGETIC.',
+                color: '#16a34a'
             },
             {
                 code: 'PR03',
                 name: 'Evaluación Externa',
-                description: 'Procedimiento para evaluaciones de seguridad de sistemas externos o de terceros.'
+                description: 'Procedimiento para evaluaciones de seguridad de sistemas externos o de terceros.',
+                color: '#db2777'
             },
             {
                 code: 'PR09',
                 name: 'Evaluación por Solicitud AGETIC',
-                description: 'Procedimiento para evaluaciones de seguridad solicitadas internamente por áreas del AGETIC.'
+                description: 'Procedimiento para evaluaciones de seguridad solicitadas internamente por áreas del AGETIC.',
+                color: '#d97706'
+            },
+            {
+                code: 'VERIF-001',
+                name: 'Verificación',
+                description: 'Verificación para la evaluación de seguridad en aplicaciones web.',
+                color: '#14b8a6'
+            },
+            {
+                code: 'RETEST-001',
+                name: 'Retest',
+                description: 'Retest para la reevaluación de vulnerabilidades previamente identificadas.',
+                color: '#8b5cf6'
             }
         ];
         

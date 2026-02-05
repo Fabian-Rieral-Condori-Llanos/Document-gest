@@ -41,6 +41,13 @@ const ProcedureTemplateSchema = new Schema({
         maxlength: [1000, 'Description cannot exceed 1000 characters']
     },
     
+    color: {
+        type: String,
+        trim: true,
+        maxlength: [20, 'Color cannot exceed 20 characters'],
+        default: '#6b7280'
+    },
+    
     // Estado activo/inactivo
     isActive: {
         type: Boolean,

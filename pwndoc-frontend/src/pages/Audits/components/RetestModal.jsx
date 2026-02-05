@@ -22,7 +22,6 @@ import { selectAuditTypes } from '../../../features/data/dataSlice';
 import Modal from '../../../components/common/Modal/Modal';
 import Button from '../../../components/common/Button/Button';
 import Alert from '../../../components/common/Alert/Alert';
-import ProcedureTemplateSelect from './ProcedureTemplateSelect';
 
 /**
  * RetestModal - Modal para crear retest o verificación de una auditoría
@@ -71,9 +70,7 @@ const RetestModal = ({
       setError('');
       setFormData({
         auditType: audit.audit.auditType || '',
-        name: '',
-        origen: '',
-        alcance: ['Verificación'],
+        name: ''
       });
     }
   }, [isOpen, audit.audit]);
@@ -108,11 +105,8 @@ const RetestModal = ({
     try {
       setLoading(true);
       setError('');
-      console.log('[RetestModal] Creating verification with data:', formData);
       const response = await auditsApi.createAuditVerification(audit.audit._id, {
         name: formData.name || undefined,
-        origen: formData.origen || undefined,
-        alcance: formData.alcance.length > 0 ? formData.alcance : undefined,
       });
       
       onClose();
@@ -140,8 +134,7 @@ const RetestModal = ({
       setError('');
       
       const response = await auditsApi.createAuditRetest(audit.audit._id, {
-        auditType: formData.auditType,
-        
+        auditType: formData.auditType
       });
       
       onClose();
@@ -156,10 +149,6 @@ const RetestModal = ({
     } finally {
       setLoading(false);
     }
-  };
-
-    const handleProcedureTemplateChange = (templateId) => {
-    setFormData(prev => ({ ...prev, procedureTemplateId: templateId }));
   };
 
   const handleSubmit = () => {
@@ -179,7 +168,6 @@ const RetestModal = ({
   }, {}) || { total: 0 };
 
   if (!audit.audit) return null;
-console.log('audit en RetestModal:', audit);
 console.log("Form", formData);
 
   return (
@@ -353,15 +341,6 @@ console.log("Form", formData);
                 placeholder={`[VERIFICACIÓN] ${audit.audit.name}`}
                 className="w-full px-4 py-2.5 bg-bg-tertiary border border-gray-700 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-primary-500"
               />
-            </div>
-
-            <div>
-            <ProcedureTemplateSelect
-              value={formData.code}
-              onChange={handleProcedureTemplateChange}
-              label="Origen"
-              placeholder="Seleccionar procedimiento..."
-            />
             </div>
           </div>
         )}

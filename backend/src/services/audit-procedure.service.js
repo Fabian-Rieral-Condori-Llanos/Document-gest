@@ -26,6 +26,8 @@ class AuditProcedureService {
      * Verifica si la auditoría debe marcarse como COMPLETADA
      * y actualiza el estado automáticamente
      * 
+     * MODIFICADO: Ahora crea AuditStatus si no existe
+     * 
      * @private
      * @param {Object} procedure - Documento de AuditProcedure
      * @param {string} userId - ID del usuario que hace el cambio
@@ -64,8 +66,25 @@ class AuditProcedureService {
 
         if (shouldComplete) {
             try {
-                const status = await AuditStatus.findOne({ auditId: procedure.auditId });
-                if (status && status.status !== AuditStatus.STATUS.COMPLETADO) {
+                let status = await AuditStatus.findOne({ auditId: procedure.auditId });
+                
+                // Crear AuditStatus si no existe
+                if (!status) {
+                    status = new AuditStatus({
+                        auditId: procedure.auditId,
+                        status: AuditStatus.STATUS.EVALUANDO,
+                        history: [{
+                            status: AuditStatus.STATUS.EVALUANDO,
+                            changedAt: new Date(),
+                            changedBy: userId,
+                            notes: 'Estado inicial creado automáticamente'
+                        }]
+                    });
+                    await status.save();
+                    console.log(`[AuditProcedure] Created AuditStatus for audit ${procedure.auditId}`);
+                }
+                
+                if (status.status !== AuditStatus.STATUS.COMPLETADO) {
                     await status.changeStatus(
                         AuditStatus.STATUS.COMPLETADO, 
                         userId, 
@@ -161,6 +180,7 @@ class AuditProcedureService {
 
     /**
      * Crea un nuevo procedimiento
+     * MODIFICADO: También crea AuditStatus si no existe
      */
     static async create(data, userId) {
         // Verificar que la auditoría existe
@@ -202,6 +222,27 @@ class AuditProcedureService {
         
         const procedure = new AuditProcedure(procedureData);
         await procedure.save();
+
+        // Crear AuditStatus si no existe
+        const existingStatus = await AuditStatus.findOne({ auditId: data.auditId });
+        if (!existingStatus) {
+            const initialStatus = audit.state === 'APPROVED' 
+                ? AuditStatus.STATUS.COMPLETADO 
+                : AuditStatus.STATUS.EVALUANDO;
+            
+            const newStatus = new AuditStatus({
+                auditId: data.auditId,
+                status: initialStatus,
+                history: [{
+                    status: initialStatus,
+                    changedAt: new Date(),
+                    changedBy: userId,
+                    notes: 'Estado inicial creado con procedimiento'
+                }]
+            });
+            await newStatus.save();
+            console.log(`[AuditProcedure] Created AuditStatus for new procedure: ${data.auditId}`);
+        }
 
         // Verificar si debe auto-completar
         await this._checkAndUpdateCompletionStatus(procedure, userId);
@@ -260,6 +301,7 @@ class AuditProcedureService {
 
     /**
      * Actualiza por auditId
+     * MODIFICADO: También crea AuditStatus si no existe
      */
     static async updateByAuditId(auditId, data, userId) {
         let procedure = await AuditProcedure.findOne({ auditId });
@@ -268,6 +310,32 @@ class AuditProcedureService {
             // Crear si no existe
             data.auditId = auditId;
             return await this.create(data, userId);
+        }
+        
+        // Asegurar que existe AuditStatus
+        const existingStatus = await AuditStatus.findOne({ auditId });
+        if (!existingStatus) {
+            const Audit = mongoose.model('Audit');
+            const audit = await Audit.findById(auditId).select('state');
+            
+            if (audit) {
+                const initialStatus = audit.state === 'APPROVED' 
+                    ? AuditStatus.STATUS.COMPLETADO 
+                    : AuditStatus.STATUS.EVALUANDO;
+                
+                const newStatus = new AuditStatus({
+                    auditId,
+                    status: initialStatus,
+                    history: [{
+                        status: initialStatus,
+                        changedAt: new Date(),
+                        changedBy: userId,
+                        notes: 'Estado inicial creado durante actualización de procedimiento'
+                    }]
+                });
+                await newStatus.save();
+                console.log(`[AuditProcedure] Created AuditStatus during update: ${auditId}`);
+            }
         }
         
         return await this.update(procedure._id, data, userId);

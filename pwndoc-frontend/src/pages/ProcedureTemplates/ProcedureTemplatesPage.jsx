@@ -36,12 +36,18 @@ import {
   BarChart3,
 } from 'lucide-react';
 
+const PRESET_COLORS = [
+  '#6366f1', '#06b6d4', '#10b981', '#f59e0b', '#8b5cf6',
+  '#ec4899', '#14b8a6', '#f43f5e', '#84cc16', '#6b7280',
+];
+
 // Modal de formulario
 const TemplateFormModal = ({ isOpen, onClose, template, onSubmit, isLoading }) => {
   const [formData, setFormData] = useState({
     code: '',
     name: '',
     description: '',
+    color: '#6b7280',
   });
   const [errors, setErrors] = useState({});
 
@@ -93,6 +99,44 @@ const TemplateFormModal = ({ isOpen, onClose, template, onSubmit, isLoading }) =
         </div>
 
         <form onSubmit={handleSubmit} className="p-6 space-y-4">
+                    {/* Color */}
+          <div>
+            <label className="block text-sm font-medium text-gray-300 mb-1.5">
+              Color (para gráficas)
+            </label>
+            <div className="flex items-center gap-3">
+              <div className="flex gap-2 flex-wrap">
+                {PRESET_COLORS.map((color) => (
+                  <button
+                    key={color}
+                    type="button"
+                    onClick={() => setFormData({ ...formData, color })}
+                    className={`w-8 h-8 rounded-lg transition-all ${
+                      formData.color === color 
+                        ? 'ring-2 ring-white ring-offset-2 ring-offset-bg-secondary scale-110' 
+                        : 'hover:scale-105'
+                    }`}
+                    style={{ backgroundColor: color }}
+                  />
+                ))}
+              </div>
+              <input
+                type="color"
+                value={formData.color}
+                onChange={(e) => setFormData({ ...formData, color: e.target.value })}
+                className="w-8 h-8 rounded cursor-pointer"
+                title="Elegir color personalizado"
+              />
+            </div>
+            <div className="mt-2 flex items-center gap-2">
+              <div 
+                className="w-4 h-4 rounded"
+                style={{ backgroundColor: formData.color }}
+              />
+              <span className="text-sm text-gray-400 font-mono">{formData.color}</span>
+            </div>
+          </div>
+          
           <div>
             <label className="block text-sm font-medium text-gray-300 mb-1.5">
               Código <span className="text-red-400">*</span>
@@ -461,6 +505,7 @@ const ProcedureTemplatesPage = () => {
               <table className="w-full">
                 <thead className="bg-bg-tertiary border-b border-gray-700">
                   <tr>
+                    <th className="text-left px-6 py-4 text-sm font-semibold text-gray-300">Color</th>
                     <th className="text-left px-6 py-4 text-sm font-semibold text-gray-300">Código</th>
                     <th className="text-left px-6 py-4 text-sm font-semibold text-gray-300">Nombre</th>
                     <th className="text-left px-6 py-4 text-sm font-semibold text-gray-300 hidden md:table-cell">Descripción</th>
@@ -472,9 +517,16 @@ const ProcedureTemplatesPage = () => {
                 <tbody className="divide-y divide-gray-700">
                   {paginatedTemplates.map((template) => {
                     const usageCount = stats?.templates?.find(t => t.code === template.code)?.usageCount || 0;
-                    
                     return (
                       <tr key={template._id} className="hover:bg-bg-tertiary/50 transition-colors">
+                        <td className="px-6 py-4">
+                          <div className="flex items-center gap-2">
+                            <div 
+                              className="w-6 h-6 rounded-md shadow-sm"
+                              style={{ backgroundColor: template.color || '#004ee9' }}
+                            />
+                          </div>
+                        </td>
                         <td className="px-6 py-4">
                           <span className="inline-flex items-center px-2.5 py-1 rounded-md bg-primary-500/10 text-primary-400 font-mono text-sm font-medium">
                             {template.code}

@@ -590,8 +590,6 @@ class AuditController {
                 userId, 
                 {
                     name: req.body.name,
-                    alcance: req.body.alcance,
-                    origen: req.body.origen
                 }
             );
 

@@ -43,15 +43,6 @@ import { SettingsPage } from '../pages/Settings';
 // Pages - Audits (Evaluaciones)
 import { AuditsPage, AuditFormPage, AuditDetailPage, FindingFormPage, FindingDetailPage } from '../pages/Audits';
 
-// Pages - Audit Status
-// import { AuditStatusPage } from '../pages/AuditStatus';
-
-// Pages - Audit Verifications
-// import { AuditVerificationsPage } from '../pages/AuditVerifications';
-
-// Pages - Audit Procedures
-// import { AuditProceduresPage } from '../pages/AuditProcedures';
-
 // Pages - Procedure Templates (Admin)
 import { ProcedureTemplatesPage } from '../pages/ProcedureTemplates';
 
@@ -298,7 +289,7 @@ const ComingSoon = ({ title }) => (
   <div className="min-h-screen flex items-center justify-center p-8">
     <div className="text-center">
       <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-accent-500/10 mb-4">
-        <span className="text-3xl">🚧</span>
+        <span className="text-3xl"></span>
       </div>
       <h1 className="text-2xl font-bold text-white mb-2">{title}</h1>
       <p className="text-gray-400">Este módulo está en desarrollo</p>

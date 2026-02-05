@@ -150,25 +150,28 @@ const AuditFormPage = () => {
         }
       };
 
+      const audit = selectedAudit.audit || {};
+
       setFormData({
-        name: selectedAudit.name || '',
-        auditType: selectedAudit.auditType || '',
-        language: selectedAudit.language || 'es',
-        company: companyId,
-        client: clientId,
-        collaborators: selectedAudit.collaborators?.map(c => 
+        name: audit.name || '',
+        auditType: audit.auditType || '',
+        language: audit.language || 'es',
+        company: audit.company?._id || audit.company || '',
+        client: audit.client?._id || audit.client || '',
+        collaborators: audit.collaborators?.map(c =>
           typeof c === 'object' ? c._id : c
-        ).filter(Boolean) || [],
-        reviewers: selectedAudit.reviewers?.map(r => 
+        ) || [],
+        reviewers: audit.reviewers?.map(r =>
           typeof r === 'object' ? r._id : r
-        ).filter(Boolean) || [],
-        date: formatDate(selectedAudit.date),
-        date_start: formatDate(selectedAudit.date_start),
-        date_end: formatDate(selectedAudit.date_end),
-        summary: selectedAudit.summary || '',
-        procedureTemplateId: typeof selectedAudit.procedureTemplate === 'object' 
-          ? selectedAudit.procedureTemplate?._id 
-          : selectedAudit.procedureTemplate || '',
+        ) || [],
+        date: formatDate(audit.date),
+        date_start: formatDate(audit.date_start),
+        date_end: formatDate(audit.date_end),
+        summary: audit.summary || '',
+        procedureTemplateId:
+          typeof audit.procedureTemplate === 'object'
+            ? audit.procedureTemplate?._id
+            : audit.procedureTemplate || '',
       });
       
       setIsDataLoaded(true);
@@ -292,7 +295,7 @@ const AuditFormPage = () => {
 
     try {
       const auditData = {
-        name: formData.audit.name,
+        name: formData.name,
         auditType: formData.auditType || undefined,
         language: formData.language,
         company: formData.company || undefined,

@@ -3,6 +3,8 @@ const AuditProcedure = require('../models/audit-procedure.model');
 const AuditStatus = require('../models/audit-status.model');
 const Client = require('../models/client.model');
 const Company = require('../models/company.model');
+const Settings = require('../models/settings.model');
+const ProcedureTemplate = require('../models/procedure-template.model');
 
 /**
  * AnalyticsService
@@ -26,8 +28,6 @@ class AnalyticsService {
     async getGlobalDashboard(filters = {}) {
         const { year, startDate, endDate } = filters;
         const dateFilter = this._buildDateFilter(startDate, endDate, year);
-        
-        console.log('[Analytics] Dashboard global - Filtro:', dateFilter);
         
         // Construir filtro completo con createdAt
         const matchFilter = { createdAt: dateFilter };
@@ -164,6 +164,7 @@ class AnalyticsService {
     
     /**
      * Estadísticas generales
+     * CORREGIDO: Usa company en lugar de client para contar entidades
      */
     async _getGlobalStats(matchFilter) {
         // matchFilter ya viene con { createdAt: { $gte: ..., $lte: ... } }
@@ -180,8 +181,10 @@ class AnalyticsService {
             state: { $in: ['APPROVED'] }
         });
         
-        const entidadesEvaluadas = await Audit.distinct('client', matchFilter);
-        const totalEntidades = await Client.countDocuments();
+        // Usar company en lugar de client
+        const entidadesEvaluadas = await Audit.distinct('company', matchFilter);
+        
+        const totalEntidades = await Company.countDocuments();
         
         const vulnStats = await this._countVulnerabilities(matchFilter);
         const tiempoPromedio = await this._calcularTiempoPromedio(matchFilter);
@@ -198,12 +201,21 @@ class AnalyticsService {
                 : 0,
             vulnCriticasActivas: vulnStats.criticas,
             tasaRemediacion,
-            tiempoPromedioDias: tiempoPromedio
+            tiempoPromedioDias: tiempoPromedio,
+            // Nuevas estadísticas de verificación
+            verificacion: {
+                remediadas: vulnStats.remediadas,
+                noRemediadas: vulnStats.noRemediadas,
+                parciales: vulnStats.parciales,
+                sinVerificar: vulnStats.sinVerificar,
+                totalVerificadas: vulnStats.verificadas
+            }
         };
     }
     
     /**
      * Estadísticas de compañía
+     * CORREGIDO: Usa company en lugar de client
      */
     async _getCompanyStats(filter) {
         const totalEvaluaciones = await Audit.countDocuments(filter);
@@ -218,7 +230,8 @@ class AnalyticsService {
             state: { $in: ['APPROVED'] }
         });
         
-        const clientesEvaluados = await Audit.distinct('client', filter);
+        // Contar empresas únicas evaluadas (en caso de dashboard de una empresa, será 1)
+        const empresasEvaluadas = await Audit.distinct('company', filter);
         
         const vulnStats = await this._countVulnerabilities(filter);
         const tiempoPromedio = await this._calcularTiempoPromedio(filter);
@@ -228,10 +241,18 @@ class AnalyticsService {
             totalEvaluaciones,
             evaluacionesActivas,
             evaluacionesCompletadas,
-            clientesEvaluados: clientesEvaluados.length,
+            empresasEvaluadas: empresasEvaluadas.length,
             vulnCriticasActivas: vulnStats.criticas,
             tasaRemediacion,
-            tiempoPromedioDias: tiempoPromedio
+            tiempoPromedioDias: tiempoPromedio,
+            // Estadísticas de verificación
+            verificacion: {
+                remediadas: vulnStats.remediadas,
+                noRemediadas: vulnStats.noRemediadas,
+                parciales: vulnStats.parciales,
+                sinVerificar: vulnStats.sinVerificar,
+                totalVerificadas: vulnStats.verificadas
+            }
         };
     }
     
@@ -240,6 +261,7 @@ class AnalyticsService {
      * CRÍTICO: Usar AuditProcedure.origen, NO Audit.auditType
      */
     async _getEvaluacionesPorProcedimiento(filter) {
+
         const results = await Audit.aggregate([
             { $match: filter },
             {
@@ -253,34 +275,75 @@ class AnalyticsService {
             { $unwind: { path: '$procedure', preserveNullAndEmptyArrays: true } },
             {
                 $group: {
-                    _id: '$procedure.origen',
+                    _id: { $ifNull: ['$procedure.origen', ''] },
                     cantidad: { $sum: 1 }
                 }
             },
             { $sort: { cantidad: -1 } }
         ]);
-        
-        const colorMap = {
-            'PR01': '#6366f1',
-            'PR02': '#06b6d4',
-            'PR03': '#10b981',
-            'PR09': '#f59e0b',
-            'Verificación': '#8b5cf6',
-            'Caja Negra': '#ec4899',
-            'Caja Blanca': '#14b8a6'
+
+        console.log('Resultados por procedimiento:', results);
+
+        /* ===============================
+        CONSTRUIR MAPA DE PROCEDIMIENTOS
+        =============================== */
+
+        const templates = await ProcedureTemplate.find({ isActive: true }).lean();
+
+        const procedureMap = {};
+        const colorMap = {};
+
+        templates.forEach(tpl => {
+            procedureMap[tpl.code] = tpl.name;
+            if (tpl.color) {
+                colorMap[tpl.code] = tpl.color;
+            }
+        });
+
+        console.log('ProcedureMap:', procedureMap);
+        console.log('ColorMap:', colorMap);
+
+        /* ===============================
+        NORMALIZADOR DE CÓDIGO
+        =============================== */
+
+        const normalizeCode = (origen) => {
+            if (!origen) return null;
+
+            // PR01, PR02, etc
+            if (origen.startsWith('PR')) return origen;
+
+            // VERIF-001 → VERIF-001
+            if (origen.startsWith('VERIF')) return 'VERIF-001';
+
+            // RETEST-001 → RETEST
+            if (origen.startsWith('RETEST')) return 'RETEST';
+
+            return origen;
         };
-        
+
+        /* ===============================
+        RESULTADO FINAL
+        =============================== */
+
         return results.map(item => {
-            const origen = item._id || 'Sin procedimiento';
+            const origenRaw = item._id || 'Sin procedimiento';
+            const normalizedCode = normalizeCode(origenRaw);
+
+            const nombre = normalizedCode && procedureMap[normalizedCode]
+                ? `${normalizedCode} - ${procedureMap[normalizedCode]}`
+                : origenRaw || 'Sin procedimiento';
+
             return {
-                tipo: origen.startsWith('PR') 
-                    ? `${origen} - ${this._getNombreProcedimiento(origen)}`
-                    : origen,
+                tipo: nombre,
                 cantidad: item.cantidad,
-                color: colorMap[origen] || '#6b7280'
+                color: normalizedCode && colorMap[normalizedCode]
+                    ? colorMap[normalizedCode]
+                    : '#6b7280'
             };
         });
     }
+
     
     /**
      * Evaluaciones por alcance (AuditProcedure.alcance)
@@ -372,30 +435,34 @@ class AnalyticsService {
             cantidad: item.cantidad
         }));
     }
-    
     /**
      * Vulnerabilidades por severidad desde findings
      */
     async _getVulnerabilidadesPorSeveridad(filter) {
         const vulnStats = await this._countVulnerabilities(filter);
-        
+        const colors = await Settings.findOne({}).select(Settings.publicFields).lean();
+        const cvssColors = colors?.report?.public?.cvssColors || {};
+
         return [
-            { name: 'Crítica', value: vulnStats.criticas, color: '#dc2626' },
-            { name: 'Alta', value: vulnStats.altas, color: '#f97316' },
-            { name: 'Media', value: vulnStats.medias, color: '#eab308' },
-            { name: 'Baja', value: vulnStats.bajas, color: '#22c55e' },
-            { name: 'Info', value: vulnStats.info, color: '#6b7280' }
+            { name: 'Crítica', value: vulnStats.criticas, color: cvssColors.criticalColor },
+            { name: 'Alta', value: vulnStats.altas, color: cvssColors.highColor },
+            { name: 'Media', value: vulnStats.medias, color: cvssColors.mediumColor },
+            { name: 'Baja', value: vulnStats.bajas, color: cvssColors.lowColor },
+            { name: 'Info', value: vulnStats.info, color: cvssColors.noneColor }
         ];
     }
     
     /**
      * Contar vulnerabilidades desde findings
+     * Usa retestStatus para determinar remediación (verificación real)
      */
     async _countVulnerabilities(filter) {
         const audits = await Audit.find(filter).select('findings');
         
-        let total = 0, criticas = 0, altas = 0, medias = 0, bajas = 0, info = 0, remediadas = 0;
-
+        let total = 0, criticas = 0, altas = 0, medias = 0, bajas = 0, info = 0;
+        // Contadores de retestStatus
+        let verificadas = 0, remediadas = 0, noRemediadas = 0, parciales = 0, sinVerificar = 0;
+        
         audits.forEach(audit => {
             if (audit.findings && Array.isArray(audit.findings)) {
                 audit.findings.forEach(finding => {
@@ -408,14 +475,43 @@ class AnalyticsService {
                     else if (score > 0) bajas++;
                     else info++;
                     
-                if (finding.retestStatus === Audit.RETEST_STATUS.OK) {
-                    remediadas++;
+                    // Usar retestStatus para determinar estado de remediación
+                    // retestStatus: 'ok' | 'ko' | 'partial' | 'unknown'
+                    switch (finding.retestStatus) {
+                        case 'ok':
+                            remediadas++;
+                            verificadas++;
+                            break;
+                        case 'ko':
+                            noRemediadas++;
+                            verificadas++;
+                            break;
+                        case 'partial':
+                            parciales++;
+                            verificadas++;
+                            break;
+                        case 'unknown':
+                        default:
+                            sinVerificar++;
+                            break;
                     }
                 });
             }
         });
         
-        return { total, criticas, altas, medias, bajas, info, remediadas };
+        return { 
+            total, 
+            criticas, 
+            altas, 
+            medias, 
+            bajas, 
+            info, 
+            remediadas,      // retestStatus === 'ok'
+            noRemediadas,    // retestStatus === 'ko'
+            parciales,       // retestStatus === 'partial'
+            sinVerificar,    // retestStatus === 'unknown' o sin valor
+            verificadas      // total verificadas (ok + ko + partial)
+        };
     }
     
     /**
@@ -481,7 +577,7 @@ class AnalyticsService {
      */
     async _getTendenciaMensual(year) {
         const meses = ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'];
-
+        
         const results = await Audit.aggregate([
             {
                 $match: {
@@ -513,14 +609,20 @@ class AnalyticsService {
             const mesData = results.find(r => r._id === index + 1);
             
             if (!mesData) {
-                return { mes, evaluaciones: 0, vulnerabilidades: 0, remediadas: 0 };
+                return { mes, evaluaciones: 0, vulnerabilidades: 0, remediadas: 0, noRemediadas: 0, parciales: 0 };
             }
             
-            // Contar remediadas
-            let remediadas = 0;
+            // Contar por retestStatus
+            let remediadas = 0, noRemediadas = 0, parciales = 0;
             mesData.findings.forEach(findingsArray => {
                 if (findingsArray && Array.isArray(findingsArray)) {
-                    remediadas += findingsArray.filter(f => f.retestStatus === Audit.RETEST_STATUS.OK).length;
+                    findingsArray.forEach(f => {
+                        switch (f.retestStatus) {
+                            case 'ok': remediadas++; break;
+                            case 'ko': noRemediadas++; break;
+                            case 'partial': parciales++; break;
+                        }
+                    });
                 }
             });
             
@@ -528,7 +630,9 @@ class AnalyticsService {
                 mes,
                 evaluaciones: mesData.evaluaciones,
                 vulnerabilidades: mesData.vulnerabilidades,
-                remediadas
+                remediadas,
+                noRemediadas,
+                parciales
             };
         });
     }
@@ -571,13 +675,20 @@ class AnalyticsService {
             const mesData = results.find(r => r._id === index + 1);
             
             if (!mesData) {
-                return { mes, evaluaciones: 0, vulnerabilidades: 0, remediadas: 0 };
+                return { mes, evaluaciones: 0, vulnerabilidades: 0, remediadas: 0, noRemediadas: 0, parciales: 0 };
             }
             
-            let remediadas = 0;
+            // Contar por retestStatus
+            let remediadas = 0, noRemediadas = 0, parciales = 0;
             mesData.findings.forEach(findingsArray => {
                 if (findingsArray && Array.isArray(findingsArray)) {
-                    remediadas += findingsArray.filter(f => f.status === 0).length;
+                    findingsArray.forEach(f => {
+                        switch (f.retestStatus) {
+                            case 'ok': remediadas++; break;
+                            case 'ko': noRemediadas++; break;
+                            case 'partial': parciales++; break;
+                        }
+                    });
                 }
             });
             
@@ -585,13 +696,17 @@ class AnalyticsService {
                 mes,
                 evaluaciones: mesData.evaluaciones,
                 vulnerabilidades: mesData.vulnerabilidades,
-                remediadas
+                remediadas,
+                noRemediadas,
+                parciales
             };
         });
     }
     
     /**
-     * Estado por entidad con progreso de verificación
+     * Estado por entidad (Company) con progreso de verificación
+     * CORREGIDO: Usa company.name en lugar de client.firstname/lastname
+     * CORREGIDO: Usa retestStatus para calcular remediación
      */
     async _getEntidadesEvaluadas(filter) {
         const results = await Audit.aggregate([
@@ -616,8 +731,9 @@ class AnalyticsService {
             { $unwind: { path: '$statusInfo', preserveNullAndEmptyArrays: true } },
             {
                 $project: {
-                    client: 1,
-                    clientName: { $concat: ['$companyInfo.name', ' ', '$companyInfo.shortName'] },
+                    company: 1,
+                    companyName: '$companyInfo.name',
+                    companyShortName: '$companyInfo.shortName',
                     state: 1,
                     status: '$statusInfo.status',
                     createdAt: 1,
@@ -626,8 +742,9 @@ class AnalyticsService {
             },
             {
                 $group: {
-                    _id: '$client',
-                    nombre: { $first: '$clientName' },
+                    _id: '$company',
+                    nombre: { $first: '$companyName' },
+                    nombreCorto: { $first: '$companyShortName' },
                     evaluaciones: { $sum: 1 },
                     ultimaEval: { $max: '$createdAt' },
                     ultimoEstado: { $last: '$status' },
@@ -635,13 +752,15 @@ class AnalyticsService {
                     allFindings: { $push: '$findings' }
                 }
             },
-            { $sort: { evaluaciones: -1 } },
-            { $limit: 10 }
+            { $sort: { evaluaciones: -1 } }
         ]);
-        // Enriquecer con progreso de verificación
+        
+        // Enriquecer con progreso de verificación usando retestStatus
         const entidadesConProgreso = await Promise.all(
             results.map(async (item, index) => {
-                let vulnCriticas = 0, vulnAltas = 0, totalVulns = 0, remediadas = 0;
+                let vulnCriticas = 0, vulnAltas = 0, totalVulns = 0;
+                // Contadores de retestStatus
+                let remediadas = 0, noRemediadas = 0, parciales = 0, sinVerificar = 0;
                 
                 // Contar vulnerabilidades
                 item.allFindings.forEach(findings => {
@@ -651,7 +770,22 @@ class AnalyticsService {
                             const score = this._extractCVSSScore(f.cvssv3 || f.cvssv4);
                             if (score >= 9.0) vulnCriticas++;
                             else if (score >= 7.0) vulnAltas++;
-                            if (f.status === 0) remediadas++;
+                            
+                            // Usar retestStatus para remediación
+                            switch (f.retestStatus) {
+                                case 'ok':
+                                    remediadas++;
+                                    break;
+                                case 'ko':
+                                    noRemediadas++;
+                                    break;
+                                case 'partial':
+                                    parciales++;
+                                    break;
+                                default:
+                                    sinVerificar++;
+                                    break;
+                            }
                         });
                     }
                 });
@@ -662,12 +796,19 @@ class AnalyticsService {
                 
                 return {
                     id: index + 1,
-                    nombre: item.nombre || 'Sin nombre',
+                    nombre: item.nombre || item.nombreCorto || 'Sin nombre',
+                    nombreCorto: item.nombreCorto || '',
                     evaluaciones: item.evaluaciones,
                     vulnCriticas,
                     vulnAltas,
+                    // Estadísticas de verificación
+                    totalVulnerabilidades: totalVulns,
+                    remediadas,      // retestStatus === 'ok'
+                    noRemediadas,    // retestStatus === 'ko'  
+                    parciales,       // retestStatus === 'partial'
+                    sinVerificar,    // sin retestStatus
                     estado: item.ultimoEstado || item.estado || 'Sin estado',
-                    ultimaEval: item.ultimaEval.toISOString().split('T')[0],
+                    ultimaEval: item.ultimaEval ? item.ultimaEval.toISOString().split('T')[0] : 'N/A',
                     tasaRemediacion
                 };
             })
@@ -678,14 +819,14 @@ class AnalyticsService {
     
     /**
      * Evaluaciones recientes - Global
-     * CRÍTICO: Obtener datos de AuditProcedure para CITEs y tipo
+     * CORREGIDO: Usar company.name en lugar de client.firstname/lastname
+     * AGREGADO: companyId para poder abrir modal de estadísticas
      */
-    async _getEvaluacionesRecientes(limit = 10) {
+    async _getEvaluacionesRecientes() {
         const audits = await Audit.find()
             .sort({ createdAt: -1 })
-            .limit(limit)
             .populate('company', 'name shortName')
-            .select('name createdAt');
+            .select('name createdAt company');
         
         // Enriquecer con datos de AuditProcedure y AuditStatus
         const evaluacionesConDatos = await Promise.all(
@@ -695,12 +836,11 @@ class AnalyticsService {
                 
                 const status = await AuditStatus.findOne({ auditId: audit._id })
                     .select('status');
+                
                 return {
                     id: audit._id,
-                    entidad: audit.company 
-                        ? `${audit.company.name} (${audit.company.shortName})` 
-                        : 'Sin entidad',
-                    
+                    companyId: audit.company?._id || null,
+                    entidad: audit.company?.name || audit.company?.shortName || 'Sin entidad',
                     tipo: procedure?.origen || 'Sin tipo',
                     estado: status?.status || 'Sin estado',
                     fechaInicio: audit.createdAt.toISOString().split('T')[0],
@@ -715,13 +855,13 @@ class AnalyticsService {
     
     /**
      * Evaluaciones recientes - Por compañía
+     * CORREGIDO: Usar company.name en lugar de client
      */
-    async _getEvaluacionesRecientesCompany(companyId, limit = 10) {
+    async _getEvaluacionesRecientesCompany(companyId) {
         const audits = await Audit.find({ company: companyId })
             .sort({ createdAt: -1 })
-            .limit(limit)
             .populate('company', 'name shortName')
-            .select('name createdAt');
+            .select('name createdAt company');
         
         const evaluacionesConDatos = await Promise.all(
             audits.map(async (audit) => {
@@ -733,9 +873,7 @@ class AnalyticsService {
                 
                 return {
                     id: audit._id,
-                    entidad: audit.company 
-                        ? `${audit.company.name} (${audit.company.shortName})` 
-                        : 'Sin entidad',
+                    entidad: audit.company?.name || audit.company?.shortName || 'Sin entidad',
                     tipo: procedure?.origen || 'Sin tipo',
                     estado: status?.status || 'Sin estado',
                     fechaInicio: audit.createdAt.toISOString().split('T')[0],
