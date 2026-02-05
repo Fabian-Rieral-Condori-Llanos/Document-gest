@@ -1,4 +1,3 @@
-const mongoose = require('mongoose');
 const Audit = require('../models/audit.model');
 const AuditProcedure = require('../models/audit-procedure.model');
 const AuditStatus = require('../models/audit-status.model');
@@ -6,14 +5,6 @@ const Client = require('../models/client.model');
 const Company = require('../models/company.model');
 const Settings = require('../models/settings.model');
 const ProcedureTemplate = require('../models/procedure-template.model');
-
-// Helper para convertir string a ObjectId de forma segura
-const toObjectId = (id) => {
-    if (!id) return null;
-    if (id instanceof mongoose.Types.ObjectId) return id;
-    if (mongoose.Types.ObjectId.isValid(id)) return new mongoose.Types.ObjectId(id);
-    return null;
-};
 
 /**
  * AnalyticsService
@@ -299,12 +290,39 @@ class AnalyticsService {
 
         const templates = await ProcedureTemplate.find({ isActive: true }).lean();
 
+        // Colores por defecto para procedimientos (fallback si BD no tiene color)
+        // Incluye variantes comunes de códigos
+        const DEFAULT_PROCEDURE_COLORS = {
+            // Procedimientos principales
+            'PR01': '#2563eb',    // Azul - Solicitud Entidades
+            'PR02': '#16a34a',    // Verde - Interna AGETIC
+            'PR03': '#db2777',    // Rosa - Externa
+            'PR09': '#d97706',    // Amber - Solicitud AGETIC
+            // Verificación (todas las variantes)
+            'VERIF': '#14b8a6',
+            'VERIF-001': '#14b8a6',
+            'VERIF-002': '#14b8a6',
+            'Verificación': '#14b8a6',
+            // Retest (todas las variantes)
+            'RETEST': '#8b5cf6',
+            'RETEST-001': '#8b5cf6',
+            'RETEST-002': '#8b5cf6',
+            'Retest': '#8b5cf6',
+        };
+
         const procedureMap = {};
         const colorMap = {};
 
+        // Primero cargar colores default para todos los códigos conocidos
+        Object.entries(DEFAULT_PROCEDURE_COLORS).forEach(([code, color]) => {
+            colorMap[code] = color;
+        });
+
+        // Luego sobrescribir con datos de templates si tienen color definido
         templates.forEach(tpl => {
             procedureMap[tpl.code] = tpl.name;
-            if (tpl.color) {
+            // Solo sobrescribir si el template tiene un color válido
+            if (tpl.color && typeof tpl.color === 'string' && tpl.color.startsWith('#')) {
                 colorMap[tpl.code] = tpl.color;
             }
         });
@@ -316,18 +334,15 @@ class AnalyticsService {
         NORMALIZADOR DE CÓDIGO
         =============================== */
 
+        /**
+         * Normaliza códigos de procedimiento para coincidir con ProcedureTemplate.code
+         * @param {string} origen - Código original del procedimiento
+         * @returns {string|null} - Código normalizado o null si no hay origen
+         */
         const normalizeCode = (origen) => {
             if (!origen) return null;
-
-            // PR01, PR02, etc
-            if (origen.startsWith('PR')) return origen;
-
-            // VERIF-001 → VERIF-001
-            if (origen.startsWith('VERIF')) return 'VERIF-001';
-
-            // RETEST-001 → RETEST
-            if (origen.startsWith('RETEST')) return 'RETEST';
-
+            
+            // Devolver el código tal cual - los colores están definidos para todas las variantes
             return origen;
         };
 
@@ -335,22 +350,34 @@ class AnalyticsService {
         RESULTADO FINAL
         =============================== */
 
-        return results.map(item => {
-            const origenRaw = item._id || 'Sin procedimiento';
+        const resultado = results.map(item => {
+            const origenRaw = item._id || '';
             const normalizedCode = normalizeCode(origenRaw);
 
-            const nombre = normalizedCode && procedureMap[normalizedCode]
-                ? `${normalizedCode} - ${procedureMap[normalizedCode]}`
-                : origenRaw || 'Sin procedimiento';
+            // Construir nombre legible
+            let nombre;
+            if (!normalizedCode || normalizedCode === '') {
+                nombre = 'Sin procedimiento';
+            } else if (procedureMap[normalizedCode]) {
+                nombre = `${normalizedCode} - ${procedureMap[normalizedCode]}`;
+            } else {
+                nombre = normalizedCode;
+            }
+
+            // Determinar color: primero del colorMap, luego gris por defecto
+            const color = colorMap[normalizedCode] || '#6b7280';
+
+            console.log(`[Analytics] Procedimiento: "${origenRaw}" -> color: ${color}`);
 
             return {
                 tipo: nombre,
                 cantidad: item.cantidad,
-                color: normalizedCode && colorMap[normalizedCode]
-                    ? colorMap[normalizedCode]
-                    : '#6b7280'
+                color: color
             };
         });
+
+        console.log('Resultado final evaluacionesPorProcedimiento:', resultado);
+        return resultado;
     }
 
     
@@ -416,8 +443,7 @@ class AnalyticsService {
             matchStage['audit.createdAt'] = filter.createdAt;
         }
         if (filter.company) {
-            // Convertir a ObjectId para que funcione en aggregation pipeline
-            matchStage['audit.company'] = toObjectId(filter.company);
+            matchStage['audit.company'] = filter.company;
         }
         
         const results = await AuditStatus.aggregate([
@@ -446,19 +472,33 @@ class AnalyticsService {
         }));
     }
     /**
+     * Colores CVSS por defecto (fallback cuando Settings no tiene configuración)
+     * Basados en estándares de severidad CVSS v3/v4
+     */
+    static DEFAULT_CVSS_COLORS = {
+        critical: '#dc2626',  // Rojo intenso
+        high: '#ea580c',      // Naranja
+        medium: '#eab308',    // Amarillo
+        low: '#22c55e',       // Verde
+        none: '#6b7280'       // Gris
+    };
+
+    /**
      * Vulnerabilidades por severidad desde findings
+     * Devuelve array con colores garantizados (usa fallback si no hay config)
      */
     async _getVulnerabilidadesPorSeveridad(filter) {
         const vulnStats = await this._countVulnerabilities(filter);
-        const colors = await Settings.findOne({}).select(Settings.publicFields).lean();
-        const cvssColors = colors?.report?.public?.cvssColors || {};
+        const settings = await Settings.findOne({}).select(Settings.publicFields).lean();
+        const cvssColors = settings?.report?.public?.cvssColors || {};
+        const defaults = AnalyticsService.DEFAULT_CVSS_COLORS;
 
         return [
-            { name: 'Crítica', value: vulnStats.criticas, color: cvssColors.criticalColor },
-            { name: 'Alta', value: vulnStats.altas, color: cvssColors.highColor },
-            { name: 'Media', value: vulnStats.medias, color: cvssColors.mediumColor },
-            { name: 'Baja', value: vulnStats.bajas, color: cvssColors.lowColor },
-            { name: 'Info', value: vulnStats.info, color: cvssColors.noneColor }
+            { name: 'Crítica', value: vulnStats.criticas, color: cvssColors.criticalColor || defaults.critical },
+            { name: 'Alta', value: vulnStats.altas, color: cvssColors.highColor || defaults.high },
+            { name: 'Media', value: vulnStats.medias, color: cvssColors.mediumColor || defaults.medium },
+            { name: 'Baja', value: vulnStats.bajas, color: cvssColors.lowColor || defaults.low },
+            { name: 'Info', value: vulnStats.info, color: cvssColors.noneColor || defaults.none }
         ];
     }
     
@@ -525,93 +565,28 @@ class AnalyticsService {
     }
     
     /**
-     * Contar vulnerabilidades NO remediadas desde findings
-     * Solo cuenta las que tienen retestStatus !== 'ok'
-     * Usado para alertas precisas
-     */
-    async _countVulnerabilitiesNoRemediadas(filter) {
-        const audits = await Audit.find(filter).select('findings');
-        
-        let criticas = 0, altas = 0, medias = 0, bajas = 0;
-        
-        audits.forEach(audit => {
-            if (audit.findings && Array.isArray(audit.findings)) {
-                audit.findings.forEach(finding => {
-                    // Solo contar si NO está remediada (retestStatus !== 'ok')
-                    if (finding.retestStatus === 'ok') {
-                        return; // Skip remediadas
-                    }
-                    
-                    const score = this._extractCVSSScore(finding.cvssv3 || finding.cvssv4);
-                    
-                    if (score >= 9.0) criticas++;
-                    else if (score >= 7.0) altas++;
-                    else if (score >= 4.0) medias++;
-                    else if (score > 0) bajas++;
-                });
-            }
-        });
-        
-        return { criticas, altas, medias, bajas };
-    }
-    
-    /**
      * Extraer score aproximado del vector CVSS
-     * Aproximación mejorada basada en componentes CVSS v3/v4
+     * El frontend tiene la calculadora completa
      */
     _extractCVSSScore(cvssVector) {
         if (!cvssVector) return 0;
         
-        // Extraer componentes del vector
-        const hasNetworkAccess = cvssVector.includes('AV:N');
-        const hasAdjacentAccess = cvssVector.includes('AV:A');
-        const hasLocalAccess = cvssVector.includes('AV:L');
-        const hasPhysicalAccess = cvssVector.includes('AV:P');
+        // Aproximación basada en componentes críticos
+        if (cvssVector.includes('AV:N') && cvssVector.includes('PR:N')) {
+            if (cvssVector.includes('C:H') && cvssVector.includes('I:H') && cvssVector.includes('A:H')) {
+                return 9.5; // Crítico
+            }
+            if (cvssVector.includes('C:H') || cvssVector.includes('I:H') || cvssVector.includes('A:H')) {
+                return 7.5; // Alto
+            }
+            return 5.0; // Medio
+        }
         
-        const noPrivsRequired = cvssVector.includes('PR:N');
-        const lowPrivsRequired = cvssVector.includes('PR:L');
-        const highPrivsRequired = cvssVector.includes('PR:H');
+        if (cvssVector.includes('AV:L') || cvssVector.includes('PR:H')) {
+            return 4.0; // Bajo
+        }
         
-        const noUserInteraction = cvssVector.includes('UI:N');
-        
-        const highConfidentiality = cvssVector.includes('C:H');
-        const highIntegrity = cvssVector.includes('I:H');
-        const highAvailability = cvssVector.includes('A:H');
-        
-        const lowConfidentiality = cvssVector.includes('C:L');
-        const lowIntegrity = cvssVector.includes('I:L');
-        const lowAvailability = cvssVector.includes('A:L');
-        
-        // Calcular score aproximado
-        let score = 0;
-        
-        // Factor de acceso (0-3 puntos)
-        if (hasNetworkAccess) score += 3;
-        else if (hasAdjacentAccess) score += 2;
-        else if (hasLocalAccess) score += 1;
-        else if (hasPhysicalAccess) score += 0.5;
-        
-        // Factor de privilegios (0-2 puntos)
-        if (noPrivsRequired) score += 2;
-        else if (lowPrivsRequired) score += 1;
-        else if (highPrivsRequired) score += 0.5;
-        
-        // Factor de interacción (0-1 punto)
-        if (noUserInteraction) score += 1;
-        
-        // Factor de impacto (0-4 puntos)
-        if (highConfidentiality) score += 1.5;
-        else if (lowConfidentiality) score += 0.5;
-        
-        if (highIntegrity) score += 1.5;
-        else if (lowIntegrity) score += 0.5;
-        
-        if (highAvailability) score += 1;
-        else if (lowAvailability) score += 0.3;
-        
-        // Normalizar a escala 0-10
-        // Max teórico: 3 + 2 + 1 + 1.5 + 1.5 + 1 = 10
-        return Math.min(10, Math.max(0, score));
+        return 3.0; // Info
     }
     
     /**
@@ -620,30 +595,20 @@ class AnalyticsService {
     async _calcularTiempoPromedio(filter) {
         const audits = await Audit.find({
             ...filter,
-            date_start: { $exists: true, $ne: null, $ne: '' },
-            date_end: { $exists: true, $ne: null, $ne: '' }
+            date_start: { $exists: true },
+            date_end: { $exists: true }
         }).select('date_start date_end');
         
         if (audits.length === 0) return 12.4;
         
-        let validCount = 0;
         const totalDias = audits.reduce((sum, audit) => {
             const inicio = new Date(audit.date_start);
             const fin = new Date(audit.date_end);
-            
-            // Validar que las fechas sean válidas
-            if (isNaN(inicio.getTime()) || isNaN(fin.getTime())) {
-                return sum;
-            }
-            
             const dias = (fin - inicio) / (1000 * 60 * 60 * 24);
-            validCount++;
             return sum + Math.abs(dias);
         }, 0);
         
-        if (validCount === 0) return 12.4;
-        
-        return (totalDias / validCount).toFixed(1);
+        return (totalDias / audits.length).toFixed(1);
     }
     
     /**
@@ -728,13 +693,10 @@ class AnalyticsService {
     async _getTendenciaMensualCompany(year, companyId) {
         const meses = ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'];
         
-        // Convertir companyId a ObjectId para aggregation pipeline
-        const companyObjectId = toObjectId(companyId);
-        
         const results = await Audit.aggregate([
             {
                 $match: {
-                    company: companyObjectId,
+                    company: companyId,
                     createdAt: {
                         $gte: new Date(`${year}-01-01T00:00:00.000Z`),
                         $lte: new Date(`${year}-12-31T23:59:59.999Z`)
@@ -797,14 +759,8 @@ class AnalyticsService {
      * CORREGIDO: Usa retestStatus para calcular remediación
      */
     async _getEntidadesEvaluadas(filter) {
-        // Convertir company a ObjectId si existe
-        const matchFilter = { ...filter };
-        if (matchFilter.company) {
-            matchFilter.company = toObjectId(matchFilter.company);
-        }
-        
         const results = await Audit.aggregate([
-            { $match: matchFilter },
+            { $match: filter },
             {
                 $lookup: {
                     from: 'companies',
@@ -915,149 +871,87 @@ class AnalyticsService {
      * Evaluaciones recientes - Global
      * CORREGIDO: Usar company.name en lugar de client.firstname/lastname
      * AGREGADO: companyId para poder abrir modal de estadísticas
-     * OPTIMIZADO: Usar aggregation pipeline para evitar N+1 queries
      */
-    async _getEvaluacionesRecientes(limit = 10) {
-        // Usar aggregation pipeline para obtener todo en una sola query
-        const results = await Audit.aggregate([
-            { $sort: { createdAt: -1 } },
-            { $limit: limit },
-            {
-                $lookup: {
-                    from: 'companies',
-                    localField: 'company',
-                    foreignField: '_id',
-                    as: 'companyInfo'
-                }
-            },
-            { $unwind: { path: '$companyInfo', preserveNullAndEmptyArrays: true } },
-            {
-                $lookup: {
-                    from: 'auditprocedures',
-                    localField: '_id',
-                    foreignField: 'auditId',
-                    as: 'procedureInfo'
-                }
-            },
-            { $unwind: { path: '$procedureInfo', preserveNullAndEmptyArrays: true } },
-            {
-                $lookup: {
-                    from: 'auditstatus',
-                    localField: '_id',
-                    foreignField: 'auditId',
-                    as: 'statusInfo'
-                }
-            },
-            { $unwind: { path: '$statusInfo', preserveNullAndEmptyArrays: true } },
-            {
-                $project: {
-                    _id: 1,
-                    companyId: '$companyInfo._id',
-                    companyName: '$companyInfo.name',
-                    companyShortName: '$companyInfo.shortName',
-                    createdAt: 1,
-                    origen: '$procedureInfo.origen',
-                    notaExterna: '$procedureInfo.notaExterna',
-                    citeInforme: '$procedureInfo.informe.cite',
-                    status: '$statusInfo.status'
-                }
-            }
-        ]);
+    async _getEvaluacionesRecientes() {
+        const audits = await Audit.find()
+            .sort({ createdAt: -1 })
+            .populate('company', 'name shortName')
+            .select('name createdAt company');
         
-        return results.map(audit => ({
-            id: audit._id,
-            companyId: audit.companyId || null,
-            entidad: audit.companyName || audit.companyShortName || 'Sin entidad',
-            tipo: audit.origen || 'Sin tipo',
-            estado: audit.status || 'Sin estado',
-            fechaInicio: audit.createdAt ? audit.createdAt.toISOString().split('T')[0] : 'N/A',
-            notaExterna: audit.notaExterna || null,
-            citeInforme: audit.citeInforme || null
-        }));
+        // Enriquecer con datos de AuditProcedure y AuditStatus
+        const evaluacionesConDatos = await Promise.all(
+            audits.map(async (audit) => {
+                const procedure = await AuditProcedure.findOne({ auditId: audit._id })
+                    .select('origen notaExterna informe');
+                
+                const status = await AuditStatus.findOne({ auditId: audit._id })
+                    .select('status');
+                
+                return {
+                    id: audit._id,
+                    companyId: audit.company?._id || null,
+                    entidad: audit.company?.name || audit.company?.shortName || 'Sin entidad',
+                    tipo: procedure?.origen || 'Sin tipo',
+                    estado: status?.status || 'Sin estado',
+                    fechaInicio: audit.createdAt.toISOString().split('T')[0],
+                    notaExterna: procedure?.notaExterna || null,
+                    citeInforme: procedure?.informe?.cite || null
+                };
+            })
+        );
+        
+        return evaluacionesConDatos;
     }
     
     /**
      * Evaluaciones recientes - Por compañía
      * CORREGIDO: Usar company.name en lugar de client
-     * OPTIMIZADO: Usar aggregation pipeline para evitar N+1 queries
      */
-    async _getEvaluacionesRecientesCompany(companyId, limit = 10) {
-        // Convertir companyId a ObjectId para aggregation pipeline
-        const companyObjectId = toObjectId(companyId);
+    async _getEvaluacionesRecientesCompany(companyId) {
+        const audits = await Audit.find({ company: companyId })
+            .sort({ createdAt: -1 })
+            .populate('company', 'name shortName')
+            .select('name createdAt company');
         
-        const results = await Audit.aggregate([
-            { $match: { company: companyObjectId } },
-            { $sort: { createdAt: -1 } },
-            { $limit: limit },
-            {
-                $lookup: {
-                    from: 'companies',
-                    localField: 'company',
-                    foreignField: '_id',
-                    as: 'companyInfo'
-                }
-            },
-            { $unwind: { path: '$companyInfo', preserveNullAndEmptyArrays: true } },
-            {
-                $lookup: {
-                    from: 'auditprocedures',
-                    localField: '_id',
-                    foreignField: 'auditId',
-                    as: 'procedureInfo'
-                }
-            },
-            { $unwind: { path: '$procedureInfo', preserveNullAndEmptyArrays: true } },
-            {
-                $lookup: {
-                    from: 'auditstatus',
-                    localField: '_id',
-                    foreignField: 'auditId',
-                    as: 'statusInfo'
-                }
-            },
-            { $unwind: { path: '$statusInfo', preserveNullAndEmptyArrays: true } },
-            {
-                $project: {
-                    _id: 1,
-                    companyName: '$companyInfo.name',
-                    companyShortName: '$companyInfo.shortName',
-                    createdAt: 1,
-                    origen: '$procedureInfo.origen',
-                    notaExterna: '$procedureInfo.notaExterna',
-                    citeInforme: '$procedureInfo.informe.cite',
-                    status: '$statusInfo.status'
-                }
-            }
-        ]);
+        const evaluacionesConDatos = await Promise.all(
+            audits.map(async (audit) => {
+                const procedure = await AuditProcedure.findOne({ auditId: audit._id })
+                    .select('origen notaExterna informe');
+                
+                const status = await AuditStatus.findOne({ auditId: audit._id })
+                    .select('status');
+                
+                return {
+                    id: audit._id,
+                    entidad: audit.company?.name || audit.company?.shortName || 'Sin entidad',
+                    tipo: procedure?.origen || 'Sin tipo',
+                    estado: status?.status || 'Sin estado',
+                    fechaInicio: audit.createdAt.toISOString().split('T')[0],
+                    notaExterna: procedure?.notaExterna || null,
+                    citeInforme: procedure?.informe?.cite || null
+                };
+            })
+        );
         
-        return results.map(audit => ({
-            id: audit._id,
-            entidad: audit.companyName || audit.companyShortName || 'Sin entidad',
-            tipo: audit.origen || 'Sin tipo',
-            estado: audit.status || 'Sin estado',
-            fechaInicio: audit.createdAt ? audit.createdAt.toISOString().split('T')[0] : 'N/A',
-            notaExterna: audit.notaExterna || null,
-            citeInforme: audit.citeInforme || null
-        }));
+        return evaluacionesConDatos;
     }
     
     /**
      * Alertas activas
-     * CORREGIDO: Mostrar solo vulnerabilidades no remediadas (sin retestStatus='ok')
      */
     async _getAlertasActivas(filter) {
-        const vulnStats = await this._countVulnerabilitiesNoRemediadas(filter);
+        const vulnStats = await this._countVulnerabilities(filter);
         const alertas = [];
         
         if (vulnStats.criticas > 0) {
             alertas.push({
                 tipo: 'critica',
-                mensaje: `${vulnStats.criticas} vulnerabilidades críticas sin remediar detectadas`,
+                mensaje: `${vulnStats.criticas} vulnerabilidades críticas sin mitigar detectadas`,
                 fecha: new Date().toISOString().split('T')[0]
             });
         }
         
-        if (vulnStats.altas > 10) {
+        if (vulnStats.altas > 50) {
             alertas.push({
                 tipo: 'alta',
                 mensaje: `${vulnStats.altas} vulnerabilidades de severidad alta requieren atención`,

@@ -89,9 +89,9 @@ ProcedureTemplateSchema.virtual('fullName').get(function() {
 });
 
 /**
- * Campos para listados
+ * Campos para listados (incluye color para gráficos)
  */
-ProcedureTemplateSchema.statics.listFields = 'name code description isActive createdAt';
+ProcedureTemplateSchema.statics.listFields = 'name code description color isActive createdAt';
 
 /**
  * Método estático: Obtener solo activos

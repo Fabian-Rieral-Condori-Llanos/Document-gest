@@ -52,6 +52,16 @@ router.post(
 );
 
 /**
+ * POST /api/procedure-templates/sync-colors
+ * Sincroniza colores de templates existentes (migración de datos legacy)
+ */
+router.post(
+    '/sync-colors',
+    acl.hasPermission('procedure-templates:admin'),
+    procedureTemplateController.syncColors
+);
+
+/**
  * GET /api/procedure-templates/code/:code
  * Obtiene una plantilla por código
  */

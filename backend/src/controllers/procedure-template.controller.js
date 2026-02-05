@@ -204,6 +204,23 @@ class ProcedureTemplateController {
             return Response.Internal(res, err);
         }
     }
+
+    /**
+     * POST /api/procedure-templates/sync-colors
+     * Sincroniza colores de templates existentes (migración)
+     */
+    async syncColors(req, res) {
+        try {
+            const userId = req.decodedToken.id;
+            
+            const result = await ProcedureTemplateService.syncColors(userId);
+            
+            return Response.Ok(res, result);
+        } catch (err) {
+            console.error('[ProcedureTemplate] Error syncing colors:', err);
+            return Response.Internal(res, err);
+        }
+    }
 }
 
 module.exports = new ProcedureTemplateController();
