@@ -26,8 +26,8 @@ const getConnectionOptions = () => {
  * Obtiene la URI de conexión a MongoDB
  */
 const getDbUri = () => {
-    // const defaultUri = 'mongodb+srv://fabian-DB-new:Qw7f9vH!p6GV9XW3GJFe@cluster0.oizwtoa.mongodb.net/discover?retryWrites=true&w=majority&appName=Cluster0';
-    const defaultUri = '';
+     const defaultUri = 'mongodb+srv://fabian-DB-new:Qw7f9vH!p6GV9XW3GJFe@cluster0.oizwtoa.mongodb.net/discover?retryWrites=true&w=majority&appName=Cluster0';
+//    const defaultUri = '';
     if (process.env.MONGODB_URI || defaultUri) {
         return process.env.MONGODB_URI || defaultUri;
     }

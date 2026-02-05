@@ -1,3 +1,4 @@
+const mongoose = require('mongoose');
 const Audit = require('../models/audit.model');
 const AuditProcedure = require('../models/audit-procedure.model');
 const AuditStatus = require('../models/audit-status.model');
@@ -5,6 +6,14 @@ const Client = require('../models/client.model');
 const Company = require('../models/company.model');
 const Settings = require('../models/settings.model');
 const ProcedureTemplate = require('../models/procedure-template.model');
+
+// Helper para convertir string a ObjectId de forma segura
+const toObjectId = (id) => {
+    if (!id) return null;
+    if (id instanceof mongoose.Types.ObjectId) return id;
+    if (mongoose.Types.ObjectId.isValid(id)) return new mongoose.Types.ObjectId(id);
+    return null;
+};
 
 /**
  * AnalyticsService
@@ -407,7 +416,8 @@ class AnalyticsService {
             matchStage['audit.createdAt'] = filter.createdAt;
         }
         if (filter.company) {
-            matchStage['audit.company'] = filter.company;
+            // Convertir a ObjectId para que funcione en aggregation pipeline
+            matchStage['audit.company'] = toObjectId(filter.company);
         }
         
         const results = await AuditStatus.aggregate([
@@ -515,28 +525,93 @@ class AnalyticsService {
     }
     
     /**
+     * Contar vulnerabilidades NO remediadas desde findings
+     * Solo cuenta las que tienen retestStatus !== 'ok'
+     * Usado para alertas precisas
+     */
+    async _countVulnerabilitiesNoRemediadas(filter) {
+        const audits = await Audit.find(filter).select('findings');
+        
+        let criticas = 0, altas = 0, medias = 0, bajas = 0;
+        
+        audits.forEach(audit => {
+            if (audit.findings && Array.isArray(audit.findings)) {
+                audit.findings.forEach(finding => {
+                    // Solo contar si NO está remediada (retestStatus !== 'ok')
+                    if (finding.retestStatus === 'ok') {
+                        return; // Skip remediadas
+                    }
+                    
+                    const score = this._extractCVSSScore(finding.cvssv3 || finding.cvssv4);
+                    
+                    if (score >= 9.0) criticas++;
+                    else if (score >= 7.0) altas++;
+                    else if (score >= 4.0) medias++;
+                    else if (score > 0) bajas++;
+                });
+            }
+        });
+        
+        return { criticas, altas, medias, bajas };
+    }
+    
+    /**
      * Extraer score aproximado del vector CVSS
-     * El frontend tiene la calculadora completa
+     * Aproximación mejorada basada en componentes CVSS v3/v4
      */
     _extractCVSSScore(cvssVector) {
         if (!cvssVector) return 0;
         
-        // Aproximación basada en componentes críticos
-        if (cvssVector.includes('AV:N') && cvssVector.includes('PR:N')) {
-            if (cvssVector.includes('C:H') && cvssVector.includes('I:H') && cvssVector.includes('A:H')) {
-                return 9.5; // Crítico
-            }
-            if (cvssVector.includes('C:H') || cvssVector.includes('I:H') || cvssVector.includes('A:H')) {
-                return 7.5; // Alto
-            }
-            return 5.0; // Medio
-        }
+        // Extraer componentes del vector
+        const hasNetworkAccess = cvssVector.includes('AV:N');
+        const hasAdjacentAccess = cvssVector.includes('AV:A');
+        const hasLocalAccess = cvssVector.includes('AV:L');
+        const hasPhysicalAccess = cvssVector.includes('AV:P');
         
-        if (cvssVector.includes('AV:L') || cvssVector.includes('PR:H')) {
-            return 4.0; // Bajo
-        }
+        const noPrivsRequired = cvssVector.includes('PR:N');
+        const lowPrivsRequired = cvssVector.includes('PR:L');
+        const highPrivsRequired = cvssVector.includes('PR:H');
         
-        return 3.0; // Info
+        const noUserInteraction = cvssVector.includes('UI:N');
+        
+        const highConfidentiality = cvssVector.includes('C:H');
+        const highIntegrity = cvssVector.includes('I:H');
+        const highAvailability = cvssVector.includes('A:H');
+        
+        const lowConfidentiality = cvssVector.includes('C:L');
+        const lowIntegrity = cvssVector.includes('I:L');
+        const lowAvailability = cvssVector.includes('A:L');
+        
+        // Calcular score aproximado
+        let score = 0;
+        
+        // Factor de acceso (0-3 puntos)
+        if (hasNetworkAccess) score += 3;
+        else if (hasAdjacentAccess) score += 2;
+        else if (hasLocalAccess) score += 1;
+        else if (hasPhysicalAccess) score += 0.5;
+        
+        // Factor de privilegios (0-2 puntos)
+        if (noPrivsRequired) score += 2;
+        else if (lowPrivsRequired) score += 1;
+        else if (highPrivsRequired) score += 0.5;
+        
+        // Factor de interacción (0-1 punto)
+        if (noUserInteraction) score += 1;
+        
+        // Factor de impacto (0-4 puntos)
+        if (highConfidentiality) score += 1.5;
+        else if (lowConfidentiality) score += 0.5;
+        
+        if (highIntegrity) score += 1.5;
+        else if (lowIntegrity) score += 0.5;
+        
+        if (highAvailability) score += 1;
+        else if (lowAvailability) score += 0.3;
+        
+        // Normalizar a escala 0-10
+        // Max teórico: 3 + 2 + 1 + 1.5 + 1.5 + 1 = 10
+        return Math.min(10, Math.max(0, score));
     }
     
     /**
@@ -545,20 +620,30 @@ class AnalyticsService {
     async _calcularTiempoPromedio(filter) {
         const audits = await Audit.find({
             ...filter,
-            date_start: { $exists: true },
-            date_end: { $exists: true }
+            date_start: { $exists: true, $ne: null, $ne: '' },
+            date_end: { $exists: true, $ne: null, $ne: '' }
         }).select('date_start date_end');
         
         if (audits.length === 0) return 12.4;
         
+        let validCount = 0;
         const totalDias = audits.reduce((sum, audit) => {
             const inicio = new Date(audit.date_start);
             const fin = new Date(audit.date_end);
+            
+            // Validar que las fechas sean válidas
+            if (isNaN(inicio.getTime()) || isNaN(fin.getTime())) {
+                return sum;
+            }
+            
             const dias = (fin - inicio) / (1000 * 60 * 60 * 24);
+            validCount++;
             return sum + Math.abs(dias);
         }, 0);
         
-        return (totalDias / audits.length).toFixed(1);
+        if (validCount === 0) return 12.4;
+        
+        return (totalDias / validCount).toFixed(1);
     }
     
     /**
@@ -643,10 +728,13 @@ class AnalyticsService {
     async _getTendenciaMensualCompany(year, companyId) {
         const meses = ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'];
         
+        // Convertir companyId a ObjectId para aggregation pipeline
+        const companyObjectId = toObjectId(companyId);
+        
         const results = await Audit.aggregate([
             {
                 $match: {
-                    company: companyId,
+                    company: companyObjectId,
                     createdAt: {
                         $gte: new Date(`${year}-01-01T00:00:00.000Z`),
                         $lte: new Date(`${year}-12-31T23:59:59.999Z`)
@@ -709,8 +797,14 @@ class AnalyticsService {
      * CORREGIDO: Usa retestStatus para calcular remediación
      */
     async _getEntidadesEvaluadas(filter) {
+        // Convertir company a ObjectId si existe
+        const matchFilter = { ...filter };
+        if (matchFilter.company) {
+            matchFilter.company = toObjectId(matchFilter.company);
+        }
+        
         const results = await Audit.aggregate([
-            { $match: filter },
+            { $match: matchFilter },
             {
                 $lookup: {
                     from: 'companies',
@@ -821,87 +915,149 @@ class AnalyticsService {
      * Evaluaciones recientes - Global
      * CORREGIDO: Usar company.name en lugar de client.firstname/lastname
      * AGREGADO: companyId para poder abrir modal de estadísticas
+     * OPTIMIZADO: Usar aggregation pipeline para evitar N+1 queries
      */
-    async _getEvaluacionesRecientes() {
-        const audits = await Audit.find()
-            .sort({ createdAt: -1 })
-            .populate('company', 'name shortName')
-            .select('name createdAt company');
+    async _getEvaluacionesRecientes(limit = 10) {
+        // Usar aggregation pipeline para obtener todo en una sola query
+        const results = await Audit.aggregate([
+            { $sort: { createdAt: -1 } },
+            { $limit: limit },
+            {
+                $lookup: {
+                    from: 'companies',
+                    localField: 'company',
+                    foreignField: '_id',
+                    as: 'companyInfo'
+                }
+            },
+            { $unwind: { path: '$companyInfo', preserveNullAndEmptyArrays: true } },
+            {
+                $lookup: {
+                    from: 'auditprocedures',
+                    localField: '_id',
+                    foreignField: 'auditId',
+                    as: 'procedureInfo'
+                }
+            },
+            { $unwind: { path: '$procedureInfo', preserveNullAndEmptyArrays: true } },
+            {
+                $lookup: {
+                    from: 'auditstatus',
+                    localField: '_id',
+                    foreignField: 'auditId',
+                    as: 'statusInfo'
+                }
+            },
+            { $unwind: { path: '$statusInfo', preserveNullAndEmptyArrays: true } },
+            {
+                $project: {
+                    _id: 1,
+                    companyId: '$companyInfo._id',
+                    companyName: '$companyInfo.name',
+                    companyShortName: '$companyInfo.shortName',
+                    createdAt: 1,
+                    origen: '$procedureInfo.origen',
+                    notaExterna: '$procedureInfo.notaExterna',
+                    citeInforme: '$procedureInfo.informe.cite',
+                    status: '$statusInfo.status'
+                }
+            }
+        ]);
         
-        // Enriquecer con datos de AuditProcedure y AuditStatus
-        const evaluacionesConDatos = await Promise.all(
-            audits.map(async (audit) => {
-                const procedure = await AuditProcedure.findOne({ auditId: audit._id })
-                    .select('origen notaExterna informe');
-                
-                const status = await AuditStatus.findOne({ auditId: audit._id })
-                    .select('status');
-                
-                return {
-                    id: audit._id,
-                    companyId: audit.company?._id || null,
-                    entidad: audit.company?.name || audit.company?.shortName || 'Sin entidad',
-                    tipo: procedure?.origen || 'Sin tipo',
-                    estado: status?.status || 'Sin estado',
-                    fechaInicio: audit.createdAt.toISOString().split('T')[0],
-                    notaExterna: procedure?.notaExterna || null,
-                    citeInforme: procedure?.informe?.cite || null
-                };
-            })
-        );
-        
-        return evaluacionesConDatos;
+        return results.map(audit => ({
+            id: audit._id,
+            companyId: audit.companyId || null,
+            entidad: audit.companyName || audit.companyShortName || 'Sin entidad',
+            tipo: audit.origen || 'Sin tipo',
+            estado: audit.status || 'Sin estado',
+            fechaInicio: audit.createdAt ? audit.createdAt.toISOString().split('T')[0] : 'N/A',
+            notaExterna: audit.notaExterna || null,
+            citeInforme: audit.citeInforme || null
+        }));
     }
     
     /**
      * Evaluaciones recientes - Por compañía
      * CORREGIDO: Usar company.name en lugar de client
+     * OPTIMIZADO: Usar aggregation pipeline para evitar N+1 queries
      */
-    async _getEvaluacionesRecientesCompany(companyId) {
-        const audits = await Audit.find({ company: companyId })
-            .sort({ createdAt: -1 })
-            .populate('company', 'name shortName')
-            .select('name createdAt company');
+    async _getEvaluacionesRecientesCompany(companyId, limit = 10) {
+        // Convertir companyId a ObjectId para aggregation pipeline
+        const companyObjectId = toObjectId(companyId);
         
-        const evaluacionesConDatos = await Promise.all(
-            audits.map(async (audit) => {
-                const procedure = await AuditProcedure.findOne({ auditId: audit._id })
-                    .select('origen notaExterna informe');
-                
-                const status = await AuditStatus.findOne({ auditId: audit._id })
-                    .select('status');
-                
-                return {
-                    id: audit._id,
-                    entidad: audit.company?.name || audit.company?.shortName || 'Sin entidad',
-                    tipo: procedure?.origen || 'Sin tipo',
-                    estado: status?.status || 'Sin estado',
-                    fechaInicio: audit.createdAt.toISOString().split('T')[0],
-                    notaExterna: procedure?.notaExterna || null,
-                    citeInforme: procedure?.informe?.cite || null
-                };
-            })
-        );
+        const results = await Audit.aggregate([
+            { $match: { company: companyObjectId } },
+            { $sort: { createdAt: -1 } },
+            { $limit: limit },
+            {
+                $lookup: {
+                    from: 'companies',
+                    localField: 'company',
+                    foreignField: '_id',
+                    as: 'companyInfo'
+                }
+            },
+            { $unwind: { path: '$companyInfo', preserveNullAndEmptyArrays: true } },
+            {
+                $lookup: {
+                    from: 'auditprocedures',
+                    localField: '_id',
+                    foreignField: 'auditId',
+                    as: 'procedureInfo'
+                }
+            },
+            { $unwind: { path: '$procedureInfo', preserveNullAndEmptyArrays: true } },
+            {
+                $lookup: {
+                    from: 'auditstatus',
+                    localField: '_id',
+                    foreignField: 'auditId',
+                    as: 'statusInfo'
+                }
+            },
+            { $unwind: { path: '$statusInfo', preserveNullAndEmptyArrays: true } },
+            {
+                $project: {
+                    _id: 1,
+                    companyName: '$companyInfo.name',
+                    companyShortName: '$companyInfo.shortName',
+                    createdAt: 1,
+                    origen: '$procedureInfo.origen',
+                    notaExterna: '$procedureInfo.notaExterna',
+                    citeInforme: '$procedureInfo.informe.cite',
+                    status: '$statusInfo.status'
+                }
+            }
+        ]);
         
-        return evaluacionesConDatos;
+        return results.map(audit => ({
+            id: audit._id,
+            entidad: audit.companyName || audit.companyShortName || 'Sin entidad',
+            tipo: audit.origen || 'Sin tipo',
+            estado: audit.status || 'Sin estado',
+            fechaInicio: audit.createdAt ? audit.createdAt.toISOString().split('T')[0] : 'N/A',
+            notaExterna: audit.notaExterna || null,
+            citeInforme: audit.citeInforme || null
+        }));
     }
     
     /**
      * Alertas activas
+     * CORREGIDO: Mostrar solo vulnerabilidades no remediadas (sin retestStatus='ok')
      */
     async _getAlertasActivas(filter) {
-        const vulnStats = await this._countVulnerabilities(filter);
+        const vulnStats = await this._countVulnerabilitiesNoRemediadas(filter);
         const alertas = [];
         
         if (vulnStats.criticas > 0) {
             alertas.push({
                 tipo: 'critica',
-                mensaje: `${vulnStats.criticas} vulnerabilidades críticas sin mitigar detectadas`,
+                mensaje: `${vulnStats.criticas} vulnerabilidades críticas sin remediar detectadas`,
                 fecha: new Date().toISOString().split('T')[0]
             });
         }
         
-        if (vulnStats.altas > 50) {
+        if (vulnStats.altas > 10) {
             alertas.push({
                 tipo: 'alta',
                 mensaje: `${vulnStats.altas} vulnerabilidades de severidad alta requieren atención`,
