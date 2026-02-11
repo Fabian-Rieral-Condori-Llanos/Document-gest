@@ -17,6 +17,8 @@ const DataController = require('./data.controller');
 const BackupController = require('./backup.controller');
 const AuditStatusController = require('./audit-status.controller');
 const AuditProcedureController = require('./audit-procedure.controller');
+const AnalyticsController = require('./analytics.controller');
+const AnalyticsPermissionController = require('./analytics-permission.controller');
 
 module.exports = {
     UserController,
@@ -31,5 +33,7 @@ module.exports = {
     BackupController,
 
     AuditStatusController,
-    AuditProcedureController
+    AuditProcedureController,
+    AnalyticsController,
+    AnalyticsPermissionController
 };

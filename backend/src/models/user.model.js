@@ -74,7 +74,15 @@ const UserSchema = new Schema({
         type: Boolean,
         default: true
     },
-    refreshTokens: [RefreshTokenSchema]
+    refreshTokens: [RefreshTokenSchema],
+    
+    /**
+     * Referencia a permisos de analytics (para usuarios con rol 'analyst')
+     */
+    analyticsPermissions: {
+        type: Schema.Types.ObjectId,
+        ref: 'AnalyticsPermission'
+    }
 }, {
     timestamps: true,  // Agrega createdAt y updatedAt
     toJSON: {

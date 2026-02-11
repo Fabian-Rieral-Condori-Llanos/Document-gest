@@ -146,4 +146,11 @@ router.put('/:id',
     asyncHandler(UserController.update)
 );
 
+// Toggle enabled/disabled
+router.patch('/:id/toggle-enabled',
+    verifyToken,
+    acl.hasPermission('users:update'),
+    asyncHandler(UserController.toggleEnabled)
+);
+
 module.exports = router;

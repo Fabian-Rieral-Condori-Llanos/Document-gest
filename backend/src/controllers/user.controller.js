@@ -368,6 +368,29 @@ class UserController {
             Response.Internal(res, err);
         }
     }
+
+    /**
+     * PATCH /api/users/:id/toggle-enabled
+     * Toggle enabled/disabled de un usuario
+     */
+    static async toggleEnabled(req, res) {
+        try {
+            const { id } = req.params;
+            const { enabled } = req.body;
+            
+            if (typeof enabled !== 'boolean') {
+                return Response.BadParameters(res, 'enabled must be a boolean');
+            }
+            
+            const user = await UserService.toggleEnabled(id, enabled);
+            
+            console.log(`[UserController] User ${id} enabled set to ${enabled}`);
+            
+            Response.Ok(res, user);
+        } catch (err) {
+            Response.Internal(res, err);
+        }
+    }
 }
 
 module.exports = UserController;

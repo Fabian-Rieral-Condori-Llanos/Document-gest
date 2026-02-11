@@ -21,6 +21,7 @@ const BackupService = require('./backup.service');
 const AuditStatusService = require('./audit-status.service');
 const AuditVerificationService = require('./audit-verification.service');
 const AuditProcedureService = require('./audit-procedure.service');
+const AnalyticsPermissionService = require('./analytics-permission.service');
 
 module.exports = {
     UserService,
@@ -39,5 +40,6 @@ module.exports = {
 
     AuditStatusService,
     AuditVerificationService,
-    AuditProcedureService
+    AuditProcedureService,
+    AnalyticsPermissionService
 };

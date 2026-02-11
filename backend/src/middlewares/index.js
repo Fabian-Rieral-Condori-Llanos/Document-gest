@@ -54,6 +54,18 @@ const {
     preventClickjacking
 } = require('./security.middleware');
 
+// Analytics Permission Middleware
+const {
+    loadAnalyticsPermissions,
+    verifyCompanyAccess,
+    verifyEndpointAccess,
+    filterResponseSections,
+    fullAnalyticsAuth,
+    attachCompanyFilter,
+    logAnalyticsAccess,
+    requireAnalystRole
+} = require('./analytics-permission.middleware');
+
 module.exports = {
     // Auth
     verifyToken,
@@ -93,5 +105,15 @@ module.exports = {
     sanitizeHeaders,
     createRateLimiter,
     requestLogger,
-    preventClickjacking
+    preventClickjacking,
+
+    // Analytics Permissions
+    loadAnalyticsPermissions,
+    verifyCompanyAccess,
+    verifyEndpointAccess,
+    filterResponseSections,
+    fullAnalyticsAuth,
+    attachCompanyFilter,
+    logAnalyticsAccess,
+    requireAnalystRole
 };

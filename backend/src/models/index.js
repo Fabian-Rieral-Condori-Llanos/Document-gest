@@ -28,6 +28,8 @@ const AlcanceTemplate = require('./alcance-template.model');
 const ReportTemplate = require('./report-template.model');
 const ReportInstance = require('./report-instance.model');
 const Analytics = require('./analytics.model');
+const AnalyticsPermission = require('./analytics-permission.model');
+
 /**
  * Inicializa los modelos y ejecuta cualquier setup necesario
  */
@@ -69,6 +71,7 @@ module.exports = {
     AlcanceTemplate,
     ReportTemplate,
     ReportInstance,
+    AnalyticsPermission,
     
     // Función de inicialización
     initializeModels

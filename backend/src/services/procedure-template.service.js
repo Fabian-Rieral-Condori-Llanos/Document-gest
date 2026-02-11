@@ -199,10 +199,9 @@ class ProcedureTemplateService {
             },
             { $sort: { count: -1 } }
         ]);
-        
+
         // Obtener todas las plantillas
-        const templates = await ProcedureTemplate.find().select('name code isActive');
-        
+        const templates = await ProcedureTemplate.find().select('name code color isActive');
         // Combinar datos
         const stats = templates.map(template => {
             const usage = usageStats.find(u => u._id === template.code);

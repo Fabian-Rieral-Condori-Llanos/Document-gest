@@ -1,34 +1,0 @@
-┌─────────────────────────────────┐
-│  🔒 ACGII                       │  ← Logo
-│  Centro de Gestión...           │
-├─────────────────────────────────┤
-│                                 │
-│  📊 Dashboard                   │  ← /dashboard
-│                                 │
-│  ─── EVALUACIONES ───           │
-│  📋 Evaluaciones                │  ← /audits (listado)
-│  📈 Seguimiento                 │  ← /audit-status (estados)
-│  ✓  Verificaciones              │  ← /audit-verifications
-│  📑 Procedimientos              │  ← /audit-procedures
-│                                 │
-│  ─── VULNERABILIDADES ───       │
-│  🛡️ Base de Conocimiento        │  ← /vulnerabilities ✅
-│                                 │
-│  ─── ENTIDADES ───              │
-│  🏢 Entidades                   │  ← /clients ✅
-│  🏛️ Empresas                    │  ← /companies ✅
-│                                 │
-│  ─── ADMINISTRACIÓN ───         │
-│  👥 Usuarios                    │  ← /users (solo admin) ✅
-│  📄 Plantillas                  │  ← /templates
-│  💾 Backups                     │  ← /backups 
-│                                 │
-│  ─── CONFIGURACIÓN ───          │
-│  ⚙️ Datos del Sistema           │  ← /data (idiomas, tipos, etc) ✅
-│  🔧 Configuración               │  ← /settings ✅
-│                                 │
-├─────────────────────────────────┤
-│  👤 Fabian Morales        ▼     │  ← Desplegable ✅
-│     ├─ Mi Perfil                │  ← /profile ✅
-│     └─ Cerrar Sesión            │  ← logout ✅
-└─────────────────────────────────┘

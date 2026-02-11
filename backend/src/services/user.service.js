@@ -513,6 +513,44 @@ class UserService {
             jsonStream.on('error', reject);
         });
     }
+
+    /**
+     * Toggle enabled/disabled de un usuario
+     * @param {string} userId - ID del usuario
+     * @param {boolean} enabled - Nuevo estado
+     * @returns {Promise<Object>} Usuario actualizado
+     */
+    static async toggleEnabled(userId, enabled) {
+        const user = await User.findById(userId);
+        
+        if (!user) {
+            throw { fn: 'NotFound', message: 'User not found' };
+        }
+        
+        // No permitir desactivar al propio usuario admin
+        if (user.role === 'admin' && !enabled) {
+            // Verificar si hay otros admins activos
+            const activeAdmins = await User.countDocuments({ 
+                role: 'admin', 
+                enabled: true,
+                _id: { $ne: userId }
+            });
+            
+            if (activeAdmins === 0) {
+                throw { fn: 'BadParameters', message: 'Cannot disable the last active admin' };
+            }
+        }
+        
+        user.enabled = enabled;
+        await user.save();
+        
+        // Retornar usuario sin password
+        const userObj = user.toObject();
+        delete userObj.password;
+        delete userObj.totpSecret;
+        
+        return userObj;
+    }
 }
 
 module.exports = UserService;
